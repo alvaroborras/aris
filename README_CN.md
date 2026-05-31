@@ -44,7 +44,7 @@
 >
 > *💡 ARIS 是方法论，不是平台。重要的是科研工作流——带着它去任何地方。🌱*
 
-🛰 **社区好物 · [Claude Fleet](https://github.com/tianyilt/claude-fleet)**（by [@tianyilt](https://github.com/tianyilt)）—— 一个本地**只读**数据看板，同时盯住你开的一堆 **Claude Code / Codex** 窗口：triage（谁在干活 / 等你点权限 / 跑完了）· 一键 **Focus** 跳到对应终端 · ~50ms 全文搜所有 transcript · skill / memory 用量分析。像 ARIS 这种动辄并行一片 agent 的工作流特别合适。ARIS 也回馈了自带的 `focus-tty.sh`（[claude-fleet#1](https://github.com/tianyilt/claude-fleet/pull/1)）。**好用的话点个 ⭐**
+🛰 **社区好物 · [Claude Fleet](https://github.com/tianyilt/claude-fleet)**（by [@tianyilt](https://github.com/tianyilt)）—— 一个本地**只读**数据看板，同时盯住你开的一堆 **Claude Code / Codex** 窗口：triage（谁在干活 / 等你点权限 / 跑完了）· 一键 **Focus** 跳到对应终端 · ~50ms 全文搜所有 transcript · skill / memory 用量分析。像 ARIS 这种动辄并行一片 agent 的工作流特别合适。**好用的话点个 ⭐**
 
 <p align="center">
   <a href="https://github.com/tianyilt/claude-fleet">
@@ -65,8 +65,21 @@ cd claude-fleet && bash run.sh
 
 🔥 [**ARIS-Code CLI — 独立安装版**](docs/ARIS-Code-README_CN.md) · [English](docs/ARIS-Code-README_EN.md) | [⬇️ 下载](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/releases/latest)
 
-> 📰 **ARIS-Code v0.4.5 → v0.4.15** (2026-05) — 11 个 release 的打磨：**新 provider**（DeepSeek V4 Pro / Xiaomi MiMo / Qwen 3.6 / Doubao / Custom OpenAI 兼容 / DashScope）、**推理 + tool-use 一等公民**、**流式 + MCP 可靠性**（关闭 [#228](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/228) / [#151](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/151) / [#172](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/172) / [#249](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/249)）、**安全加固**（system prompt 密钥脱敏；opt-in `sandbox.strictMode`，[#238](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/238)）、**多 provider 计费**、**Skills 包 + drift-CI 同步**，以及一批 bug 修复（[#232](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/232) DeepSeek 弃用、PermissionMode 静默放过、写死日期、reviewer 重置）。逐版本详情见下。贡献者：[@GetIT-Sunday](https://github.com/GetIT-Sunday)、[@Anduin9527](https://github.com/Anduin9527)、[@GO-player-hhy](https://github.com/GO-player-hhy)、[@Jxy-yxJ](https://github.com/Jxy-yxJ)、[@screw-44](https://github.com/screw-44)、[@StevenUST](https://github.com/StevenUST)、[@opposj](https://github.com/opposj)、[@ShijunLei-cn](https://github.com/ShijunLei-cn)、[@algojogacor](https://github.com/algojogacor)。
->
+<table>
+<tr>
+<td valign="top" width="60%">
+
+📰 **ARIS-Code v0.4.5 → v0.4.15** (2026-05) — 11 个 release 的打磨：**新 provider**（DeepSeek V4 Pro / Xiaomi MiMo / Qwen 3.6 / Doubao / Custom OpenAI 兼容 / DashScope）、**推理 + tool-use 一等公民**、**流式 + MCP 可靠性**（关闭 [#228](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/228) / [#151](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/151) / [#172](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/172) / [#249](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/249)）、**安全加固**（system prompt 密钥脱敏；opt-in `sandbox.strictMode`，[#238](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/238)）、**多 provider 计费**、**Skills 包 + drift-CI 同步**，以及一批 bug 修复（[#232](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/232) DeepSeek 弃用、PermissionMode 静默放过、写死日期、reviewer 重置）。逐版本详情见下。贡献者：[@GetIT-Sunday](https://github.com/GetIT-Sunday)、[@Anduin9527](https://github.com/Anduin9527)、[@GO-player-hhy](https://github.com/GO-player-hhy)、[@Jxy-yxJ](https://github.com/Jxy-yxJ)、[@screw-44](https://github.com/screw-44)、[@StevenUST](https://github.com/StevenUST)、[@opposj](https://github.com/opposj)、[@ShijunLei-cn](https://github.com/ShijunLei-cn)、[@algojogacor](https://github.com/algojogacor)。
+
+</td>
+<td valign="top" width="40%">
+
+<img src="docs/aris-code-banner.png" width="100%" alt="ARIS-Code CLI 终端 — Auto Research in Sleep">
+
+</td>
+</tr>
+</table>
+
 > <details><summary>逐版本详情（v0.4.5 → v0.4.15）</summary>
 >
 > **v0.4.15** (2026-05-29) — OpenAI-兼容流式健壮性 hotfix。关闭 [#249](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/249)：MiniMax（及其他 OpenAI-compatible provider / 代理）实际不可用,因为 clean-EOF 完成判定把 `data: [DONE]` 哨兵当成**唯一**权威完成信号。非空 `choices[].finish_reason` 才是 Chat Completions spec 定义的终止帧标志,`[DONE]` 只是部分 compat provider 不发的 transport 约定（MiniMax 发 `finish_reason: "stop"` 然后直接关连接不发 `[DONE]`）。clean-EOF 判定现在抽成可单测纯函数 `stream_eof_action(...)`,见到 `[DONE]` **或** 非空 `finish_reason` 任一即算完成;**不**在 finish_reason 处提前停读（include_usage 尾随 usage-only chunk 仍消费）;真截断仍硬报错,出输出前 proxy abort 仍重试。配套：**OE7** finish_reason 移到 `delta` guard 前读（只带 finish_reason 无 delta 的终止 choice）；**OE2** 任何非空 finish_reason 都 flush pending tool；**OE4** mid-stream error 信封硬报错不再静默吞；**OE3** 容忍 `data:{...}` 冒号后无空格。+5 单测（77→82）把此前零覆盖的 SSE 完成逻辑抽成纯函数。Anthropic SSE 路径未动。Codex MCP（gpt-5.5 xhigh）3 轮（GO-WITH-NITS → GO-WITH-NITS → GO）。
@@ -201,7 +214,7 @@ ARIS 读论文 → 找弱点 → 克隆代码 → 针对*那些*弱点用*那套
 
 ## 2. 📢 最近更新
 
-- **2026-05-31** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🤝 **社区好物 —— 两个值得一看的工具。** [**Claude Fleet**](https://github.com/tianyilt/claude-fleet)（[@tianyilt](https://github.com/tianyilt)）—— 本地只读看板，同时 triage / Focus / 全文搜你开的一堆 **Claude Code + Codex** 窗口（ARIS 回馈了自带的 [`focus-tty.sh`](https://github.com/tianyilt/claude-fleet/pull/1)）。[**posterly**](https://github.com/Chenruishuo/posterly)（[@Chenruishuo](https://github.com/Chenruishuo)）—— 一个 Claude Code skill，把学术会议海报做成单个 HTML/CSS 文件 → 可印刷 PDF（headless Chromium，无需 LaTeX）。两个都收录在 [Awesome 社区](#awesome-community-skills)。觉得有用 🌟 一下。
+- **2026-05-31** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🤝 **社区好物 —— 两个值得一看的工具。** [**Claude Fleet**](https://github.com/tianyilt/claude-fleet)（[@tianyilt](https://github.com/tianyilt)）—— 本地只读看板，同时 triage / Focus / 全文搜你开的一堆 **Claude Code + Codex** 窗口。[**posterly**](https://github.com/Chenruishuo/posterly)（[@Chenruishuo](https://github.com/Chenruishuo)）—— 一个 Claude Code skill，把学术会议海报做成单个 HTML/CSS 文件 → 可印刷 PDF（headless Chromium，无需 LaTeX）。两个都收录在 [Awesome 社区](#awesome-community-skills)。觉得有用 🌟 一下。
 - **2026-05-29** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) ⚙️ **ultracode 原生约定层 —— 任意运行时档位都能 fan out 拓宽广度，跨模型裁判席始终神圣不可侵犯**。三个新 [`shared-references`](skills/shared-references/) 文档把*广度*和*裁决*解耦：[`fan-out-pattern.md`](skills/shared-references/fan-out-pattern.md)（skill 用同家族 Claude subagent 生成候选 —— Tier-1 Workflow / Tier-2 Agent / Tier-3 顺序 —— 全部汇入*同一个*跨模型裁判席），[`acceptance-gate.md`](skills/shared-references/acceptance-gate.md)（"loop 可以 DRIVE，不能 ACQUIT" —— 可自判执行完成度，绝不可自判质量/正确性），[`external-cadence.md`](skills/shared-references/external-cadence.md)（`/loop` 和 `CronCreate` 只是 fire-control，绝非裁判席）。已接入 `/idea-creator`、`/research-lit`、`/proof-checker`、`/kill-argument`（fan-out）+ 16 个 skill（cadence fence/affordance）。另外：清理 48 个 vestigial `Agent` grant（最小权限 + drift 守卫），修掉 `/idea-creator` 的同家族 idea 预筛，并校正 `/auto-review-loop` 的 `OR`→`AND` 停止条件矛盾。**没有 ultracode 的用户也立刻受益** —— fan-out 退化成顺序执行，最终裁判席不变。
 - **2026-05-28** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📝 **首篇 blog 上线**：[A Survey on Continuous DLM (2026 H1, 6 papers)](https://wanshuiyin.github.io/ARIS-in-AI-Offer/blogs/continuous_dlm_2026h1_survey.html) —— Ruofeng Yang (SJTU) 写的 long-form 双语技术综述，全程通过 ARIS-in-AI-Offer workflow 完成（Claude Opus 4.7 + Codex GPT-5.5 xhigh + Gemini auto-gemini-3 跨模型讨论）。对比 ELF / 字节 Cola-DLM / Flow-Matching 系列：discrete-DLM 的问题、"known-unknown" 连续空间思路、训练 pipeline、架构 / 参数 / shapes、推理 grids + Tab 6/7 数值结果、去噪轨迹、对比 Cola-DLM 的 Field Landscape。文件 [`docs/blogs/continuous_dlm_2026h1_survey.html`](docs/blogs/continuous_dlm_2026h1_survey.html)（1.7 MB 自含，无 build）—— 展示 `/render-html` toolchain 能产出的 long-form 研究分析深度。
 - **2026-05-26** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🌐 **8 个 workflow 关键节点自动出 HTML view**。`/idea-discovery`、`/auto-review-loop`、`/research-pipeline`、`/kill-argument`、`/proof-checker`、`/paper-claim-audit`、`/citation-audit`、`/rebuttal` 跑完会自动调 [`/render-html`](skills/render-html/SKILL.md) 把主 MD 工件渲染成单文件 HTML。成本分层：interim view 用 `--no-review`，audit / reviewer-facing 交付物保留 full Codex render-fidelity gate。默认开（`RENDER_HTML = true`），每个 skill 可单独 opt-out。失败非阻塞 —— MD 源始终是 canonical。
@@ -549,7 +562,7 @@ ARIS 全流程完成并进入投稿/审稿阶段的真实项目。**这里不宣
 | 📚 [paper-to-course](https://github.com/KaguraTart/paper-to-course) | 教育 | 论文转交互式课程——PDF/LaTeX 论文自动转为六模块 HTML 课程，含公式拆解、文献时间线、测验、术语提示。单文件打包，无需服务器 |
 | 🔎 [deep-research-skills](https://github.com/Weizhena/deep-research-skills) | 通用 / Web 搜索 | 模块化 web 搜索策略包——按源拆分独立模块：Stack Overflow / GitHub Issues 错误串调试 / 中文技术社区（CSDN / 掘金 / 知乎 / V2EX / 腾讯阿里云社区）/ 通用 Web（Reddit / HN / Dev.to / Medium）。补 ARIS [`/research-lit`](skills/research-lit/SKILL.md) 以学术源为主的栈，给**非学术**场景（调试、版本兼容追踪、中文技术检索）提供查询策略。by [@Weizhena](https://github.com/Weizhena) |
 | 🖼️ [posterly](https://github.com/Chenruishuo/posterly) | 通用 / 海报 | 把学术会议海报做成**单个 HTML/CSS 文件 → 可印刷 PDF**（headless Chromium，无需 LaTeX）。一个 Claude Code skill——`/paper-poster` 的轻量、Web 原生替代。by [@Chenruishuo](https://github.com/Chenruishuo) |
-| 🛰️ [Claude Fleet](https://github.com/tianyilt/claude-fleet) | 看板 / DevEx | 本地**只读**看板，同时盯住一堆并行的 Claude Code / Codex 窗口——triage（干活 / 等你 / 跑完）、一键 Focus、~50ms 全文搜 transcript、skill/memory 用量分析。ARIS 回馈了自带的 `focus-tty.sh`。by [@tianyilt](https://github.com/tianyilt) |
+| 🛰️ [Claude Fleet](https://github.com/tianyilt/claude-fleet) | 看板 / DevEx | 本地**只读**看板，同时盯住一堆并行的 Claude Code / Codex 窗口——triage（干活 / 等你 / 跑完）、一键 Focus、~50ms 全文搜 transcript、skill/memory 用量分析。by [@tianyilt](https://github.com/tianyilt) |
 
 </details>
 
