@@ -23,7 +23,7 @@ Do not trace purely informational agent calls that are not acting as reviewers.
 
 ## How to Trace
 
-After each reviewer call, save the trace using `save_trace.sh`,
+After each reviewer call — including every FAILED attempt in a capability-fallback chain (one entry per attempt, with status + fallback reason) — save the trace using `save_trace.sh`,
 resolved through the canonical helper chain (see
 `integration-contract.md` §2 — failure policy C, "forensic helper").
 A Codex-side SKILL must NOT hard-code `tools/save_trace.sh`; instead
@@ -66,7 +66,7 @@ the resolver returns the empty string, write the four files inline
   "purpose": "round-1-review",
   "timestamp": "2026-04-15T14:31:00+08:00",
   "tool": "spawn_agent",
-  "model": "gpt-5.5",
+  "model": "gpt-5.6-sol",
   "reasoning_effort": "xhigh",
   "files_referenced": ["paper/sections/3_method.tex", "results/table1.csv"],
   "prompt": "<full prompt text>"
@@ -83,7 +83,7 @@ the resolver returns the empty string, write the four files inline
   "purpose": "round-1-review",
   "timestamp": "2026-04-15T14:33:00+08:00",
   "agent_id": "019d8fe0-b25d-...",
-  "model": "gpt-5.5",
+  "model": "gpt-5.6-sol",
   "duration_ms": 142000,
   "status": "ok"
 }
