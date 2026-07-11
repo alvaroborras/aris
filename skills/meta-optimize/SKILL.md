@@ -68,7 +68,7 @@ Inspired by Meta-Harness (Lee et al., 2026): the key insight is that harness des
 
 ## Prerequisites
 
-1. **Logging must be active.** Copy `templates/claude-hooks/meta_logging.json` into your project's `.claude/settings.json` (or merge the hooks section).
+1. **Logging must be active.** Claude projects can merge `templates/claude-hooks/meta_logging.json`; managed Codex projects are configured automatically by `install_aris_codex.sh` with `.codex/hooks.json`. Review and trust project hooks with `/hooks`, or use `--no-meta-hooks` as an explicit opt-out.
 2. **Sufficient data.** At least 5 complete workflow runs logged in `.aris/meta/events.jsonl`. The skill will check and warn if insufficient.
 
 ## Workflow
@@ -380,9 +380,9 @@ The log at `.aris/meta/events.jsonl` contains JSONL records with these shapes:
 
 This skill is NOT part of the standard W1→W1.5→W2→W3→W4 pipeline. It is a **maintenance workflow** with three trigger mechanisms:
 
-1. **Passive logging** (always on): Claude Code hooks record events to `.aris/meta/events.jsonl` automatically during normal usage. Zero user effort.
+1. **Passive logging** (always on after setup): Claude and Codex hooks record events to `.aris/meta/events.jsonl` and `~/.aris/meta/events.jsonl`. The shared adapter normalizes `$skill` prompts, tool calls/failures, model/session changes, and stops into the existing schema.
 
-2. **Automatic readiness check** (SessionEnd hook): When a Claude Code session ends, `check_ready.sh` counts skill invocations since the last `/meta-optimize` run. If ≥5 new invocations have accumulated, it prints a reminder:
+2. **Automatic readiness check** (`Stop` for Codex, `SessionEnd` for Claude): Codex `Stop` runs after every turn, so reminders are deduplicated and emitted only as valid `{"systemMessage":"..."}` hook JSON:
    ```
    📊 ARIS has logged 8 skill runs since last optimization. Run /meta-optimize to check for improvement opportunities.
    ```

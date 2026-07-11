@@ -38,6 +38,12 @@ This creates a flat managed layout:
 AGENTS.md   # managed Codex block
 ```
 
+Managed installs also add project-local `.codex/hooks.json` and a launcher under
+`.codex/hooks/`. These record ARIS usage for `$meta-optimize` and protect common
+Bash corpus writes. Start Codex and run `/hooks` to review and trust the new or
+changed project hooks; Codex does not trust them automatically. Pass
+`--no-meta-hooks` when installing if this behavior is intentionally disabled.
+
 Reconcile after upstream changes:
 
 ```bash

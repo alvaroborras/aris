@@ -1,0 +1,9 @@
+{
+  "hooks": {
+    "SessionStart": [{"matcher": "startup|resume|clear|compact", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/tools/meta_opt/hook_adapter.py\" --mode logger"}]}],
+    "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/tools/meta_opt/hook_adapter.py\" --mode logger"}]}],
+    "PostToolUse": [{"hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/tools/meta_opt/hook_adapter.py\" --mode logger"}]}],
+    "Stop": [{"hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/tools/meta_opt/hook_adapter.py\" --mode readiness"}]}],
+    "PreToolUse": [{"matcher": "^Bash$", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/tools/meta_opt/hook_adapter.py\" --mode guard"}]}]
+  }
+}

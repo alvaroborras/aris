@@ -72,14 +72,12 @@ per patch (`PASS → eligible` / `KILL → refused: <reason>`).
 > human read the REPORT — **ignore it for the landing decision.** Only this fresh verdict
 > counts.
 
-### Step 2: Land the survivors (Write/Edit only — never Bash)
+### Step 2: Land the survivors (Codex `apply_patch` / Claude Write/Edit — never Bash)
 
 For each patch that PASSED Step 1 **and** was named by the user:
 
-1. **Back up** the target to `.aris/meta/backups/<date>/<target>` (use the **Write** tool
-   to copy contents; corpus paths are not Bash-writable when `corpus_write_guard` is
-   active — and the applier should use Write/Edit for corpus mutation anyway).
-2. **Apply** the diff by **Edit/Write** on the target corpus file.
+1. **Back up** the target to `.aris/meta/backups/<date>/<target>` using the host's file-edit operation.
+2. **Apply** the diff with Codex `apply_patch` (or Claude **Edit/Write**) on the target corpus file.
 3. **Stamp provenance** on the changed file:
    ```bash
    python3 "$PROVENANCE" stamp "$TARGET" --author "$AUTHOR" \
@@ -119,11 +117,12 @@ auto-curator reads it as evidence):
   survivors, never resurrects a KILL.
 - **Cross-family or refuse.** `assert_cross_family` must not raise. A
   `deterministic:<verifier>` reviewer is valid per skill-governance.md.
-- **Corpus mutation goes through Write/Edit** (reviewable, attributable), not Bash. The
-  `corpus_write_guard` hook (if installed) additionally denies Bash corpus writes — it
-  does NOT gate Write/Edit, so it does not by itself stop this skill from editing the
-  corpus; the jury-at-landing + stamp discipline above is what governs Write/Edit
-  mutations (that discipline is procedure, not a hook-enforced mechanism).
+- **Corpus mutation goes through Codex `apply_patch` or Claude Write/Edit** (reviewable,
+  attributable), not Bash. The
+  `corpus_write_guard` hook (if installed) additionally denies common Bash corpus
+  writes — it does NOT gate `apply_patch`/Write/Edit, so it is not a complete sandbox;
+  the jury-at-landing + stamp discipline above is what governs those mutations
+  (that discipline is procedure, not a hook-enforced mechanism).
 - **Back up before every mutation.** Reversible by construction.
 - **Only land staged patches.** Applies what producers staged in `.aris/meta/pending/`;
   invents nothing of its own.

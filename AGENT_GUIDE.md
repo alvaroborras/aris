@@ -157,6 +157,7 @@ Skills communicate through plain-text files in known locations:
 | `.aris/edit_whitelist.yaml` | human / `/resubmit-pipeline` | `/auto-paper-improvement-loop --edit-whitelist` |
 | `research-wiki/` | `/research-wiki` | `/idea-creator`, `/research-lit`, `/result-to-claim` |
 | `.aris/meta/events.jsonl` | hooks (passive logging) | `/meta-optimize` |
+| `.codex/hooks.json` | trusted project-local Codex hooks | usage logging, Bash corpus guard |
 | `.aris/traces/<skill>/<date>_run<NN>/` | reviewer-class skills | audit / forensic replay |
 
 ## Helper Resolution (writing new skills)

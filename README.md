@@ -402,6 +402,9 @@ bash tools/smart_update.sh --apply   # updates safe skills, flags your personal 
 
 # Optional Codex mirror managed project install
 bash tools/install_aris_codex.sh ~/your-codex-project
+# Review and trust the newly installed project hooks inside Codex:
+# /hooks
+# Use --no-meta-hooks to opt out explicitly.
 
 # Managed Codex project update
 cd Auto-claude-code-research-in-sleep && git pull
@@ -1280,6 +1283,11 @@ claude   # hooks active immediately
 ```
 
 </details>
+
+Managed Codex installs configure `.codex/hooks.json` automatically. Codex requires
+explicit trust for project hooks: run `/hooks` after installation or reconciliation.
+The hooks write normalized events to the same project/global logs as Claude and use
+`Stop` for a deduplicated readiness reminder.
 
 **How it works:**
 

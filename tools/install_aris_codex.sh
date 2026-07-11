@@ -29,6 +29,7 @@
 #   --dry-run                        show plan, no writes
 #   --quiet                          no prompts
 #   --no-doc                         skip AGENTS.md managed block update
+#   --no-meta-hooks                  do not install ARIS Codex lifecycle hooks
 #   --replace-link NAME              replace a conflicting symlink for NAME
 #   --clear-stale-lock               clear a stale installer lock
 
@@ -45,6 +46,7 @@ BLOCK_BEGIN="<!-- ARIS-CODEX:BEGIN -->"
 BLOCK_END="<!-- ARIS-CODEX:END -->"
 SAFE_NAME_REGEX='^[A-Za-z0-9][A-Za-z0-9._-]*$'
 BASE_PACKAGE="skills-codex"
+INSTALLER_REPO="$(cd "$(dirname "$0")/.." && pwd)"
 
 PROJECT_PATH=""
 ARIS_REPO_OVERRIDE=""
@@ -52,6 +54,7 @@ ACTION="auto"
 DRY_RUN=false
 QUIET=false
 NO_DOC=false
+NO_META_HOOKS=false
 CLEAR_STALE_LOCK=false
 WITH_CLAUDE_OVERLAY=false
 WITH_GEMINI_OVERLAY=false
@@ -69,6 +72,7 @@ while [[ $# -gt 0 ]]; do
         --dry-run) DRY_RUN=true; shift ;;
         --quiet) QUIET=true; shift ;;
         --no-doc) NO_DOC=true; shift ;;
+        --no-meta-hooks) NO_META_HOOKS=true; shift ;;
         --replace-link) REPLACE_LINK_NAMES+=("${2:?--replace-link requires NAME}"); shift 2 ;;
         --clear-stale-lock) CLEAR_STALE_LOCK=true; shift ;;
         -h|--help) usage; exit 0 ;;
@@ -604,6 +608,18 @@ do_uninstall() {
     remove_agents_doc_block
 }
 
+manage_meta_hooks() {
+    local action="install"
+    [[ "$1" == "uninstall" ]] && action="uninstall"
+    [[ "$action" == "install" ]] && $NO_META_HOOKS && return 0
+    local args=("$PROJECT_PATH" "$ARIS_REPO" "--action" "$action")
+    $DRY_RUN && args+=("--dry-run")
+    python3 "$INSTALLER_REPO/tools/meta_opt/manage_codex_hooks.py" "${args[@]}" || die "Codex meta-hook configuration refused; no hook changes were made"
+    if [[ "$action" == "install" ]] && ! $DRY_RUN && ! $QUIET; then
+        log "  ✓ Codex hooks installed; run /hooks in Codex to review and trust them"
+    fi
+}
+
 log ""
 log "ARIS Codex Project Install"
 log "  Project:   $PROJECT_PATH"
@@ -619,6 +635,7 @@ if ! $DRY_RUN; then
 fi
 
 if [[ "$ACTION" == "uninstall" ]]; then
+    manage_meta_hooks uninstall
     do_uninstall
     exit 0
 fi
@@ -657,6 +674,7 @@ if (( N_CHANGES > 0 )); then
 fi
 
 MANIFEST_TMP="$MANIFEST_PATH.tmp.$$"
+manage_meta_hooks install
 write_manifest_tmp "$PLAN_FILE" "$MANIFEST_TMP"
 log ""
 log "Applying:"
