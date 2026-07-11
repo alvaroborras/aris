@@ -4,7 +4,7 @@
 >
 > This guide targets a **macOS local + remote Linux GPU server** setup with the recommended configuration: **Claude Code as executor, Codex MCP (GPT) as reviewer**.
 >
-> English | [中文版](SETUP_GUIDE_CN.md)
+> English guide
 
 ---
 

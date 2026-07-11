@@ -1,6 +1,6 @@
 # Vast.ai On-Demand GPU Integration
 
-> 🇨🇳 中文版：[VAST_GPU_GUIDE_CN.md](VAST_GPU_GUIDE_CN.md)
+> English guide
 > Part of the ARIS [GPU Server Setup](../../README.md#%EF%B8%8F-setup) options. Use this when you don't own a GPU server.
 
 ARIS supports renting GPUs on demand from [Vast.ai](https://vast.ai) — the cheapest spot-rental marketplace for ML hardware. When you run `/run-experiment`, ARIS **analyzes your training task** (model size, dataset, estimated time), searches for the cheapest GPU that fits the workload, and presents options ranked by **estimated total cost** (not just $/hr). After you pick, it handles everything: rent → setup → run → collect results → destroy.

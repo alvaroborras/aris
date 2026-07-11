@@ -1,6 +1,6 @@
 # Zotero Integration (Optional)
 
-> 🇨🇳 中文版：[ZOTERO_CN.md](ZOTERO_CN.md)
+> English guide
 > Plugs into [`/research-lit`](../../skills/research-lit/SKILL.md) and the upstream skills that call it (`/idea-discovery`, `/research-pipeline`).
 
 If you use [Zotero](https://www.zotero.org/) to manage your paper library, `/research-lit` can search your collections, read your annotations/highlights, and export BibTeX — all **before** searching the web. This dramatically improves citation quality because the literature search starts from papers you've already vetted.

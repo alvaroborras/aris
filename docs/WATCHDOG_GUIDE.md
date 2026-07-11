@@ -1,6 +1,6 @@
 # Watchdog Monitoring Guide
 
-[中文版](WATCHDOG_GUIDE_CN.md) | English
+English guide
 
 > Persistent server-side monitoring for ARIS experiments — catch dead sessions, stalled downloads, and idle GPUs without manual polling.
 

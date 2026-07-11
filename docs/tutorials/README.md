@@ -8,7 +8,7 @@ Long-form interview-prep cheat sheets, written in Markdown and rendered to singl
 
 | Tutorial | MD | HTML | Topics |
 |---|---|---|---|
-| **Attention 面试 Cheat Sheet** | [md](attention_tutorial.md) | [html](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/tutorials/attention_tutorial.html) | Scaled-dot-product, MHA / MQA / GQA, RoPE / ALiBi, FlashAttention, KV cache, attention in diffusion, NaN-mask trap |
+| **Attention Interview Cheat Sheet** | [md](attention_tutorial.md) | [html](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/tutorials/attention_tutorial.html) | Scaled-dot-product, MHA / MQA / GQA, RoPE / ALiBi, FlashAttention, KV cache, attention in diffusion, NaN-mask trap |
 | **KL Divergence in RLHF** | [md](kl_divergence_rlhf_tutorial.md) | [html](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/tutorials/kl_divergence_rlhf_tutorial.html) | k1/k2/k3 estimators · forward vs reverse KL · KL in PPO/GRPO/DPO · placement gradient bias · "Rethinking KL" + "Comedy of Estimators" |
 
 ### 🎯 Post-Training & Reasoning
@@ -66,7 +66,7 @@ The two pilots were drafted by hand and rendered via `/render-html`. Subsequent 
 
 `/interview-cheatsheet` ([`skills/interview-cheatsheet/SKILL.md`](../../skills/interview-cheatsheet/SKILL.md)) is an ARIS skill that:
 
-1. Plans a 12-14 section structure (TL;DR · intuition · formula+derivation · from-scratch PyTorch · variants · 25 高频面试题 L1/L2/L3)
+1. Plans a 12-14 section structure (TL;DR · intuition · formula+derivation · from-scratch PyTorch · variants · 25 high-frequency interview questions L1/L2/L3)
 2. Drafts the MD following the canonical style of the two pilot tutorials (heading conventions, table-pipe escapes, callout-list separation rules — all bugs caught during the pilot reviews are now encoded into the style guide)
 3. Cross-model `codex gpt-5.5 xhigh` review on math / code / interview-answer / citation correctness + personal-info redaction (fresh thread, never `codex-reply`)
 4. Fix-and-loop — trajectory-based (no hard cap; stop if same issue recurs or ~6 rounds without convergence)

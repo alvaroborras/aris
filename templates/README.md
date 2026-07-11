@@ -14,13 +14,13 @@ Ready-to-use templates for each ARIS workflow. Copy, fill in your content, and r
 | [CLAUDE_MD_TEMPLATE.md](CLAUDE_MD_TEMPLATE.md) | All Workflows | Project dashboard with Pipeline Status — create once per project |
 | [MANIFEST_TEMPLATE.md](MANIFEST_TEMPLATE.md) | All Workflows | Output tracking manifest — auto-maintained by skills |
 
-### Chinese Templates (中文模板)
+### Chinese-language templates
 
 | Template | For Workflow | What to do |
 |----------|-------------|------------|
-| [RESEARCH_BRIEF_TEMPLATE_CN.md](RESEARCH_BRIEF_TEMPLATE_CN.md) | Workflow 1 | 研究简报中文模板 |
-| [IDEA_CANDIDATES_TEMPLATE_CN.md](IDEA_CANDIDATES_TEMPLATE_CN.md) | Workflow 1 | Idea 候选池中文模板 |
-| [EXPERIMENT_PLAN_TEMPLATE_CN.md](EXPERIMENT_PLAN_TEMPLATE_CN.md) | Workflow 1.5 | 实验计划中文模板 |
+| [RESEARCH_BRIEF_TEMPLATE_CN.md](RESEARCH_BRIEF_TEMPLATE_CN.md) | Workflow 1 | Chinese research brief template |
+| [IDEA_CANDIDATES_TEMPLATE_CN.md](IDEA_CANDIDATES_TEMPLATE_CN.md) | Workflow 1 | Chinese idea candidates template |
+| [EXPERIMENT_PLAN_TEMPLATE_CN.md](EXPERIMENT_PLAN_TEMPLATE_CN.md) | Workflow 1.5 | Chinese experiment plan template |
 
 ### Patent Templates (`/patent-pipeline`)
 
@@ -53,5 +53,5 @@ cp templates/EXPERIMENT_PLAN_TEMPLATE.md refine-logs/EXPERIMENT_PLAN.md
 ```bash
 cp templates/INVENTION_BRIEF_TEMPLATE.md patent/INVENTION_BRIEF.md
 # Edit with your invention details, then:
-/patent-pipeline "patent/INVENTION_BRIEF.md -- CN"
+/patent-pipeline "patent/INVENTION_BRIEF.md"
 ```

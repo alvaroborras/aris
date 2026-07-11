@@ -1183,16 +1183,16 @@ The following items in this cheat sheet are marked **[needs-verify]**; we recomm
 
 | Chinese | English | Meaning |
 |---|---|---|
-| 在线策略蒸馏 | On-Policy Distillation (OPD) | student does KL distillation on its own rollouts |
-| 离线蒸馏 | Off-Policy Distillation | student distills on teacher / dataset data |
-| 暴露偏置 | Exposure Bias | autoregressive train/test distribution mismatch |
-| 反向 KL | Reverse KL | $D(\pi_\theta \,\mid \, \pi_T)$, mode-seeking |
-| 正向 KL | Forward KL | $D(\pi_T \,\mid \, \pi_\theta)$, mode-covering |
-| 模式寻找 | Mode-Seeking | lock onto one mode, sharp output |
-| 模式覆盖 | Mode-Covering | cover all modes, averaged output |
-| 教师强制 | Teacher Forcing | use ground-truth prefix during training |
-| 控制变量 | Control Variate | baseline term used for variance reduction |
-| 截断坍塌 | Truncation Collapse | rollouts grow longer over training, hitting max_length leads to collapse |
-| 局部可教性塌缩 | Local Teachability Collapse | nothing left for teacher to teach on the trajectory's second half |
+| On-policy distillation | On-Policy Distillation (OPD) | student does KL distillation on its own rollouts |
+| Off-policy distillation | Off-Policy Distillation | student distills on teacher / dataset data |
+| Exposure bias | Exposure Bias | autoregressive train/test distribution mismatch |
+| Reverse KL | Reverse KL | $D(\pi_\theta \,\mid \, \pi_T)$, mode-seeking |
+| Forward KL | Forward KL | $D(\pi_T \,\mid \, \pi_\theta)$, mode-covering |
+| Mode-seeking | Mode-Seeking | lock onto one mode, sharp output |
+| Mode-covering | Mode-Covering | cover all modes, averaged output |
+| Teacher forcing | Teacher Forcing | use ground-truth prefix during training |
+| Control variate | Control Variate | baseline term used for variance reduction |
+| Truncation collapse | Truncation Collapse | rollouts grow longer over training, hitting max_length leads to collapse |
+| Local teachability collapse | Local Teachability Collapse | nothing left for teacher to teach on the trajectory's second half |
 
 > ⚠️ **caveat** — OPD as an independent technical term for LLM post-training only became widespread in the **second half of 2025** (Qwen3 + Thinking Machines blog). Before that, the same method had been proposed in MiniLLM (2023) and GKD (2023). So "OPD is a new method" is strictly inaccurate — it is an old method that was renamed and industrialized at scale, benefiting from the reasoning model era's hunger for dense supervision. This historical context is often asked in L3 interviews; please distinguish between "year of method first proposed" and "year of term popularization".

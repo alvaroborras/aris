@@ -1,6 +1,6 @@
 # Feishu / Lark Integration (Optional)
 
-> 🇨🇳 中文版：[FEISHU_CN.md](FEISHU_CN.md)
+> English guide
 > Mobile notifications + interactive approvals from your phone. Built around webhooks (push) and the [feishu-claude-code](https://github.com/joewongjc/feishu-claude-code) bridge (interactive).
 
 Get mobile notifications when experiments finish, reviews score, or checkpoints need your input — without sitting in front of the terminal.
@@ -94,7 +94,7 @@ Everything Push mode does, **plus** bidirectional private chat with Claude Code 
 
 4. Left menu → **Events & Callbacks** → select **Long Connection** mode → add event: `im.message.receive_v1` → save
 
-> ⚠️ **Important**: The "Long Connection" page may show "未检测到应用连接信息" — this is normal. You need to start the bridge first (Step 3), then come back and save.
+> ⚠️ **Important**: The "Long Connection" page may show "No application connection information detected" — this is normal. You need to start the bridge first (Step 3), then come back and save.
 
 5. Left menu → **Version Management** → **Create Version** → fill description → **Submit for Review**
 
@@ -129,7 +129,7 @@ Start the bridge:
 ```bash
 python main.py
 # Expected output:
-# ✅ 连接飞书 WebSocket 长连接（自动重连）...
+# ✅ Connect Feishu WebSocket long connection (auto-reconnect)...
 # [Lark] connected to wss://msg-frontier.feishu.cn/ws/v2?...
 ```
 
@@ -141,14 +141,14 @@ screen -dmS feishu-bridge bash -c 'cd /path/to/feishu-claude-code && source .ven
 
 ### Step 4: Save event config
 
-Go back to Feishu Open Platform → Events & Callbacks → the long connection should now show "已检测到连接" → **Save**.
+Go back to Feishu Open Platform → Events & Callbacks → the long connection should now show "Connection detected" → **Save**.
 
 > If you published the app version before the bridge was running, you may need to create a new version (e.g., 1.0.1) and re-publish after saving event config.
 
 ### Step 5: Test private chat
 
 1. In Feishu, find the bot in your contacts (search by app name)
-2. Send it a message: `你好`
+2. Send it a message: `hello`
 3. It should reply via Claude Code
 
 **If the bot doesn't reply**: Send `/new` to reset the session, then try again. Common issues:
@@ -159,7 +159,7 @@ Go back to Feishu Open Platform → Events & Callbacks → the long connection s
 | Bot replies but doesn't know your project | `DEFAULT_CWD` points to wrong directory | Edit `.env` → restart bridge |
 | Bot replies but seems less capable | Using `claude-sonnet-4-6` | Change to `claude-opus-4-6` in `.env` → restart |
 | Old session has stale context | Session cached from before config change | Send `/new` in chat to start fresh session |
-| "未检测到应用连接信息" when saving events | Bridge not running yet | Start bridge first, then save event config |
+| "No application connection information detected" when saving events | Bridge not running yet | Start bridge first, then save event config |
 
 ### Step 6: Update ARIS config
 

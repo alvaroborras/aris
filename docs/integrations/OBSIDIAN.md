@@ -1,6 +1,6 @@
 # Obsidian + arXiv Integration (Optional)
 
-> 🇨🇳 中文版：[OBSIDIAN_CN.md](OBSIDIAN_CN.md)
+> English guide
 > Plugs into [`/research-lit`](../../skills/research-lit/SKILL.md) and the upstream skills that call it. Pairs naturally with the [Zotero integration](ZOTERO.md).
 
 If you use [Obsidian](https://obsidian.md/) for research notes, `/research-lit` can search your vault for paper summaries, tagged references, and your own insights. These are usually more valuable than raw papers because they already encode your judgments.

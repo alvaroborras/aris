@@ -307,20 +307,6 @@ ARIS skills are plain `SKILL.md` files. They run anywhere an agent reads markdow
 
 ---
 
-## 中文版速览
-
-ARIS（**A**utonomous **R**esearch via Adversarial **M**ulti-Agent Collaboration，**梦中科研**）是一组 79 个可组合的 Claude Code skills，编排**跨模型对抗式协作**：
-
-- **执行**：Claude Code 读文件、写代码、跑实验、改论文
-- **审稿**：GPT-5.6-Sol（via [Codex MCP](https://github.com/openai/codex)）以**跨家族**审稿人身份打分、找弱点、提建议
-- **关键**：每轮 review 用新 thread；执行者绝不审判自己的实验诚实度
-
-七条工作流（W1 / W1.5 / W2 / W3 / W4 / W5 / W6）端到端贯通：找 idea → 实验桥接 → 自动审稿循环 → 写论文 → 写 rebuttal → 跨 venue 移植 → 会议演讲。在真实 ICLR/NeurIPS 投稿上验证过。
-
-> 🆕 **新加入的 skill**：[`/render-html`](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/skills/render-html/SKILL.md) —— 把任何 ARIS 产出的 MD（如 `IDEA_REPORT.md`、`AUTO_REVIEW.md`、`KILL_ARGUMENT.md`）渲染成单文件 HTML，适合给人类读。Markdown 仍是 canonical source，HTML 是 generated view，永远嵌入源 SHA256 + 渲染时间戳防 drift。**academic 模板默认走跨模型 Codex review gate**——同样的 ARIS 不变量。
-
----
-
 ## Get Started
 
 ```bash

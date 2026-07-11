@@ -1,6 +1,6 @@
 # Session Recovery & State Persistence Guide
 
-[中文版](SESSION_RECOVERY_GUIDE_CN.md) | English
+English guide
 
 > How to maintain project state across sessions and context compaction in ARIS workflows — the core design is **Pipeline Status in your project CLAUDE.md**, with optional Claude Code hooks for automation.
 

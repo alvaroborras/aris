@@ -62,10 +62,10 @@ Y. (Independent — medium, US only, mirrors 1)
 
 ## Jurisdiction-Specific Formatting Notes
 
-### CN (Chinese)
-- Use "其特征在于" to separate known and inventive features
-- Method: "一种...的方法，包括：...；其特征在于，还包括：..."
-- Apparatus: "一种...的装置，包括：...；其特征在于，还包括：..."
+### CN
+- Use the two-part form to separate known and inventive features
+- Method: "A method for ..., comprising: ...; characterised in that it further comprises: ..."
+- Apparatus: "A device for ..., comprising: ...; characterised in that it further comprises: ..."
 
 ### US
 - Use "comprising" (open transition)

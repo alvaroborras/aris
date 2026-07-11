@@ -1,6 +1,6 @@
 # Project Files Guide
 
-[中文版](PROJECT_FILES_GUIDE_CN.md) | English
+English guide
 
 > How to organize project-level state files for ARIS research workflows — what each file does, when to write it, and how they relate to each other.
 
