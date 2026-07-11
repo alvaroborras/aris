@@ -14,7 +14,7 @@ ARIS is a research harness: composable Markdown skills that orchestrate the ML r
 | Platform | Skill root | Notes |
 |----------|-----------|-------|
 | Claude Code / Cursor / Trae / Antigravity / Copilot CLI | `skills/<name>/SKILL.md` | Mainline skills; native `SKILL.md` invocation |
-| Codex CLI | `skills/skills-codex/<name>/SKILL.md` | Codex mirror; uses `spawn_agent` instead of `mcp__codex__codex` |
+| Codex CLI / OpenCode project-local | `.agents/skills/<name>/SKILL.md` | Codex mirror; OpenCode can discover it, but Codex-specific reviewer orchestration still needs adaptation |
 | Codex + Claude-review | `skills/skills-codex-claude-review/` | Overlay on top of `skills-codex/` |
 | Codex + Gemini-review | `skills/skills-codex-gemini-review/` | Same pattern, Gemini reviewer |
 
@@ -23,6 +23,11 @@ complete workflows but records `review_independence: same-family` and
 `acceptance_status: provisional`. Claude/Gemini overlays or deterministic
 verifiers may record accepted; never describe base Codex self-review as
 cross-model acceptance.
+
+The repository keeps the Codex mirror canonically under `.agents/skills/` so
+Codex and OpenCode can discover the same project-local skill root. The legacy
+`skills/skills-codex` path is a compatibility symlink for existing installers,
+tests, and documentation.
 
 **Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **79 skills**, grouped by role.
 
