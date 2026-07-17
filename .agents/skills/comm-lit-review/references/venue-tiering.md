@@ -1,5 +1,13 @@
 # Venue Tiering
 
+## Contents
+
+- [Tier A: top journals and top conferences](#tier-a-top-journals-and-top-conferences)
+- [Tier B: mainstream strong venues](#tier-b-mainstream-strong-venues)
+- [Tier C: broad relevant formal venues](#tier-c-broad-relevant-formal-venues)
+- [Escalation rule](#escalation-rule)
+- [Topic-specific notes](#topic-specific-notes)
+
 Use this file to rank communications-domain literature before broadening the search.
 
 The goal is not to claim a universal ranking. The goal is to give the skill a stable, practical search order:

@@ -1,6 +1,6 @@
 ---
-name: "proof-writer"
-description: "Writes rigorous mathematical proofs for ML/AI theory. Use when asked to prove a theorem, lemma, proposition, or corollary, fill in missing proof steps, formalize a proof sketch, \u8865\u5168\u8bc1\u660e, \u5199\u8bc1\u660e, \u8bc1\u660e\u67d0\u4e2a\u547d\u9898, or determine whether a claimed proof can actually be completed under the stated assumptions."
+name: proof-writer
+description: Writes rigorous mathematical proofs for ML/AI theory. Use when asked to prove a theorem, lemma, proposition, or corollary, fill in missing proof steps, formalize a proof sketch, 补全证明, 写证明, 证明某个命题, or determine whether a claimed proof can actually be completed under the stated assumptions.
 ---
 
 # Proof Write: Rigorous Theorem / Lemma Drafting
@@ -12,7 +12,7 @@ Write a mathematically honest proof package, not a polished fake proof.
 - DEFAULT_PROOF_DOC = `PROOF_PACKAGE.md` in project root
 - STATUS = `PROVABLE AS STATED | PROVABLE AFTER WEAKENING / EXTRA ASSUMPTION | NOT CURRENTLY JUSTIFIED`
 
-## Context: $ARGUMENTS
+## Context: the user's request
 
 ## Goal
 

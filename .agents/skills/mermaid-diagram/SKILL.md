@@ -1,6 +1,6 @@
 ---
-name: "mermaid-diagram"
-description: "Generate Mermaid diagrams from user requirements. Save .mmd and .md files to figures/ with syntax verification. Supports flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, and many more diagram types."
+name: mermaid-diagram
+description: Generate Mermaid diagrams from user requirements. Save .mmd and .md files to figures/ with syntax verification. Supports flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, and many more diagram types.
 ---
 
 # Mermaid Diagram Generator
@@ -24,7 +24,7 @@ mkdir -p figures
 
 ### Step 1: Understand Requirements & Select Diagram Type
 
-Parse the input: **$ARGUMENTS**
+Parse the input: **the user's request**
 
 1. Analyze the request and choose the most suitable diagram type
 2. Read the corresponding Mermaid syntax reference below
@@ -376,4 +376,4 @@ figures/
 
 ---
 
-User requirements: $ARGUMENTS
+User requirements: the user's request

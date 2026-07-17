@@ -1,5 +1,13 @@
 # Integration Contract
 
+## Contents
+
+- [Known failure mode (why this contract exists)](#known-failure-mode-why-this-contract-exists)
+- [Required components](#required-components)
+- [Anti-patterns to refuse in review](#anti-patterns-to-refuse-in-review)
+- [Known ARIS integrations under this contract](#known-aris-integrations-under-this-contract)
+- [See Also](#see-also)
+
 When one ARIS skill delegates work to another (or to persistent project
 state), the coupling must be **engineered**, not assumed. This document
 formalizes what every cross-skill integration inside ARIS must provide.
@@ -14,16 +22,16 @@ pressure and the caller has no way to detect it.
 
 Two bugs in the same week, same pathology:
 
-1. **Assurance gate bypass (2026-04-21).** `/paper-writing` ran at
-   `— effort: beast` silently skipped `/proof-checker`,
-   `/paper-claim-audit`, and `/citation-audit` because each phase's
+1. **Assurance gate bypass (2026-04-21).** `$paper-writing` ran at
+   `— effort: beast` silently skipped `$proof-checker`,
+   `$paper-claim-audit`, and `$citation-audit` because each phase's
    content detector could return negative and the outer prose said
    "audit is optional."
-2. **Research wiki ingest no-op (2026-04-21).** `/research-wiki init`
+2. **Research wiki ingest no-op (2026-04-21).** `$research-wiki init`
    created `research-wiki/papers/` but no paper ever landed there:
-   `/arxiv`, `/alphaxiv`, `/deepxiv`, `/semantic-scholar`, `/exa-search`,
-   raw `Read`/`WebFetch` — none carried a wiki-ingest hook, and the two
-   that did (`/research-lit`, `/idea-creator`) only had soft prose
+   `$arxiv`, `$alphaxiv`, `$deepxiv`, `$semantic-scholar`, `$exa-search`,
+   raw `Read`/`web page fetch` — none carried a wiki-ingest hook, and the two
+   that did (`$research-lit`, `$idea-creator`) only had soft prose
    ("optional and automatic").
 
 Both bugs ship through the same gap: **one skill "called" another via
@@ -232,16 +240,17 @@ taxonomy here first if a future helper does not fit.
 | Helper (canonical name) | Policy | Rationale |
 |---|---|---|
 | `verify_paper_audits.sh` | A (gate) | Exit code is the source of truth for submission readiness |
+| `forensics_gate.py` (in `/integrity-forensics`, `/paper-writing` Phase 5.9/6.0, `/resubmit-pipeline`) | A (gate) | Typed policy gate + append-only obligations ledger for the Anti-Autoresearch launcher (deterministic slice in Codex-native sessions); when forensics is in play an unresolved helper blocks the Final Report / Overleaf push (never improvise the gate). `fresh` is the one-command downstream preflight; exit code is the source of truth |
 | `save_trace.sh` | C (forensic) | Trace artifacts are load-bearing for audit traceability |
 | `research_wiki.py ingest_paper` (caller skills) | B (side-effect) | Primary output (idea/paper summary) is delivered without wiki ingestion |
-| `research_wiki.py` (in `/research-wiki` itself) | A (gate) | The SKILL is the wiki tool; missing helper means no functionality |
+| `research_wiki.py` (in `$research-wiki` itself) | A (gate) | The SKILL is the wiki tool; missing helper means no functionality |
 | `verify_wiki_coverage.sh` | E (diagnostic) | Reports coverage gaps; not load-bearing |
 | `verify_papers.py` | D1 (cascade) | Filters candidate papers; when unresolved **or** invocation fails, callers emit a degraded `verified_papers.json` tagging every candidate `status=unverified, method=none` with explicit WARN |
 | `arxiv_fetch.py`, `semantic_scholar_fetch.py`, `deepxiv_fetch.py`, `exa_search.py`, `openalex_fetch.py` | D2 (multi-source aggregate) when SKILL queries multiple sources; D1 (cascade) when a single source suffices | Each fetcher is one paper-discovery source; SKILLs aggregate or cascade across resolved sources |
-| `extract_paper_style.py` | A when activation predicate `literal "— style-ref:" or equivalent in $ARGUMENTS` is true; not invoked otherwise | If the user asked for style transfer, missing helper means SKILL cannot satisfy the request |
+| `extract_paper_style.py` | A when activation predicate `literal "— style-ref:" or equivalent in the user's request` is true; not invoked otherwise | If the user asked for style transfer, missing helper means SKILL cannot satisfy the request |
 | `paper_illustration_image2.py` (`preflight`, `finalize`, `verify`) | A (skill-local gate) | Image2 finalization cannot complete without these checks; verify exits 1 on missing artifacts and that is a skill-local gate (a parent paper-writing workflow may still continue with an alternate illustration path). **Phase 3.2 move**: canonical location is `skills/paper-illustration-image2/scripts/paper_illustration_image2.py`; `tools/paper_illustration_image2.py` retained as `os.execv` shim for legacy resolver layers. |
 | `figure_renderer.py` | A (skill-local gate, single-skill) | `figure-spec` cannot produce vector SVG output without the renderer. **Phase 3.1 move**: canonical location is `skills/figure-spec/scripts/figure_renderer.py`; `tools/figure_renderer.py` retained as `os.execv` shim for legacy resolver layers. |
-| `experiment_queue/queue_manager.py`, `experiment_queue/build_manifest.py` | A (skill-local gate, single-skill) | `/experiment-queue` cannot operate without these. **Phase 3.3 move**: canonical location is `skills/experiment-queue/scripts/{queue_manager.py, build_manifest.py}`; both `tools/experiment_queue/*.py` retained as `os.execv` shims for legacy resolver layers. |
+| `experiment_queue/queue_manager.py`, `experiment_queue/build_manifest.py` | A (skill-local gate, single-skill) | `$experiment-queue` cannot operate without these. **Phase 3.3 move**: canonical location is `skills/experiment-queue/scripts/{queue_manager.py, build_manifest.py}`; both `tools/experiment_queue/*.py` retained as `os.execv` shims for legacy resolver layers. |
 | `overleaf_audit.sh` | E (diagnostic) | Reports overleaf sync drift; surfaces gaps but does not gate the parent workflow |
 
 #### Layer 0 — self-contained owner SKILL (Arch C, Phase 3+)
@@ -288,16 +297,16 @@ the first thing to get skipped.
 
 ```
 📋 Submission audits required before Final Report:
-   [ ] 1. /proof-checker   → paper/PROOF_AUDIT.json
-   [ ] 2. /paper-claim-audit → paper/PAPER_CLAIM_AUDIT.json
-   [ ] 3. /citation-audit  → paper/CITATION_AUDIT.json
+   [ ] 1. $proof-checker   → paper/PROOF_AUDIT.json
+   [ ] 2. $paper-claim-audit → paper/PAPER_CLAIM_AUDIT.json
+   [ ] 3. $citation-audit  → paper/CITATION_AUDIT.json
    [ ] 4. Resolve $AUDIT_VERIFIER via §2 (canonical name verify_paper_audits.sh)
           then: bash "$AUDIT_VERIFIER" paper/ --assurance submission
    [ ] 5. Block Final Report iff verifier exit code != 0
 ```
 
 Cheap, and empirically resists lazy skipping. Skip only for single-step
-invocations (one-off skills like `/arxiv 2501.12345`).
+invocations (one-off skills like `$arxiv 2501.12345`).
 
 ### 5. Backfill / repair command — explicit manual fallback
 
@@ -306,9 +315,9 @@ able to run a command that **declares** the missed inputs and ingests
 them retroactively. Prefer explicit arguments over trace-scanning — the
 helper should not have to guess what to backfill.
 
-- ✅ `/research-wiki sync --arxiv-ids 2501.12345,1706.03762`
-- ✅ `/research-wiki sync --from-file ids.txt`
-- ⚠️ `/research-wiki sync` that scans `.aris/traces/` for arxiv IDs —
+- ✅ `$research-wiki sync --arxiv-ids 2501.12345,1706.03762`
+- ✅ `$research-wiki sync --from-file ids.txt`
+- ⚠️ `$research-wiki sync` that scans `.aris/traces/` for arxiv IDs —
      only as a best-effort secondary mode, not the primary UX, and
      clearly labeled as heuristic.
 

@@ -1,22 +1,24 @@
 ---
 name: semantic-scholar
-description: Search published venue papers (IEEE, ACM, Springer, etc.) via Semantic Scholar API. Complements /arxiv (preprints) with citation counts, venue metadata, and TLDR. Use when user says "search semantic scholar", "find IEEE papers", "find journal papers", "venue papers", "citation search", or wants published literature beyond arXiv preprints.
-argument-hint: query-or-paper-id
-allowed-tools: Bash(*), Read, Write
+description: Search published venue papers (IEEE, ACM, Springer, etc.) via Semantic Scholar API. Complements $arxiv (preprints) with citation counts, venue metadata, and TLDR. Use when user says "search semantic scholar", "find IEEE papers", "find journal papers", "venue papers", "citation search", or wants published literature beyond arXiv preprints.
 ---
 
 # Semantic Scholar Paper Search
 
-Search topic or paper ID: $ARGUMENTS
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `query-or-paper-id`. Do not expect a dedicated argument variable or slash-command parser.
+
+Search topic or paper ID: the user's request
 
 ## Role & Positioning
 
-This skill is the **published venue** counterpart to `/arxiv`:
+This skill is the **published venue** counterpart to `$arxiv`:
 
 | Skill | Source | Best for |
 |-------|--------|----------|
-| `/arxiv` | arXiv API | Latest preprints, cutting-edge unrefereed work |
-| `/semantic-scholar` | Semantic Scholar API | **Published** journal/conference papers (IEEE, ACM, Springer, etc.) with citation counts, venue info, TLDR |
+| `$arxiv` | arXiv API | Latest preprints, cutting-edge unrefereed work |
+| `$semantic-scholar` | Semantic Scholar API | **Published** journal/conference papers (IEEE, ACM, Springer, etc.) with citation counts, venue info, TLDR |
 
 **Do NOT duplicate arXiv's job.** If results contain an `externalIds.ArXiv` field, the paper is also on arXiv — note this but do not re-fetch from arXiv.
 
@@ -32,20 +34,20 @@ This skill is the **published venue** counterpart to `/arxiv`:
   - `--publication-types JournalArticle,Conference`
 
 > Overrides (append to arguments):
-> - `/semantic-scholar "topic" - max: 20` — return up to 20 results
-> - `/semantic-scholar "topic" - type: journal` — only journal articles
-> - `/semantic-scholar "topic" - type: conference` — only conference papers
-> - `/semantic-scholar "topic" - min-citations: 50` — only highly-cited papers
-> - `/semantic-scholar "topic" - year: 2022-` — papers from 2022 onward
-> - `/semantic-scholar "topic" - fields: all` — remove default field-of-study filter
-> - `/semantic-scholar "topic" - sort: citations` — bulk search sorted by citation count
-> - `/semantic-scholar "DOI:10.1109/..."` — fetch a single paper by DOI
+> - `$semantic-scholar "topic" - max: 20` — return up to 20 results
+> - `$semantic-scholar "topic" - type: journal` — only journal articles
+> - `$semantic-scholar "topic" - type: conference` — only conference papers
+> - `$semantic-scholar "topic" - min-citations: 50` — only highly-cited papers
+> - `$semantic-scholar "topic" - year: 2022-` — papers from 2022 onward
+> - `$semantic-scholar "topic" - fields: all` — remove default field-of-study filter
+> - `$semantic-scholar "topic" - sort: citations` — bulk search sorted by citation count
+> - `$semantic-scholar "DOI:10.1109/..."` — fetch a single paper by DOI
 
 ## Workflow
 
 ### Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` for directives:
+Parse `the user's request` for directives:
 
 - **Query or ID**: main search term, or a paper identifier:
   - DOI: `10.1109/TWC.2024.1234567`
@@ -123,7 +125,7 @@ Where PAPER_ID can be:
 ### Step 4: De-duplicate Against arXiv
 
 For each result, check `externalIds.ArXiv`:
-- If present → paper is also on arXiv. Note this in output but do NOT re-fetch via `/arxiv`.
+- If present → paper is also on arXiv. Note this in output but do NOT re-fetch via `$arxiv`.
 - If absent → paper is **venue-only** (e.g. IEEE without preprint). This is the unique value of this skill.
 
 ### Step 5: Present Results
@@ -187,7 +189,7 @@ if [ -d research-wiki/ ]:
 The helper handles slug / dedup / page / index / log — **do not
 handwrite `papers/<slug>.md`**. See
 [`shared-references/integration-contract.md`](../shared-references/integration-contract.md).
-Backfill with `/research-wiki sync --arxiv-ids <id1>,<id2>,...` for
+Backfill with `$research-wiki sync --arxiv-ids <id1>,<id2>,...` for
 arXiv-available papers.
 
 ### Step 8: Final Output
@@ -202,9 +204,9 @@ Summarize what was done:
 Suggest follow-up skills:
 
 ```text
-/arxiv "topic"           - search arXiv preprints (complements this search)
-/research-lit "topic"    - multi-source review: Zotero + local PDFs + arXiv + S2
-/novelty-check "idea"    - verify novelty against literature
+$arxiv "topic"           - search arXiv preprints (complements this search)
+$research-lit "topic"    - multi-source review: Zotero + local PDFs + arXiv + S2
+$novelty-check "idea"    - verify novelty against literature
 ```
 
 ## Key Rules
@@ -216,4 +218,4 @@ Suggest follow-up skills:
 - **Rate limiting**: S2 API without key is heavily rate-limited (~1 req/s, strict cooldown). If HTTP 429 occurs, wait and retry. Recommend users set `SEMANTIC_SCHOLAR_API_KEY` env var for higher limits (free at https://www.semanticscholar.org/product/api#api-key-form).
 - **TLDR may be null**: Some publishers (notably IEEE) elide the TLDR field. Fall back to showing the first sentence of the abstract.
 - **openAccessPdf may be empty**: Many IEEE papers are closed access. Always provide the DOI link as fallback.
-- If the S2 API is unreachable, suggest using `/arxiv` or `/research-lit "topic" - sources: web` as fallback.
+- If the S2 API is unreachable, suggest using `$arxiv` or `$research-lit "topic" - sources: web` as fallback.

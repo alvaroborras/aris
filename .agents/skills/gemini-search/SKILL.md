@@ -1,13 +1,11 @@
 ---
 name: gemini-search
 description: Search research papers via Gemini for broad literature discovery. Use when user says "gemini search", "gemini papers", "search with gemini", or wants AI-powered literature discovery beyond arXiv/Semantic Scholar indexes.
-argument-hint: [search-query]
-allowed-tools: Bash(*), Read, Write, mcp__gemini-cli__*
 ---
 
 # Gemini Literature Search
 
-Search query: $ARGUMENTS
+Search query: the user's request
 
 ## Role & Positioning
 
@@ -15,11 +13,11 @@ This skill uses Gemini as a **broad literature discovery** source:
 
 | Skill | Source | Best for |
 |-------|--------|----------|
-| `/arxiv` | arXiv API | Latest preprints, cutting-edge unrefereed work |
-| `/semantic-scholar` | Semantic Scholar API | Published venue papers (IEEE, ACM, Springer) with citation counts |
-| `/deepxiv` | DeepXiv CLI | Layered reading: search, brief, section map, section reads |
-| `/exa-search` | Exa API | Broad web search: blogs, docs, news, companies, research papers |
-| `/gemini-search` | Gemini MCP / CLI | **AI-powered broad literature discovery** — searches across multiple angles, aliases, and sub-problems |
+| `$arxiv` | arXiv API | Latest preprints, cutting-edge unrefereed work |
+| `$semantic-scholar` | Semantic Scholar API | Published venue papers (IEEE, ACM, Springer) with citation counts |
+| `$deepxiv` | DeepXiv CLI | Layered reading: search, brief, section map, section reads |
+| `$exa-search` | Exa API | Broad web search: blogs, docs, news, companies, research papers |
+| `$gemini-search` | Gemini MCP / CLI | **AI-powered broad literature discovery** — searches across multiple angles, aliases, and sub-problems |
 
 Use Gemini when you want AI-driven discovery that goes beyond keyword matching — Gemini decomposes topics into sub-problems, explores naming variants, and surfaces papers that traditional API searches may miss.
 
@@ -30,13 +28,13 @@ Use Gemini when you want AI-driven discovery that goes beyond keyword matching �
 - **DEFAULT_MODEL = auto-gemini-3** — Auto-routes within the Gemini 3 family (Pro / Flash) by server-side capacity. Required by `mcp__gemini-cli__ask-gemini` and `gemini-cli` v0.40+; explicit `gemini-3-pro-preview` can be silently downgraded to `gemini-2.5-pro` on OAuth-personal / Google One AI Pro accounts when capacity is exhausted. Override with `— model: gemini-3-flash-preview` (Gemini 3 Flash explicit, faster, higher quota), or `— model: gemini-2.5-pro` / `gemini-2.5-flash` (legacy, only for users on older `gemini-cli` < v0.40). The MCP tool accepts all of these verbatim.
 
 > Overrides (append to arguments):
-> - `/gemini-search "topic" — max: 20` — request up to 20 papers
-> - `/gemini-search "topic" — year: 2020-` — papers from 2020 onward
-> - `/gemini-search "topic" — code-only` — only papers with open-source code
-> - `/gemini-search "topic" — venues: NeurIPS,ICML,ICLR` — focus on specific venues
-> - `/gemini-search "topic" — model: gemini-3-flash-preview` — Gemini 3 Flash (faster, higher quota, less capable than Pro)
-> - `/gemini-search "topic" — model: auto-gemini-3` — auto-routes within the Gemini 3 family by load
-> - `/gemini-search "topic" — model: gemini-2.5-pro` — legacy (only if your `gemini-cli` < v0.40)
+> - `$gemini-search "topic" — max: 20` — request up to 20 papers
+> - `$gemini-search "topic" — year: 2020-` — papers from 2020 onward
+> - `$gemini-search "topic" — code-only` — only papers with open-source code
+> - `$gemini-search "topic" — venues: NeurIPS,ICML,ICLR` — focus on specific venues
+> - `$gemini-search "topic" — model: gemini-3-flash-preview` — Gemini 3 Flash (faster, higher quota, less capable than Pro)
+> - `$gemini-search "topic" — model: auto-gemini-3` — auto-routes within the Gemini 3 family by load
+> - `$gemini-search "topic" — model: gemini-2.5-pro` — legacy (only if your `gemini-cli` < v0.40)
 
 ## Environment & Setup
 
@@ -91,7 +89,7 @@ gemini --version
 
 ### Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` for:
+Parse `the user's request` for:
 - **query**: The research topic (required)
 - **max**: Override MAX_RESULTS
 - **year**: Minimum publication year (e.g., `2020-`)
@@ -149,7 +147,7 @@ gemini -p 'You are a research literature scout. Search comprehensively for paper
 - **Stderr**: Pipe to `/dev/null` — contains hook warnings, not part of the response
 
 **When to use which:**
-- MCP is preferred because it integrates natively with Claude Code's tool system, handles model selection, and avoids shell escaping issues.
+- MCP is preferred because it integrates natively with Codex's tool system, handles model selection, and avoids shell escaping issues.
 - CLI fallback ensures the skill works even when MCP is not configured or the MCP server process has crashed.
 
 ### Step 3: Parse Results
@@ -180,7 +178,7 @@ Format results as a structured table:
 ```
 
 For each paper, also show:
-- **arXiv ID**: if available (for cross-reference with `/arxiv`)
+- **arXiv ID**: if available (for cross-reference with `$arxiv`)
 - **DOI**: if available (canonical link for published papers)
 - **Code**: GitHub/GitLab link or "No"
 
@@ -189,17 +187,17 @@ For each paper, also show:
 After presenting results, suggest:
 
 ```text
-/semantic-scholar "topic"    — search published venue papers with citation counts
-/arxiv "arXiv:XXXX.XXXXX"   — fetch specific preprint details
-/research-lit "topic" — sources: gemini, semantic-scholar  — combined multi-source review
-/novelty-check "idea"       — verify novelty against literature
+$semantic-scholar "topic"    — search published venue papers with citation counts
+$arxiv "arXiv:XXXX.XXXXX"   — fetch specific preprint details
+$research-lit "topic" — sources: gemini, semantic-scholar  — combined multi-source review
+$novelty-check "idea"       — verify novelty against literature
 ```
 
 ## Key Rules
 
 - **MCP first, CLI second.** Always try `mcp__gemini-cli__ask-gemini` before falling back to `gemini -p`.
-- **Gemini is a discovery source, not a database.** Its results may include papers it "knows about" from training data. Always cross-verify critical details (exact titles, venues, years) via `/semantic-scholar` or `/arxiv` when precision matters.
+- **Gemini is a discovery source, not a database.** Its results may include papers it "knows about" from training data. Always cross-verify critical details (exact titles, venues, years) via `$semantic-scholar` or `$arxiv` when precision matters.
 - **Do not use Gemini for citation counts.** It may hallucinate citation numbers. Use Semantic Scholar for authoritative citation data.
 - **Pipe stderr to `/dev/null` in CLI mode** — Gemini CLI emits hook warnings on stderr.
 - **Timeout generously in CLI mode** — Gemini's thorough search can take 30-60 seconds. Set timeout to 120s.
-- If both MCP and CLI are unreachable, suggest using `/semantic-scholar`, `/arxiv`, or `/research-lit "topic" — sources: web` as alternatives.
+- If both MCP and CLI are unreachable, suggest using `$semantic-scholar`, `$arxiv`, or `$research-lit "topic" — sources: web` as alternatives.

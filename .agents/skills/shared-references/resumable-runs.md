@@ -1,5 +1,13 @@
 # Resumable Runs
 
+## Contents
+
+- [The one idea that makes this ARIS, not just "reopen the session"](#the-one-idea-that-makes-this-aris-not-just-reopen-the-session)
+- [Who may call accept](#who-may-call-accept)
+- [Helper API / CLI](#helper-api-cli)
+- [Integration pattern for a workflow skill](#integration-pattern-for-a-workflow-skill)
+- [Cross-references](#cross-references)
+
 > **Codex mirror adaptation (normative).** Start Codex runs with
 > `run_state.py start ... --executor codex`. A fresh same-family Codex reviewer
 > records `mark-provisional`, which may close the phase for resume ONLY under
@@ -7,7 +15,7 @@
 > to accepted. Cross-family overlays and deterministic checks continue to use
 > `accept`.
 
-A long ARIS workflow (`/research-pipeline`, `/paper-writing`, `/idea-discovery`)
+A long ARIS workflow (`$research-pipeline`, `$paper-writing`, `$idea-discovery`)
 can fail mid-run — a rate limit, a crash, an overnight timeout. Today there is no
 record of *which phase finished*, so a resume restarts from scratch (this is the
 live complaint in issue #272: "the survey run failed — can it continue from the

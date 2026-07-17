@@ -1,12 +1,20 @@
 # EPO Patent Format Guide
 
+## Contents
+
+- [When to Read](#when-to-read)
+- [Applicable Law](#applicable-law)
+- [Document Structure](#document-structure)
+- [Key EPO-Specific Rules](#key-epo-specific-rules)
+- [PCT Entry into European Phase](#pct-entry-into-european-phase)
+
 Use this reference when drafting European patent applications for filing with the EPO.
 
 ## When to Read
 
 - Read when `JURISDICTION = "EP"` or `JURISDICTION = "ALL"`
 - Read before writing claims in EP format
-- Read during `/jurisdiction-format` for EP output
+- Read during `$jurisdiction-format` for EP output
 
 ## Applicable Law
 

@@ -1,5 +1,16 @@
 # Assurance Contract
 
+## Contents
+
+- [Why a separate axis from effort](#why-a-separate-axis-from-effort)
+- [Assurance Levels](#assurance-levels)
+- [Default Mapping](#default-mapping)
+- [Verdict State Machine](#verdict-state-machine)
+- [Required Audit Artifact Schema](#required-audit-artifact-schema)
+- [Verifier Contract](#verifier-contract)
+- [Subskill Contract](#subskill-contract)
+- [Backward Compatibility](#backward-compatibility)
+
 ARIS audits emit machine-readable verdicts. The `assurance` axis decides whether those verdicts are advisory in draft mode or load-bearing gates in submission mode.
 
 This contract is referenced by `paper-writing`, `paper-claim-audit`, `citation-audit`, `proof-checker`, and the external verifier (canonical name `verify_paper_audits.sh`; callers resolve the actual path via `integration-contract.md` §2).

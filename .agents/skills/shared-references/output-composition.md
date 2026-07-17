@@ -5,8 +5,8 @@
 > parent; only the parent writes shared deliverables. Resolve trace helpers via
 > the Codex manifest and `$ARIS_REPO/tools/`.
 
-When a skill runs **inside an orchestrating pipeline** (e.g. `/idea-discovery`,
-`/research-pipeline`, `/grant-proposal`, `/kill-argument`), its intermediate
+When a skill runs **inside an orchestrating pipeline** (e.g. `$idea-discovery`,
+`$research-pipeline`, `$grant-proposal`, `$kill-argument`), its intermediate
 findings should fold into the pipeline's single canonical deliverable instead of
 each sub-skill scattering its own overlapping `.md` files. When the same skill
 runs **on its own**, it writes its files exactly as documented — unchanged.

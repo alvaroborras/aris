@@ -18,18 +18,18 @@ If `MANIFEST.md` does not exist, create it with this header:
 Then append one row per output file written:
 
 ```
-| 2025-06-15 14:30 | /idea-creator | idea-stage/IDEA_REPORT_20250615_143022.md | idea-discovery | 12 ideas generated from "LLM reasoning" direction |
-| 2025-06-15 14:30 | /idea-creator | idea-stage/IDEA_REPORT.md | idea-discovery | latest copy |
+| 2025-06-15 14:30 | $idea-creator | idea-stage/IDEA_REPORT_20250615_143022.md | idea-discovery | 12 ideas generated from "LLM reasoning" direction |
+| 2025-06-15 14:30 | $idea-creator | idea-stage/IDEA_REPORT.md | idea-discovery | latest copy |
 ```
 
 ## Stage Values
 
 | Stage | Skills |
 |-------|--------|
-| `idea-discovery` | /idea-creator, /idea-discovery, /novelty-check, /research-review |
-| `implementation` | /research-refine, /research-refine-pipeline, /experiment-plan, /experiment-bridge, /run-experiment |
-| `review` | /auto-review-loop |
-| `paper` | /paper-writing, /paper-write, /paper-compile |
+| `idea-discovery` | $idea-creator, $idea-discovery, $novelty-check, $research-review |
+| `implementation` | $research-refine, $research-refine-pipeline, $experiment-plan, $experiment-bridge, $run-experiment |
+| `review` | $auto-review-loop |
+| `paper` | $paper-writing, $paper-write, $paper-compile |
 
 ## Pre-flight Check
 

@@ -1,5 +1,12 @@
 # Skill Governance: Provenance-as-Authorization
 
+## Contents
+
+- [The rule](#the-rule)
+- [The record](#the-record)
+- [How skills use it](#how-skills-use-it)
+- [Why (the Hermes contrast)](#why-the-hermes-contrast)
+
 > **Codex mirror adaptation (normative).** A Codex-authored change reviewed by a
 > fresh Codex agent uses `provenance.py stamp-provisional`. The receipt preserves
 > author/reviewer family, verdict id and content hash but does not make the
@@ -113,7 +120,7 @@ increment is to make cross-family a **structural assertion on the stamp's conten
 `assert_cross_family` genuinely raises, so you cannot produce a *valid* same-family stamp
 (not a config flag you can flip). The scope is precise — this governs *what a stamp can
 say*, not *whether a write calls `stamp()` at all*. Whether a corpus mutation is stamped
-is governed by `/meta-apply`'s landing procedure; an edit that skips the stamp leaves no
+is governed by `$meta-apply`'s landing procedure; an edit that skips the stamp leaves no
 provenance — that case is **detectable, not impossible** (a missing / stale-hash stamp is
 what a pre-push integrity check would catch — that verifier is a follow-up, see
 meta-optimize's note).

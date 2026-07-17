@@ -1,5 +1,17 @@
 # Fan-Out Pattern
 
+## Contents
+
+- [Core principle: decouple FAN-OUT from JURY](#core-principle-decouple-fan-out-from-jury)
+- [The 3-tier degradation ladder](#the-3-tier-degradation-ladder)
+- [Structured-output contract for shards](#structured-output-contract-for-shards)
+- [When to fan out — and when NOT to](#when-to-fan-out-and-when-not-to)
+- [Worked examples (real ARIS skills)](#worked-examples-real-aris-skills)
+- [Shard safety invariants](#shard-safety-invariants)
+- [Cross-references](#cross-references)
+- [Required components for a fan-out skill](#required-components-for-a-fan-out-skill)
+- [Allowed-tools hygiene — the Agent grant policy](#allowed-tools-hygiene-the-agent-grant-policy)
+
 > **Codex mirror adaptation (normative).** Codex uses `spawn_agent` for Tier-2
 > shards when delegation is available and the same structured sequential
 > fallback otherwise. Generator shards remain read-only and never judge their
@@ -59,9 +71,9 @@ judgment and are explicitly allowed on the executor — see
 
 Fan-out is a **skill-prompt pattern, not a harness capability.** ARIS
 already fans out today on runtimes that have no parallel-orchestration
-primitive at all (`/kill-argument` runs two sequential fresh codex
-threads with **no Agent tool**; `/citation-audit` verifies per-entry;
-`/proof-checker` re-derives per-round). A richer runtime (ultracode /
+primitive at all (`$kill-argument` runs two sequential fresh codex
+threads with **no Agent tool**; `$citation-audit` verifies per-entry;
+`$proof-checker` re-derives per-round). A richer runtime (ultracode /
 Workflow true parallelism) merely *accelerates* the same pattern.
 
 Therefore fan-out must degrade gracefully across runtimes. The three
@@ -73,7 +85,7 @@ Codex is provisional, while overlay/deterministic routes are accepted.
 |---|---|---|
 | **Tier 1** | ultracode / Workflow true parallel — N shards run concurrently with dynamic orchestration | Runtime exposes a parallel-spawn primitive |
 | **Tier 2** | Plain `Agent`-tool spawn — N subagents launched, no dynamic orchestration (static fan, collect, merge) | Host has the `Agent` tool but no Workflow engine |
-| **Tier 3** | Sequential fallback — the same N shards run one-by-one, each in a **fresh context** (context reset between shards) | Any runtime, including codex CLI / bare Claude Code with no Agent tool |
+| **Tier 3** | Sequential fallback — the same N shards run one-by-one, each in a **fresh context** (context reset between shards) | Any runtime, including codex CLI / bare Codex with no Agent tool |
 
 ```
                  ┌─────────────────────────────────────────┐
@@ -187,15 +199,15 @@ much of the candidate space you cover, and coverage is the bottleneck.
 
 | Fan out (breadth-bound) | Do NOT fan out (value IS the single jury) |
 |---|---|
-| Idea generation across lenses | `/novelty-check` — the verdict IS the product |
-| Literature retrieval across sources | `/research-review` — single heterogeneous critique |
-| Attack-angle enumeration | `/experiment-audit` — one cross-model integrity ruling |
+| Idea generation across lenses | `$novelty-check` — the verdict IS the product |
+| Literature retrieval across sources | `$research-review` — single heterogeneous critique |
+| Attack-angle enumeration | `$experiment-audit` — one cross-model integrity ruling |
 | Proof-obligation extraction | `/peer-review` meta-review — one external verdict |
 | Draft-section first passes | Any skill whose output *is* the acceptance decision |
 
 Known failure mode (the one to refuse in review): fanning out a
-**judgment** skill across Claude clones. `/novelty-check`,
-`/research-review`, `/experiment-audit`, and the `/peer-review`
+**judgment** skill across Claude clones. `$novelty-check`,
+`$research-review`, `$experiment-audit`, and the `/peer-review`
 meta-review do not have a breadth bottleneck — their entire value is the
 *single heterogeneous jury verdict*. Spawning eight Claude subagents to
 each "assess novelty" and then aggregating their opinions does not give
@@ -211,9 +223,9 @@ never fan out the bench.**
 
 ## Worked examples (real ARIS skills)
 
-### `/kill-argument` — Tier 3 sequential fan-out, NO Agent tool
+### `$kill-argument` — Tier 3 sequential fan-out, NO Agent tool
 
-`/kill-argument` is the canonical proof that fan-out is a prompt pattern,
+`$kill-argument` is the canonical proof that fan-out is a prompt pattern,
 not a harness feature. It runs **two** fresh Codex `spawn_agent` threads
 in series — Thread 1 writes the strongest 200-word rejection memo; Thread
 2 (independent, no `codex-reply`) decomposes that memo into 3-7 atomic
@@ -228,9 +240,9 @@ by the adjudicator`). Generation (the attack, the per-point
 classification) fans out; the ACCEPT/FAIL mapping is mechanical and
 lives in the skill, not the model.
 
-### `/idea-creator` — Tier-1 parallel lens fan-out → dedup → classified jury
+### `$idea-creator` — Tier-1 parallel lens fan-out → dedup → classified jury
 
-`/idea-creator` fans out idea generation across analytic *lenses*
+`$idea-creator` fans out idea generation across analytic *lenses*
 (structural gaps: method-in-A-not-B, contradictory findings, untested
 assumptions, unexplored scaling regimes — Phase 1). On a Tier-1 runtime
 these lenses run as parallel shards; on Tier 3 they are enumerated in one
@@ -239,14 +251,14 @@ pass. After fan-out the merged set should be **mechanically deduped only**
 **jury** is the already-existing Phase-4 fresh-Codex devil's-advocate
 pass: it is provisional in the base mirror and accepted only through an overlay
 or deterministic verifier; it surfaces the strongest reviewer objection per
-idea and ranks for a top venue. `/idea-creator` declares the `Agent` tool — re-granted (per the re-grant
+idea and ranks for a top venue. `$idea-creator` declares the `Agent` tool — re-granted (per the re-grant
 rule in **Allowed-tools hygiene**) when the lens fan-out was wired, after
 the WB2 sweep had stripped the earlier vestigial grant. On a Tier-1 runtime
 the lenses run as Workflow shards; on Tier 3 they fall back to sequential
 enumeration with no grant needed.
 
 > ⚠️ **Known gap — idea-creator is an *aspirational* example here, not yet a clean one.**
-> Today `/idea-creator` Phase 3 (`skills/idea-creator/SKILL.md:159,175`)
+> Today `$idea-creator` Phase 3 (`skills/idea-creator/SKILL.md:159,175`)
 > does same-family *quick novelty check + feasibility gating* and
 > **eliminates ideas** before the Phase-4 classified review ever sees them.
 > That is exactly the ❌ "executor pre-filters the jury's input with
@@ -259,9 +271,9 @@ enumeration with no grant needed.
 > the jury. Fixing this is part of fanning the skill out, not a separate
 > chore.
 
-### `/research-lit` — per-source fan-out, deterministic gate as "jury"
+### `$research-lit` — per-source fan-out, deterministic gate as "jury"
 
-`/research-lit` fans out retrieval across sources (arXiv, Semantic
+`$research-lit` fans out retrieval across sources (arXiv, Semantic
 Scholar, OpenAlex, Exa, DeepXiv, Zotero, web) under integration-contract
 **Policy D2** (multi-source aggregate: invoke every resolved source,
 warn-and-continue on per-source failure, proceed if ≥1 contributed).
@@ -351,7 +363,7 @@ This matters because the other two tiers need no per-skill grant:
 - **Tier-1** (ultracode / Workflow) is a *harness* capability, not a tool a
   skill lists. A skill cannot "grant itself" Workflow; the runtime provides
   it. So fanning out at Tier-1 requires no `Agent` in `allowed-tools`.
-- **Tier-3** (sequential fallback) spawns nothing — e.g. `/kill-argument`
+- **Tier-3** (sequential fallback) spawns nothing — e.g. `$kill-argument`
   runs its two passes as fresh Codex reviewer threads, no Agent tool.
   Correctly, `kill-argument` does **not** grant `Agent`.
 

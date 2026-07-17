@@ -87,4 +87,4 @@ anchors, not just its scalar.
   variance; it does not make it machine-checkable.)
 - **Rubric drift is meta-optimize's job.** If users repeatedly override
   calibrated scores, the rubric or the anchors are wrong — that's an event-log
-  signal for `/meta-optimize`, not a reason to hand-tweak scores per run.
+  signal for `$meta-optimize`, not a reason to hand-tweak scores per run.

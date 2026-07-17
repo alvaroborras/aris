@@ -1,14 +1,12 @@
 ---
 name: paper-illustration-image2
-description: "Generate publication-quality academic illustrations through a local Codex app-server bridge that uses Codex native image generation. This is a separate experimental alternative to `paper-illustration`, intended for Claude Code users who want a GPT-image-style renderer without modifying the original skill."
-argument-hint: [description-or-method-file]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, mcp__codex-image2__generate, mcp__codex-image2__generate_start, mcp__codex-image2__generate_status, spawn_agent, send_input
+description: Generate publication-quality academic illustrations with Codex native image generation. This is an experimental alternative to paper-illustration for users who want a GPT-image-style raster renderer.
 ---
 
 # Paper Illustration Image2
 
-Generate publication-quality paper figures using **Claude as the planner/reviewer**
-and a **local Codex app-server MCP bridge** as the raster renderer.
+Generate publication-quality paper figures using **Codex as the planner/reviewer**
+and the **native image generation capability** as the raster renderer.
 
 ## Core Design Philosophy
 
@@ -21,35 +19,35 @@ and a **local Codex app-server MCP bridge** as the raster renderer.
 │       │                                                                  │
 │       ▼                                                                  │
 │   ┌─────────────┐                                                        │
-│   │   Claude    │ ◄─── Step 1: Parse request, create initial prompt     │
+│   │    Codex    │ ◄─── Step 1: Parse request, create initial prompt     │
 │   │  (Planner)  │      - Extract components, labels, and data flow       │
 │   │             │      - Write a paper-ready figure brief                │
 │   └──────┬──────┘                                                        │
 │          │                                                               │
 │          ▼                                                               │
 │   ┌─────────────┐                                                        │
-│   │Claude/Codex │ ◄─── Step 2: Optimize layout description               │
+│   │    Codex    │ ◄─── Step 2: Optimize layout description               │
 │   │   Layout    │      - Refine component positioning                    │
 │   │   Review    │      - Optimize spacing and grouping                   │
 │   └──────┬──────┘                                                        │
 │          │                                                               │
 │          ▼                                                               │
 │   ┌─────────────┐                                                        │
-│   │Claude/Codex │ ◄─── Step 3: CVPR/NeurIPS style verification           │
+│   │    Codex    │ ◄─── Step 3: CVPR/NeurIPS style verification           │
 │   │   Style     │      - Check palette, arrows, and label standards      │
 │   │   Check     │      - Tighten the prompt before rendering             │
 │   └──────┬──────┘                                                        │
 │          │                                                               │
 │          ▼                                                               │
 │   ┌─────────────┐                                                        │
-│   │ codex-image2│ ◄─── Step 4: Native image generation via bridge        │
-│   │ MCP bridge  │      - Call generate_start / generate_status           │
-│   │ + app-server│      - Accept only native imageGeneration output       │
+│   │Native image │ ◄─── Step 4: Native image generation                   │
+│   │ generation  │      - Invoke the surfaced image generation tool       │
+│   │ capability  │      - Accept only native generated-image output       │
 │   └──────┬──────┘                                                        │
 │          │                                                               │
 │          ▼                                                               │
 │   ┌─────────────┐                                                        │
-│   │   Claude    │ ◄─── Step 5: STRICT visual review + SCORE (1-10)      │
+│   │    Codex    │ ◄─── Step 5: STRICT visual review + SCORE (1-10)      │
 │   │  (Reviewer) │      - Verify logic, labels, arrows, and aesthetics    │
 │   │   STRICT!   │      - Reject unclear or non-paper-ready figures       │
 │   └──────┬──────┘                                                        │
@@ -67,7 +65,7 @@ and a **local Codex app-server MCP bridge** as the raster renderer.
 
 ## Constants
 
-- **RENDERER = `codex-image2`** — Native image generation bridge exposed through local Codex app-server
+- **RENDERER = native image generation** — Use the image generation capability surfaced by Codex
 - **OPTIONAL_TEXT_CRITIC = `spawn_agent`** — Optional text-only second opinion for layout/style checks
 - **MAX_ITERATIONS = 5** — Maximum refinement rounds
 - **TARGET_SCORE = 9** — Minimum acceptable score (1-10)
@@ -95,7 +93,7 @@ and a **local Codex app-server MCP bridge** as the raster renderer.
   [ -z "$IMAGE2_HELPER" ] && [ -f ~/.codex/skills/paper-illustration-image2/scripts/paper_illustration_image2.py ] && IMAGE2_HELPER="$HOME/.codex/skills/paper-illustration-image2/scripts/paper_illustration_image2.py"
   [ -z "$IMAGE2_HELPER" ] && {
     echo "ERROR: paper_illustration_image2.py not resolved at .agents/skills/, \$ARIS_REPO/skills/, \$ARIS_REPO/tools/, tools/, or ~/.codex/skills/." >&2
-    echo "       /paper-illustration-image2 cannot proceed. Fix: rerun install_aris_codex.sh, export ARIS_REPO, or copy the canonical skill into ~/.codex/skills/." >&2
+    echo "       $paper-illustration-image2 cannot proceed. Fix: rerun install_aris_codex.sh, export ARIS_REPO, or copy the canonical skill into ~/.codex/skills/." >&2
     exit 1
   }
   ```
@@ -168,7 +166,7 @@ and a **local Codex app-server MCP bridge** as the raster renderer.
 | **Method illustrations** | Excellent | Conceptual diagrams, algorithm flowcharts |
 | **Conceptual figures** | Good | Comparison diagrams, taxonomy trees |
 
-**Not for:** Statistical plots (use `/paper-figure`), deterministic vector topology figures (prefer `/figure-spec`), photo-realistic scenes
+**Not for:** Statistical plots (use `$paper-figure`), deterministic vector topology figures (prefer `$figure-spec`), photo-realistic scenes
 
 ## Workflow: MUST EXECUTE ALL STEPS
 
@@ -180,7 +178,7 @@ Render this checklist explicitly before starting:
 📋 paper-illustration-image2 integration checklist:
    [ ] 1. python3 "$IMAGE2_HELPER" preflight --workspace <cwd> --json-out figures/ai_generated/preflight.json
    [ ] 2. Confirm preflight JSON says ok=true before rendering
-   [ ] 3. Render via mcp__codex-image2__generate_start + generate_status
+   [ ] 3. Render with the native image generation capability
    [ ] 4. Finalize via python3 "$IMAGE2_HELPER" finalize --workspace <cwd> --best-image <best_png>
    [ ] 5. Verify artifacts via python3 "$IMAGE2_HELPER" verify --workspace <cwd> --json-out figures/ai_generated/verify.json
 ```
@@ -201,7 +199,7 @@ python3 "$IMAGE2_HELPER" preflight \
 
 5. If preflight is not `ok=true`, stop and say so clearly.
 
-## Step 1: Claude Plans the Figure
+## Step 1: Codex Plans the Figure
 
 Turn the user request into a **fully specified image prompt**. Include:
 
@@ -227,7 +225,7 @@ layout plan:
 - arrow routing and likely collision points
 
 If `spawn_agent` is available, you may ask it for a short second-opinion
-layout critique here, but Claude should still complete this step even without
+layout critique here, but Codex should still complete this step even without
 Codex.
 
 Use Codex layout critique for:
@@ -251,22 +249,16 @@ before rendering:
 If `spawn_agent` is available, you may ask it for a short text-only
 style audit, but do not block on it.
 
-## Step 4: Generate Through the Bridge
+## Step 4: Generate with the Native Image Capability
 
-Call `mcp__codex-image2__generate_start` with:
+Invoke the image generation capability surfaced in the current Codex session.
+Pass the final prompt and request a paper-ready raster image. Save the returned
+artifact as `figures/ai_generated/figure_v1.png`, preserving subsequent
+iteration names (`figure_v2.png`, and so on).
 
-- `prompt`: the final image prompt
-- `cwd`: current project root or paper workspace
-- `outputPath`: `figures/ai_generated/figure_v1.png`
-- `system`: a short instruction like `Academic paper figure. Prefer crisp English labels.`
-- `timeoutSeconds`: a bounded render timeout such as `180`
-
-Then call `mcp__codex-image2__generate_status` with bounded waits until:
-
-- `done=true` and `status=completed`, or
-- `done=true` and `status=failed`
-
-If generation fails, report the bridge error directly instead of hiding it.
+If native image generation is unavailable, stop and report the missing
+capability. Do not substitute shell-, SVG-, or Python-drawn output because this
+skill explicitly evaluates native generated imagery.
 
 ## Step 5: Review the Output
 
@@ -331,8 +323,8 @@ Suggested LaTeX:
 1. Never skip Step 2 or Step 3; layout and style checks are required.
 2. Never skip the final visual review.
 3. Never accept a figure that is logically wrong just because it looks attractive.
-4. Use the `codex-image2` bridge only for **native image generation**.
-5. If the bridge says native image generation is unavailable, surface that honestly.
+4. Use only the native image generation capability for raster generation.
+5. If native image generation is unavailable, surface that honestly.
 6. Reject any shell/Python/manual bitmap fallback masquerading as image generation.
 7. Keep figure text in English unless the user requested another language.
 8. Prefer 1-3 strong refinement rounds over many shallow ones.
@@ -375,9 +367,9 @@ figures/ai_generated/
 | Stage | Agent / Tool | Purpose |
 |-------|--------------|---------|
 | Step 0 | `python3 "$IMAGE2_HELPER" preflight` | Observable activation predicate and preflight receipt |
-| Step 1 | Claude | Parse request and create the initial figure prompt |
-| Step 2 | Claude (+ optional Codex critique) | Refine layout, grouping, spacing, and arrow routing |
-| Step 3 | Claude (+ optional Codex critique) | Verify academic visual style before rendering |
-| Step 4 | `mcp__codex-image2__generate_start` + `generate_status` | Native raster image generation through Codex app-server |
-| Step 5 | Claude | Strict visual review and scoring |
+| Step 1 | Codex | Parse request and create the initial figure prompt |
+| Step 2 | Codex (+ optional subagent critique) | Refine layout, grouping, spacing, and arrow routing |
+| Step 3 | Codex (+ optional subagent critique) | Verify academic visual style before rendering |
+| Step 4 | Native image generation capability | Generate the raster artifact |
+| Step 5 | Codex | Strict visual review and scoring |
 | Step 7 | `python3 "$IMAGE2_HELPER" finalize` + `verify` | Emit canonical artifacts and external verification receipt |

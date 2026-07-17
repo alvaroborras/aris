@@ -1,16 +1,16 @@
 ---
-name: "paper-plan"
-description: "Generate a structured paper outline from review conclusions and experiment results. Use when user says \\\"\u5199\u5927\u7eb2\\\", \\\"paper outline\\\", \\\"plan the paper\\\", \\\"\u8bba\u6587\u89c4\u5212\\\", or wants to create a paper plan before writing."
+name: paper-plan
+description: Generate a structured paper outline from review conclusions and experiment results. Use when user says \"写大纲\", \"paper outline\", \"plan the paper\", \"论文规划\", or wants to create a paper plan before writing.
 ---
 
 # Paper Plan: From Review Conclusions to Paper Outline
 
-Generate a structured, section-by-section paper outline from: **$ARGUMENTS**
+Generate a structured, section-by-section paper outline from: **the user's request**
 
 ## Constants
 
 - **REVIEWER_MODEL = `gpt-5.6-sol`** — Model used via a secondary Codex agent for outline review. Must be an OpenAI model.
-- **TARGET_VENUE = `ICLR`** — Default venue. User can override (e.g., `/paper-plan "topic" — venue: NeurIPS`). Supported: `ICLR`, `NeurIPS`, `ICML`, `CVPR`, `ACL`, `AAAI`, `ACM`, `IEEE_JOURNAL` (IEEE Transactions / Letters), `IEEE_CONF` (IEEE conferences).
+- **TARGET_VENUE = `ICLR`** — Default venue. User can override (e.g., `$paper-plan "topic" — venue: NeurIPS`). Supported: `ICLR`, `NeurIPS`, `ICML`, `CVPR`, `ACL`, `AAAI`, `ACM`, `IEEE_JOURNAL` (IEEE Transactions / Letters), `IEEE_CONF` (IEEE conferences).
 - **MAX_PAGES** — Page limit. For ML conferences: main body to Conclusion end (excluding references, appendix). ICLR=9, NeurIPS=9, ICML=8, AAAI=7 technical-content pages plus references unless the current AAAI CFP says otherwise. **For IEEE venues: references ARE included in page count.** IEEE journal Transactions ≈ 12-14 pages total, Letters ≈ 4-5 pages total; IEEE conference ≈ 5-8 pages total (including references).
 
 ## Inputs
@@ -21,7 +21,7 @@ The skill expects one or more of these in the project directory:
 2. **review-stage/AUTO_REVIEW.md** — auto-review loop conclusions *(fall back to `./AUTO_REVIEW.md` if not found)*
 3. **Experiment results** — JSON files in `figures/`, screen logs, tables
 4. **idea-stage/IDEA_REPORT.md** — from idea-discovery pipeline (if applicable) *(fall back to `./IDEA_REPORT.md` if not found)*
-5. **CLAIMS_FROM_RESULTS.md** — structured claim judgment from `/result-to-claim` (preferred if available)
+5. **CLAIMS_FROM_RESULTS.md** — structured claim judgment from `$result-to-claim` (preferred if available)
 
 If none exist, ask the user to describe the paper's contribution in 3-5 sentences.
 
@@ -37,7 +37,7 @@ Keep the existing workflow and outputs, but use the shared references below to i
 
 ### Step 1: Extract Claims and Evidence
 
-**First check for `CLAIMS_FROM_RESULTS.md`** — if its first line is `verdict: REVIEW_UNAVAILABLE`, treat the file as ABSENT for claim extraction (fall through to the narrative documents below) and then: under `— assurance: submission` (`shared-references/assurance-contract.md`; implied by `— effort: max|beast`) STOP — the claims were never adjudicated, rerun `/result-to-claim` first; under `assurance: draft` continue but tag every claim `[unadjudicated]`. Otherwise, if it exists, use it as the starting point for claims and merge it with any additional evidence from the narrative documents below.
+**First check for `CLAIMS_FROM_RESULTS.md`** — if its first line is `verdict: REVIEW_UNAVAILABLE`, treat the file as ABSENT for claim extraction (fall through to the narrative documents below) and then: under `— assurance: submission` (`shared-references/assurance-contract.md`; implied by `— effort: max|beast`) STOP — the claims were never adjudicated, rerun `$result-to-claim` first; under `assurance: draft` continue but tag every claim `[unadjudicated]`. Otherwise, if it exists, use it as the starting point for claims and merge it with any additional evidence from the narrative documents below.
 
 Read all available narrative documents and extract:
 
@@ -248,14 +248,14 @@ Save the final outline to `PAPER_PLAN.md` in the project root:
 [from Step 6, summarized]
 
 ## Next Steps
-- [ ] /paper-figure to generate all figures
-- [ ] /paper-write to draft LaTeX
-- [ ] /paper-compile to build PDF
+- [ ] $paper-figure to generate all figures
+- [ ] $paper-write to draft LaTeX
+- [ ] $paper-compile to build PDF
 ```
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - **Do NOT generate author information** — leave author block as placeholder or anonymous
 - **Be honest about evidence gaps** — mark claims as "needs experiment" rather than overclaiming
@@ -273,6 +273,6 @@ Outline methodology inspired by [Research-Paper-Writing-Skills](https://github.c
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting

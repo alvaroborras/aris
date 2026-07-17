@@ -1,8 +1,6 @@
 ---
 name: result-to-claim
 description: Use when experiments complete to judge what claims the results support, what they don't, and what evidence is still missing. A secondary Codex agent evaluates results against intended claims and routes to next action (pivot, supplement, or confirm). Use after experiments finish — before writing the paper or running ablations.
-argument-hint: [experiment-description-or-wandb-run]
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
 ---
 
 # Result-to-Claim Gate
@@ -14,7 +12,7 @@ allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
 
 Experiments produce numbers; this gate decides what those numbers *mean*. Collect results from available sources, get a secondary Codex judgment, then auto-route based on the verdict.
 
-## Context: $ARGUMENTS
+## Context: the user's request
 
 ## When to Use
 
@@ -167,7 +165,7 @@ See `shared-references/experiment-integrity.md` for the full integrity protocol.
 #### `yes` — Claim supported
 
 1. Record confirmed claim in project notes
-2. If ablation studies are incomplete → trigger `/ablation-planner`
+2. If ablation studies are incomplete → trigger `$ablation-planner`
 3. If all evidence is in → ready for paper writing
 
 ### Step 5: Update Research Wiki (if active)
@@ -198,7 +196,7 @@ if research-wiki/ exists:
 
     # 2. Record empirical support as EDGES ONLY, and ONLY if EXP_NODE_OK. NEVER edit a
     #    claim page's `status`: that is the PROOF axis (verified / refuted / unproven /
-    #    sound-modulo-imports / drafted / retracted), owned by /proof-checker (the claim
+    #    sound-modulo-imports / drafted / retracted), owned by $proof-checker (the claim
     #    birth point) — the ARIS helper REJECTS "supported"/"partial"/"invalidated".
     if [ "$EXP_NODE_OK" = 1 ]:
         for each claim resolved by this verdict:
@@ -220,8 +218,8 @@ if research-wiki/ exists:
     [ -n "$WIKI_SCRIPT" ] && python3 "$WIKI_SCRIPT" log research-wiki/ "result-to-claim: exp:<id> verdict=<verdict> for idea:<idea_id>"
 
     # 5. Re-ideation suggestion
-    Count failed/partial ideas since last /idea-creator run.
-    If >= 3: print "💡 3+ ideas tested since last ideation. Consider re-running /idea-creator — the wiki now knows what doesn't work."
+    Count failed/partial ideas since last $idea-creator run.
+    If >= 3: print "💡 3+ ideas tested since last ideation. Consider re-running $idea-creator — the wiki now knows what doesn't work."
 ```
 
 ## Rules

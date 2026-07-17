@@ -1,13 +1,11 @@
 ---
 name: claims-drafting
-description: "Draft patent claims for an invention. Use when user says \"撰写权利要求\", \"draft claims\", \"写权利要求书\", \"claim drafting\", or wants to create patent claims. The core skill of the patent pipeline."
-argument-hint: [invention-disclosure-path]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+description: Draft patent claims for an invention. Use when user says "撰写权利要求", "draft claims", "写权利要求书", "claim drafting", or wants to create patent claims. The core skill of the patent pipeline.
 ---
 
 # Claims Drafting: The Core Patent Skill
 
-Draft patent claims based on: **$ARGUMENTS**
+Draft patent claims based on: **the user's request**
 
 This is the most critical skill in the patent pipeline. Claims define the legal scope of protection -- everything else (specification, figures, abstract) exists to support and enable the claims.
 
@@ -25,7 +23,7 @@ This is the most critical skill in the patent pipeline. Claims define the legal 
 1. `patent/INVENTION_DISCLOSURE.md` — structured invention with core/supporting/optional features
 2. `patent/PRIOR_ART_REPORT.md` — prior art to avoid
 3. `patent/NOVELTY_ASSESSMENT.md` — novelty analysis with suggested amendments
-4. Target jurisdiction from invention disclosure or `$ARGUMENTS`
+4. Target jurisdiction from invention disclosure or `the user's request`
 
 ## Shared References
 

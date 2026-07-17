@@ -29,7 +29,7 @@ Codex and OpenCode can discover the same project-local skill root. The legacy
 `skills/skills-codex` path is a compatibility symlink for existing installers,
 tests, and documentation.
 
-**Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **79 skills**, grouped by role.
+**Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **80 skills**, grouped by role.
 
 Invocation syntax is identical across hosts:
 ```

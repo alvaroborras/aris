@@ -1,6 +1,6 @@
 ---
-name: "auto-review-loop"
-description: "Autonomous multi-round research review loop. Repeatedly reviews using a secondary Codex agent, implements fixes, and re-reviews until positive assessment or max rounds reached. Use when user says \"auto review loop\", \"review until it passes\", or wants autonomous iterative improvement."
+name: auto-review-loop
+description: Autonomous multi-round research review loop. Repeatedly reviews using a secondary Codex agent, implements fixes, and re-reviews until positive assessment or max rounds reached. Use when user says "auto review loop", "review until it passes", or wants autonomous iterative improvement.
 ---
 
 # Auto Review Loop: Autonomous Research Improvement
@@ -12,7 +12,7 @@ description: "Autonomous multi-round research review loop. Repeatedly reviews us
 
 Autonomously iterate: review → implement fixes → re-review, until the external reviewer gives a positive assessment or MAX_ROUNDS is reached.
 
-## Context: $ARGUMENTS
+## Context: the user's request
 
 ## Constants
 
@@ -25,11 +25,11 @@ Autonomously iterate: review → implement fixes → re-review, until the extern
 - **HUMAN_CHECKPOINT = false** — When `true`, pause after each round's review (Phase B) and present the score + weaknesses to the user. Wait for user input before proceeding to Phase C. The user can: approve the suggested fixes, provide custom modification instructions, skip specific fixes, or stop the loop early. When `false` (default), the loop runs fully autonomously.
 - **COMPACT = false** — When `true`, (1) read `EXPERIMENT_LOG.md` and `findings.md` instead of parsing full logs on session recovery, (2) append key findings to `findings.md` after each round.
 - **REVIEWER_DIFFICULTY = medium** — Controls adversarial depth: `medium` uses normal Codex xhigh review through `spawn_agent` / `send_input`; `hard` adds Reviewer Memory and Debate Protocol; `nightmare` adds direct repository-reading adversarial verification by an independent reviewer.
-- **RENDER_HTML = true** — When `true` (default), auto-render `review-stage/AUTO_REVIEW.md` to HTML on loop termination via `/render-html`. Uses `--no-review` because the loop already performed a traced same-family provisional review. Set `false` to skip.
+- **RENDER_HTML = true** — When `true` (default), auto-render `review-stage/AUTO_REVIEW.md` to HTML on loop termination via `$render-html`. Uses `--no-review` because the loop already performed a traced same-family provisional review. Set `false` to skip.
 
-> 💡 Override: `/auto-review-loop "topic" — compact: true, human checkpoint: true, difficulty: hard`
+> 💡 Override: `$auto-review-loop "topic" — compact: true, human checkpoint: true, difficulty: hard`
 
-## Claude-Aligned Reviewer Memory and Debate
+## Reviewer Memory and Debate
 
 For `difficulty: hard` and `difficulty: nightmare`, maintain `review-stage/REVIEWER_MEMORY.md`.
 
@@ -274,7 +274,7 @@ Prioritization rules:
 If experiments were launched:
 - Monitor remote sessions for completion
 - Collect results from output files and logs
-- **Training quality check** — if W&B is configured, invoke `/training-check` to verify training was healthy (no NaN, no divergence, no plateau). If W&B is not available, skip silently.
+- **Training quality check** — if W&B is configured, invoke `$training-check` to verify training was healthy (no NaN, no divergence, no plateau). If W&B is not available, skip silently.
 
 #### Phase E: Document Round
 
@@ -331,29 +331,29 @@ When loop ends (positive assessment or max rounds):
 1. Update `review-stage/REVIEW_STATE.json` with `"status": "completed"`
 2. Write final summary to `review-stage/AUTO_REVIEW.md`
 3. Update project notes with conclusions
-4. **Write method/pipeline description** to `review-stage/AUTO_REVIEW.md` under a `## Method Description` section — a concise 1-2 paragraph summary of the final method, architecture, and data flow. This serves as direct input for `/paper-illustration`.
-5. **Generate claims from results** — invoke `/result-to-claim` to convert experiment results from `review-stage/AUTO_REVIEW.md` into structured paper claims. Output: `CLAIMS_FROM_RESULTS.md`. If `/result-to-claim` is not installed, skip this step (no `CLAIMS_FROM_RESULTS.md` is produced; `/paper-plan` extracts claims from the narrative as before) — but NEVER fabricate the file or its verdict. If it ran but its output starts with `verdict: REVIEW_UNAVAILABLE`, keep that file AS-IS (do not overwrite or paraphrase it) and record in `AUTO_REVIEW.md` that claims are UNADJUDICATED — downstream paper stages must not treat them as validated.
+4. **Write method/pipeline description** to `review-stage/AUTO_REVIEW.md` under a `## Method Description` section — a concise 1-2 paragraph summary of the final method, architecture, and data flow. This serves as direct input for `$paper-illustration`.
+5. **Generate claims from results** — invoke `$result-to-claim` to convert experiment results from `review-stage/AUTO_REVIEW.md` into structured paper claims. Output: `CLAIMS_FROM_RESULTS.md`. If `$result-to-claim` is not installed, skip this step (no `CLAIMS_FROM_RESULTS.md` is produced; `$paper-plan` extracts claims from the narrative as before) — but NEVER fabricate the file or its verdict. If it ran but its output starts with `verdict: REVIEW_UNAVAILABLE`, keep that file AS-IS (do not overwrite or paraphrase it) and record in `AUTO_REVIEW.md` that claims are UNADJUDICATED — downstream paper stages must not treat them as validated.
 6. If stopped at max rounds without positive assessment:
    - List remaining blockers
    - Estimate effort needed for each
    - Suggest whether to continue manually or pivot
 7. **Feishu notification** (if configured): Send `pipeline_done` with final score progression table
-8. **Render HTML view** (if `RENDER_HTML = true`, default): invoke `/render-html` on the cumulative review log:
+8. **Render HTML view** (if `RENDER_HTML = true`, default): invoke `$render-html` on the cumulative review log:
    ```
-   /render-html "review-stage/AUTO_REVIEW.md" --no-review --state review-stage/REVIEW_STATE.json
+   $render-html "review-stage/AUTO_REVIEW.md" --no-review --state review-stage/REVIEW_STATE.json
    ```
-   Pass `--state` explicitly when `REVIEW_STATE.json` exists (the helper does not auto-discover the sidecar). HTML lands at `review-stage/AUTO_REVIEW.html` with embedded source SHA256. **Non-blocking**: if `/render-html` fails, log the error and continue — the HTML is a convenience, not a termination prerequisite.
+   Pass `--state` explicitly when `REVIEW_STATE.json` exists (the helper does not auto-discover the sidecar). HTML lands at `review-stage/AUTO_REVIEW.html` with embedded source SHA256. **Non-blocking**: if `$render-html` fails, log the error and continue — the HTML is a convenience, not a termination prerequisite.
 
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - ALWAYS use `reasoning_effort: xhigh` for maximum reasoning depth
 - Save agent id from first call, use `send_input` for subsequent rounds

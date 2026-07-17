@@ -1,18 +1,18 @@
 ---
-name: "idea-discovery-robot"
-description: "Workflow 1 adaptation for robotics and embodied AI. Orchestrates robotics-aware literature survey, idea generation, novelty check, and critical review to go from a broad robotics direction to benchmark-grounded, simulation-first ideas. Use when user says \\\"robotics idea discovery\\\", \\\"\u673a\u5668\u4eba\u627eidea\\\", \\\"embodied AI idea\\\", \\\"\u673a\u5668\u4eba\u65b9\u5411\u63a2\u7d22\\\", \\\"sim2real \u9009\u9898\\\", or wants ideas for manipulation, locomotion, navigation, drones, humanoids, or general robot learning."
+name: idea-discovery-robot
+description: Workflow 1 adaptation for robotics and embodied AI. Orchestrates robotics-aware literature survey, idea generation, novelty check, and critical review to go from a broad robotics direction to benchmark-grounded, simulation-first ideas. Use when user says \"robotics idea discovery\", \"机器人找idea\", \"embodied AI idea\", \"机器人方向探索\", \"sim2real 选题\", or wants ideas for manipulation, locomotion, navigation, drones, humanoids, or general robot learning.
 ---
 
 # Robotics Idea Discovery Pipeline
 
-Orchestrate a robotics-specific idea discovery workflow for: **$ARGUMENTS**
+Orchestrate a robotics-specific idea discovery workflow for: **the user's request**
 
 ## Overview
 
 This skill chains four sub-skills into a single automated pipeline:
 
 ```
-/research-lit → /idea-creator (robotics framing) → /novelty-check → /research-review
+$research-lit → $idea-creator (robotics framing) → $novelty-check → $research-review
   (survey)              (filter + pilot plan)         (verify novel)    (critical feedback)
 ```
 
@@ -40,7 +40,7 @@ The goal is not to produce flashy demos. The goal is to produce ideas that are:
 - **REVIEWER_MODEL = `gpt-5.6-sol`** — External reviewer model via a secondary Codex agent
 - **TARGET_VENUES = CoRL, RSS, ICRA, IROS, RA-L** — Default novelty and reviewer framing
 
-> Override inline, e.g. `/idea-discovery-robot "bimanual manipulation" — only sim ideas, no real robot` or `/idea-discovery-robot "drone navigation" — focus on CoRL/RSS, 2 pilot ideas max`
+> Override inline, e.g. `$idea-discovery-robot "bimanual manipulation" — only sim ideas, no real robot` or `$idea-discovery-robot "drone navigation" — focus on CoRL/RSS, 2 pilot ideas max`
 
 ## Execution Rule
 
@@ -52,7 +52,7 @@ If `AUTO_PROCEED=true` and the user does not respond, continue immediately to th
 
 ## Phase 0: Frame the Robotics Problem
 
-Before generating ideas, extract or infer this **Robotics Problem Frame** from `$ARGUMENTS` and local project context:
+Before generating ideas, extract or infer this **Robotics Problem Frame** from `the user's request` and local project context:
 
 - **Embodiment**
 - **Task family**
@@ -77,7 +77,7 @@ Write this frame into working notes before moving on. Every later decision shoul
 Invoke:
 
 ```
-/research-lit "$ARGUMENTS — focus venues: CoRL, RSS, ICRA, IROS, RA-L, TRO, Science Robotics"
+$research-lit "the user's request — focus venues: CoRL, RSS, ICRA, IROS, RA-L, TRO, Science Robotics"
 ```
 
 Then reorganize the findings using a robotics lens instead of a generic ML lens.
@@ -139,7 +139,7 @@ Generate ideas only after the robotics frame is explicit.
 Invoke the existing idea generator, but pass the **Robotics Problem Frame** and landscape matrix into the prompt so it does not produce generic ML ideas:
 
 ```
-/idea-creator "$ARGUMENTS — robotics frame: [paste Robotics Problem Frame] — focus venues: CoRL, RSS, ICRA, IROS, RA-L — benchmark-specific ideas only — sim-first pilots — no real-robot execution without explicit approval — require failure metrics and baseline clarity"
+$idea-creator "the user's request — robotics frame: [paste Robotics Problem Frame] — focus venues: CoRL, RSS, ICRA, IROS, RA-L — benchmark-specific ideas only — sim-first pilots — no real-robot execution without explicit approval — require failure metrics and baseline clarity"
 ```
 
 Then rewrite and filter the output using the robotics-specific rules below.
@@ -246,7 +246,7 @@ After Phase 3, continue to Phase 4 even if you only produced a pilot plan rather
 For each top idea, run:
 
 ```
-/novelty-check "[idea description with embodiment + task family + benchmark + sensor stack + controller/policy class + sim2real angle + target venues: CoRL/RSS/ICRA/IROS/RA-L]"
+$novelty-check "[idea description with embodiment + task family + benchmark + sensor stack + controller/policy class + sim2real angle + target venues: CoRL/RSS/ICRA/IROS/RA-L]"
 ```
 
 Robotics novelty checks must include:
@@ -269,7 +269,7 @@ If the method is not novel but the **finding** or **evaluation protocol** is, sa
 Invoke:
 
 ```
-/research-review "[top idea with robotics framing, embodiment, benchmark, baselines, pilot plan, evaluation metrics, and sim2real/hardware risks — review as CoRL/RSS/ICRA reviewer]"
+$research-review "[top idea with robotics framing, embodiment, benchmark, baselines, pilot plan, evaluation metrics, and sim2real/hardware risks — review as CoRL/RSS/ICRA reviewer]"
 ```
 
 Frame the reviewer as a senior **CoRL / RSS / ICRA** reviewer. Ask them to focus on:
@@ -288,7 +288,7 @@ Write or update `idea-stage/IDEA_REPORT.md` with a robotics-specific structure s
 ```markdown
 # Robotics Idea Discovery Report
 
-**Direction**: $ARGUMENTS
+**Direction**: the user's request
 **Date**: [today]
 **Pipeline**: research-lit → idea-creator (robotics framing) → novelty-check → research-review
 
@@ -326,7 +326,7 @@ Write or update `idea-stage/IDEA_REPORT.md` with a robotics-specific structure s
 
 ## Next Steps
 - [ ] Implement sim-first pilot
-- [ ] Run /novelty-check on the final idea wording
+- [ ] Run $novelty-check on the final idea wording
 - [ ] Only after approval: consider hardware validation
 ```
 
@@ -345,10 +345,10 @@ Write or update `idea-stage/IDEA_REPORT.md` with a robotics-specific structure s
 After this workflow identifies a strong robotics idea:
 
 ```
-/idea-discovery-robot "direction"   ← you are here
+$idea-discovery-robot "direction"   ← you are here
 implement sim-first pilot
-/run-experiment                     ← if infrastructure exists
-/auto-review-loop "top robotics idea"
+$run-experiment                     ← if infrastructure exists
+$auto-review-loop "top robotics idea"
 ```
 
 If no simulator or benchmark is available yet, stop at the report and ask the user to choose whether to build infrastructure or pivot to a more executable idea.
@@ -356,7 +356,7 @@ If no simulator or benchmark is available yet, stop at the report and ask the us
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 

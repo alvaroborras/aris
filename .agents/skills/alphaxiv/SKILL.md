@@ -1,13 +1,11 @@
 ---
 name: alphaxiv
 description: Quick single-paper lookup via AlphaXiv LLM-optimized summaries with tiered source fallback. Use when user says "explain this paper", "summarize paper", pastes an arXiv/AlphaXiv URL, or provides a bare arXiv ID for quick understanding - not for broad literature search.
-argument-hint: [arxiv-id-or-url]
-allowed-tools: Bash(*), Read, Write, Glob
 ---
 
 # AlphaXiv Paper Lookup
 
-Lookup paper: $ARGUMENTS
+Lookup paper: the user's request
 
 > Quick single-paper reader with tiered source fallback (overview → full markdown → LaTeX source). Powered by [AlphaXiv](https://alphaxiv.org).
 
@@ -17,12 +15,12 @@ This skill is the **quick single-paper reader** that returns LLM-optimized summa
 
 | Skill | Source | Best for |
 |-------|--------|----------|
-| `/arxiv` | arXiv API | Batch search, PDF download, metadata |
-| `/deepxiv` | DeepXiv SDK | Progressive section-level reading |
-| `/semantic-scholar` | S2 API | Published venue metadata, citation counts |
-| **`/alphaxiv`** | **alphaxiv.org** | **Instant LLM-optimized summary of one paper, with LaTeX source fallback** |
+| `$arxiv` | arXiv API | Batch search, PDF download, metadata |
+| `$deepxiv` | DeepXiv SDK | Progressive section-level reading |
+| `$semantic-scholar` | S2 API | Published venue metadata, citation counts |
+| **`$alphaxiv`** | **alphaxiv.org** | **Instant LLM-optimized summary of one paper, with LaTeX source fallback** |
 
-**Do NOT use this skill for** topic discovery, broad literature search, or multi-paper surveys — use `/research-lit` or `/arxiv` instead.
+**Do NOT use this skill for** topic discovery, broad literature search, or multi-paper surveys — use `$research-lit` or `$arxiv` instead.
 
 ## Constants
 
@@ -32,16 +30,16 @@ This skill is the **quick single-paper reader** that returns LLM-optimized summa
 - **ALPHAXIV_UA** = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36` — any modern browser UA works; update the version numbers if AlphaXiv starts blocking this value again
 
 > Overrides (append to arguments):
-> - `/alphaxiv 2401.12345` — quick overview
-> - `/alphaxiv "https://arxiv.org/abs/2401.12345"` — auto-extract ID
-> - `/alphaxiv 2401.12345 - depth: src` — force LaTeX source inspection
-> - `/alphaxiv 2401.12345 - depth: abs` — force full markdown
+> - `$alphaxiv 2401.12345` — quick overview
+> - `$alphaxiv "https://arxiv.org/abs/2401.12345"` — auto-extract ID
+> - `$alphaxiv 2401.12345 - depth: src` — force LaTeX source inspection
+> - `$alphaxiv 2401.12345 - depth: abs` — force full markdown
 
 ## Workflow
 
 ### Step 1: Parse Arguments & Extract Paper ID
 
-Parse `$ARGUMENTS` to extract a bare arXiv paper ID. Accept these input formats:
+Parse `the user's request` to extract a bare arXiv paper ID. Accept these input formats:
 
 - `https://arxiv.org/abs/2401.12345` or `https://arxiv.org/abs/2401.12345v2`
 - `https://arxiv.org/pdf/2401.12345`
@@ -153,25 +151,25 @@ If wiki was not present at read time, the user can backfill via
 #### Suggest Follow-Up Skills (after Step 6 completes)
 
 ```text
-/arxiv "PAPER_ID" - download          - download the PDF to local library
-/deepxiv "PAPER_ID" - section: Methods  - read a specific section progressively
-/research-lit "related topic"        - multi-source literature survey
-/novelty-check "idea from paper"     - verify novelty against this paper's area
+$arxiv "PAPER_ID" - download          - download the PDF to local library
+$deepxiv "PAPER_ID" - section: Methods  - read a specific section progressively
+$research-lit "related topic"        - multi-source literature survey
+$novelty-check "idea from paper"     - verify novelty against this paper's area
 ```
 ## Key Rules
 
 - **Overview first**: `overview` is the fastest path and must always be tried before deeper tiers. Only escalate when needed.
 - **Minimal reads**: At `src` tier, read only the files that answer the question. Full-tree reads waste tokens.
 - **Cross-platform**: When downloading and extracting the source archive, prefer cross-platform approaches (e.g., Python stdlib) over platform-specific commands to ensure Windows/WSL compatibility.
-- **No PDF parsing**: This skill reads structured markdown and LaTeX source, not raw PDFs. For PDF content, suggest `/arxiv` with download.
-- **Rate limiting**: arXiv source download may rate-limit. If HTTP 429 occurs, wait 5 seconds and retry once. If still blocked, report the error and suggest `/deepxiv` as alternative.
-- **Complementary, not competing**: This skill complements `/arxiv` (search + download) and `/deepxiv` (progressive reading). Do not re-implement their functionality.
+- **No PDF parsing**: This skill reads structured markdown and LaTeX source, not raw PDFs. For PDF content, suggest `$arxiv` with download.
+- **Rate limiting**: arXiv source download may rate-limit. If HTTP 429 occurs, wait 5 seconds and retry once. If still blocked, report the error and suggest `$deepxiv` as alternative.
+- **Complementary, not competing**: This skill complements `$arxiv` (search + download) and `$deepxiv` (progressive reading). Do not re-implement their functionality.
 
 ## Integration with Other Skills
 
-### As enrichment in `/research-lit`
+### As enrichment in `$research-lit`
 
-`/research-lit` can use this skill's Tier 1 (overview) as a fast enrichment step between search and deep analysis. After finding arXiv papers in Step 1, fetch AlphaXiv overviews to quickly assess relevance before committing to full-text reads:
+`$research-lit` can use this skill's Tier 1 (overview) as a fast enrichment step between search and deep analysis. After finding arXiv papers in Step 1, fetch AlphaXiv overviews to quickly assess relevance before committing to full-text reads:
 
 ```
 Step 1: Search → list of arXiv IDs
@@ -183,4 +181,4 @@ This saves significant tokens by filtering out marginally relevant papers before
 
 ### As follow-up from other skills
 
-After `/research-lit`, `/novelty-check`, or `/idea-discovery` surface a specific paper, users can invoke `/alphaxiv PAPER_ID` for a fast deep-dive without re-running the full survey.
+After `$research-lit`, `$novelty-check`, or `$idea-discovery` surface a specific paper, users can invoke `$alphaxiv PAPER_ID` for a fast deep-dive without re-running the full survey.

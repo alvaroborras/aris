@@ -1,11 +1,11 @@
 ---
-name: "analyze-results"
-description: "Analyze ML experiment results, compute statistics, generate comparison tables and insights. Use when user says \"analyze results\", \"compare\", or needs to interpret experimental data."
+name: analyze-results
+description: Analyze ML experiment results, compute statistics, generate comparison tables and insights. Use when user says "analyze results", "compare", or needs to interpret experimental data.
 ---
 
 # Analyze Experiment Results
 
-Analyze: $ARGUMENTS
+Analyze: the user's request
 
 ## Workflow
 

@@ -1,8 +1,6 @@
 ---
 name: figure-spec
-description: "Generate deterministic publication-quality architecture, workflow, and pipeline diagrams from structured JSON (FigureSpec) into editable SVG. Use when user says \"架构图\", \"workflow 图\", \"pipeline 图\", \"确定性矢量图\", \"figure spec\", \"draw architecture\", or needs precise, editable, publication-ready vector diagrams. Preferred over AI illustration for formal architecture/workflow figures."
-argument-hint: [description-of-diagram]
-allowed-tools: Bash(*), Read, Write, Edit
+description: Generate deterministic publication-quality architecture, workflow, and pipeline diagrams from structured JSON (FigureSpec) into editable SVG. Use when user says "架构图", "workflow 图", "pipeline 图", "确定性矢量图", "figure spec", "draw architecture", or needs precise, editable, publication-ready vector diagrams. Preferred over AI illustration for formal architecture/workflow figures.
 ---
 
 # FigureSpec: Deterministic JSON → SVG Figure Generation
@@ -20,9 +18,9 @@ Generate publication-quality **architecture diagrams**, **workflow pipelines**, 
 - Figures where determinism matters (same spec → same SVG)
 
 **Do NOT use for:**
-- Data plots (bar/line/scatter) — use `/paper-figure`
-- Natural/qualitative illustrations — use `/paper-illustration`
-- Quick state-machine / flowchart — use `/mermaid-diagram` (lighter syntax)
+- Data plots (bar/line/scatter) — use `$paper-figure`
+- Natural/qualitative illustrations — use `$paper-illustration`
+- Quick state-machine / flowchart — use `$mermaid-diagram` (lighter syntax)
 
 ## Core Properties
 
@@ -51,10 +49,11 @@ shared-runtime compatibility):
 ```bash
 # Layer 0: self-contained at the new canonical location (Phase 3.1).
 FIGURE_RENDERER=""
+[ -f ".agents/skills/figure-spec/scripts/figure_renderer.py" ] && FIGURE_RENDERER=".agents/skills/figure-spec/scripts/figure_renderer.py"
 if [ -z "${ARIS_REPO:-}" ] && [ -f .aris/installed-skills-codex.txt ]; then
     ARIS_REPO=$(awk -F'\t' '$1=="repo_root"{print $2; exit}' .aris/installed-skills-codex.txt 2>/dev/null) || true
 fi
-[ -n "${ARIS_REPO:-}" ] && [ -f "$ARIS_REPO/skills/figure-spec/scripts/figure_renderer.py" ] && FIGURE_RENDERER="$ARIS_REPO/skills/figure-spec/scripts/figure_renderer.py"
+[ -z "$FIGURE_RENDERER" ] && [ -n "${ARIS_REPO:-}" ] && [ -f "$ARIS_REPO/.agents/skills/figure-spec/scripts/figure_renderer.py" ] && FIGURE_RENDERER="$ARIS_REPO/.agents/skills/figure-spec/scripts/figure_renderer.py"
 
 # Layers 1-3: legacy shared-runtime chain via shim at tools/figure_renderer.py.
 [ -z "$FIGURE_RENDERER" ] && [ -n "${ARIS_REPO:-}" ] && [ -f "$ARIS_REPO/tools/figure_renderer.py" ] && FIGURE_RENDERER="$ARIS_REPO/tools/figure_renderer.py"
@@ -78,7 +77,7 @@ python3 "$FIGURE_RENDERER" schema
 
 ### Step 1: Understand the Diagram Goal
 
-From `$ARGUMENTS` (description or path to `PAPER_PLAN.md` / `NARRATIVE_REPORT.md`), identify:
+From `the user's request` (description or path to `PAPER_PLAN.md` / `NARRATIVE_REPORT.md`), identify:
 - **Purpose**: architecture, workflow, pipeline, audit cascade, topology?
 - **Main entities**: what are the boxes?
 - **Relationships**: how do they connect? (uses, produces, calls, verifies, chains)
@@ -242,10 +241,10 @@ Three-stage horizontal cascade with inputs feeding in from top, outputs exiting 
 
 ## Integration with Other Skills
 
-- **`/paper-writing`** (Workflow 3): when `illustration: figurespec` (default for architecture figures), this skill handles Phase 2b
-- **`/paper-figure`**: handles data plots; they complement each other (data + architecture = complete figure set)
-- **`/paper-illustration`**: fallback for figures that need natural/qualitative style (method illustrations with photos, qualitative result grids)
-- **`/mermaid-diagram`**: lighter alternative for simple flowcharts
+- **`$paper-writing`** (Workflow 3): when `illustration: figurespec` (default for architecture figures), this skill handles Phase 2b
+- **`$paper-figure`**: handles data plots; they complement each other (data + architecture = complete figure set)
+- **`$paper-illustration`**: fallback for figures that need natural/qualitative style (method illustrations with photos, qualitative result grids)
+- **`$mermaid-diagram`**: lighter alternative for simple flowcharts
 
 ## Review Tracing
 

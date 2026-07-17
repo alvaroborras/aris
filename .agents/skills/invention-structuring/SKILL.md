@@ -1,15 +1,13 @@
 ---
 name: invention-structuring
-description: "Structure a raw invention idea into a formal invention disclosure. Use when user says \"构建发明\", \"structure invention\", \"发明构建\", \"invention disclosure\", or wants to formalize a rough idea into a patent-ready structure."
-argument-hint: [invention-description-or-brief-path]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Structure a raw invention idea into a formal invention disclosure. Use when user says "构建发明", "structure invention", "发明构建", "invention disclosure", or wants to formalize a rough idea into a patent-ready structure.
 ---
 
 # Invention Structuring
 
-Structure the invention into a formal disclosure based on: **$ARGUMENTS**
+Structure the invention into a formal disclosure based on: **the user's request**
 
-Adapted from the refinement pattern in `/research-refine` for patent invention decomposition.
+Adapted from the refinement pattern in `$research-refine` for patent invention decomposition.
 
 ## Constants
 
@@ -18,7 +16,7 @@ Adapted from the refinement pattern in `/research-refine` for patent invention d
 
 ## Inputs
 
-1. Invention description from `$ARGUMENTS`
+1. Invention description from `the user's request`
 2. `patent/INVENTION_BRIEF.md` if exists
 3. `patent/PRIOR_ART_REPORT.md` — prior art landscape
 4. `patent/NOVELTY_ASSESSMENT.md` — novelty analysis

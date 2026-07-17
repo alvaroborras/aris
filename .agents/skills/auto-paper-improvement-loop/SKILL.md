@@ -1,36 +1,38 @@
 ---
 name: auto-paper-improvement-loop
-description: "Autonomously improve a generated paper via GPT-5.6-Sol xhigh review → implement fixes → recompile, for 2 rounds. Use when user says \"改论文\", \"improve paper\", \"论文润色循环\", \"auto improve\", or wants to iteratively polish a generated paper."
-argument-hint: "[paper-directory] [— edit-whitelist <path>]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Autonomously improve a generated paper via GPT-5.6-Sol xhigh review → implement fixes → recompile, for 2 rounds. Use when user says "改论文", "improve paper", "论文润色循环", "auto improve", or wants to iteratively polish a generated paper.
 ---
 
 # Auto Paper Improvement Loop: Review → Fix → Recompile
 
-Autonomously improve the paper at: **$ARGUMENTS**
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `[paper-directory] [— edit-whitelist <path>]`. Do not expect a dedicated argument variable or slash-command parser.
+
+Autonomously improve the paper at: **the user's request**
 
 ## Context
 
-This skill is designed to run **after** Workflow 3 (`/paper-plan` → `/paper-figure` → `/paper-write` → `/paper-compile`). It takes a compiled paper and iteratively improves it through external LLM review.
+This skill is designed to run **after** Workflow 3 (`$paper-plan` → `$paper-figure` → `$paper-write` → `$paper-compile`). It takes a compiled paper and iteratively improves it through external LLM review.
 
-Unlike `/auto-review-loop` (which iterates on **research** — running experiments, collecting data, rewriting narrative), this skill iterates on **paper writing quality** — fixing theoretical inconsistencies, softening overclaims, adding missing content, and improving presentation.
+Unlike `$auto-review-loop` (which iterates on **research** — running experiments, collecting data, rewriting narrative), this skill iterates on **paper writing quality** — fixing theoretical inconsistencies, softening overclaims, adding missing content, and improving presentation.
 
 ## Constants
 
 - **MAX_ROUNDS = 2** — Two rounds of review→fix→recompile. Empirically, Round 1 catches structural issues (4→6/10), Round 2 catches remaining presentation issues (6→7/10). Diminishing returns beyond 2 rounds for writing-only improvements.
-- **REVIEWER_MODEL = `gpt-5.6-sol`** — Model used via Codex MCP for paper review.
+- **REVIEWER_MODEL = `gpt-5.6-sol`** — Model used via Codex subagent capability for paper review.
 - **REVIEWER_BIAS_GUARD = true** — When `true`, every review round uses a fresh `spawn_agent` reviewer with no prior review context. Do not use stale self-reported context for review rounds. Set to `false` only for deliberate debugging of the legacy behavior. **Empirical evidence:** running the same paper with continuation replies plus "since last round we did X" prompts inflated scores from real 3/10 → fake 8/10 across multiple rounds; switching to fresh threads recovered the true 3/10 assessment.
 - **REVIEW_LOG = `PAPER_IMPROVEMENT_LOG.md`** — Cumulative log of all rounds, stored in paper directory.
 - **HUMAN_CHECKPOINT = false** — When `true`, pause after each round's review and present score + weaknesses to the user. The user can approve fixes, provide custom modification instructions, skip specific fixes, or stop early. When `false` (default), runs fully autonomously.
 - **EDIT_WHITELIST = `null`** — Optional path to a YAML/JSON whitelist file constraining which paths and operations the fix-implementation step may touch. When `null` (default), all edits proceed unconstrained. When set via `— edit-whitelist <path>` (also accepts `— edit_whitelist <path>`), the loop loads the file at startup and consults it before each edit; rejected edits are logged to `PAPER_IMPROVEMENT_LOG.md` rather than silently dropped. See "Optional: Edit Whitelist" below.
 
-> 💡 Override: `/auto-paper-improvement-loop "paper/" — human checkpoint: true`
+> 💡 Override: `$auto-paper-improvement-loop "paper/" — human checkpoint: true`
 
 ## Optional: Edit Whitelist (`— edit-whitelist <path>`, opt-in)
 
 Lets the caller hard-constrain which files and operations the **fix-implementation** step (Step 3 / Step 6) is allowed to touch. **Default OFF — when the user does not pass `— edit-whitelist` (or the alias `— edit_whitelist`), the loop applies all reviewer-driven edits without restriction, exactly as before.**
 
-This is the parameter that upstream pipelines (e.g. `/resubmit-pipeline` Phase 2) use to enforce text-only resubmit microedits: no `.bib` mutations, no `.sty` / `.bst` mutations, no edits to prior-submission directories, no new `\cite{...}`, no new theorem environments, no new numerical claims.
+This is the parameter that upstream pipelines (e.g. `$resubmit-pipeline` Phase 2) use to enforce text-only resubmit microedits: no `.bib` mutations, no `.sty` / `.bst` mutations, no edits to prior-submission directories, no new `\cite{...}`, no new theorem environments, no new numerical claims.
 
 ### Schema
 
@@ -87,7 +89,7 @@ For each candidate edit's diff (the new lines being added — deletions are exem
 
 ### Behavior at loop start (before Round 1 fix-implementation)
 
-1. If `— edit-whitelist <path>` is present in `$ARGUMENTS`, set `EDIT_WHITELIST = <path>`.
+1. If `— edit-whitelist <path>` is present in `the user's request`, set `EDIT_WHITELIST = <path>`.
 2. Load the file (`yaml.safe_load`; if it fails, fall back to `json.loads`). On load failure, abort the loop with a clear error — do NOT silently proceed unconstrained.
 3. Echo `rationale` (if present) into `PAPER_IMPROVEMENT_LOG.md` under a new "Edit Whitelist" preamble section so the audit trail records why edits were constrained.
 
@@ -119,13 +121,13 @@ At the end of each round (after the recompile, before moving to the next round),
 
 ```bash
 # Resubmit-pipeline Phase 2 caller (text-only mode):
-/auto-paper-improvement-loop "paper/" — edit-whitelist .resubmit/edit_whitelist.yaml
+$auto-paper-improvement-loop "paper/" — edit-whitelist .resubmit/edit_whitelist.yaml
 
 # Aliased form is accepted:
-/auto-paper-improvement-loop "paper/" — edit_whitelist .resubmit/edit_whitelist.yaml
+$auto-paper-improvement-loop "paper/" — edit_whitelist .resubmit/edit_whitelist.yaml
 
 # Combined with other flags:
-/auto-paper-improvement-loop "paper/" — human checkpoint: true — edit-whitelist constraints.yaml
+$auto-paper-improvement-loop "paper/" — human checkpoint: true — edit-whitelist constraints.yaml
 ```
 
 ### Rationale
@@ -139,7 +141,7 @@ Without a whitelist, the loop's reviewer-driven fix step is free to add citation
 
 ## State Persistence (Compact Recovery)
 
-If the context window fills up mid-loop, Claude Code auto-compacts. To recover, this skill writes `PAPER_IMPROVEMENT_STATE.json` after each round:
+If the context window fills up mid-loop, Codex auto-compacts. To recover, this skill writes `PAPER_IMPROVEMENT_STATE.json` after each round:
 
 ```json
 {
@@ -247,7 +249,7 @@ Key weaknesses (by severity):
 Reply "go" to implement all fixes, give custom instructions, "skip 2" to skip specific fixes, or "stop" to end.
 ```
 
-Parse user response same as `/auto-review-loop`: approve / custom instructions / skip / stop.
+Parse user response same as `$auto-review-loop`: approve / custom instructions / skip / stop.
 
 ### Step 3: Implement Round 1 Fixes
 
@@ -271,9 +273,9 @@ Parse the review and implement fixes by severity:
 | Notation confusion | Rename conflicting symbols globally, add Notation paragraph |
 | Missing references | Add to `references.bib`, cite in appropriate locations |
 | Theory-practice gap | Explicitly frame theory as idealized; add synthetic validation subsection |
-| Proof gap (theory papers) | Run `/proof-checker` if PROOF_AUDIT.md doesn't exist yet; fix FATAL/CRITICAL issues |
+| Proof gap (theory papers) | Run `$proof-checker` if PROOF_AUDIT.md doesn't exist yet; fix FATAL/CRITICAL issues |
 | Writing clutter / passive voice | Apply sciwrite 5-pass audit: clutter extraction → active voice → sentence architecture → keyword consistency → numerical integrity. See `paper-write` Step 5 |
-| Number mismatch (paper vs results) | Run `/paper-claim-audit` if PAPER_CLAIM_AUDIT.md doesn't exist; fix any `number_mismatch` or `aggregation_mismatch` claims |
+| Number mismatch (paper vs results) | Run `$paper-claim-audit` if PAPER_CLAIM_AUDIT.md doesn't exist; fix any `number_mismatch` or `aggregation_mismatch` claims |
 | Keyword inconsistency | The "Banana Rule": if Methods says "obese group", Results must not say "heavier group". Extract key terms, verify consistency across all sections |
 
 ### Step 4: Recompile Round 1
@@ -475,100 +477,6 @@ Create `PAPER_IMPROVEMENT_LOG.md` in the paper directory:
 ```markdown
 # Paper Improvement Log
 
-## Score Progression
+## Detailed Protocol
 
-| Round | Score | Verdict | Key Changes |
-|-------|-------|---------|-------------|
-| Round 0 (original) | X/10 | No/Almost/Yes | Baseline |
-| Round 1 | Y/10 | No/Almost/Yes | [summary of fixes] |
-| Round 2 | Z/10 | No/Almost/Yes | [summary of fixes] |
-
-## Round 1 Review & Fixes
-
-<details>
-<summary>GPT-5.6-Sol xhigh Review (Round 1)</summary>
-
-[Full raw review text, verbatim]
-
-</details>
-
-### Fixes Implemented
-1. [Fix description]
-2. [Fix description]
-...
-
-## Round 2 Review & Fixes
-
-<details>
-<summary>GPT-5.6-Sol xhigh Review (Round 2)</summary>
-
-[Full raw review text, verbatim]
-
-</details>
-
-### Fixes Implemented
-1. [Fix description]
-2. [Fix description]
-...
-
-## PDFs
-- `main_round0_original.pdf` — Original generated paper
-- `main_round1.pdf` — After Round 1 fixes
-- `main_round2.pdf` — Final version after Round 2 fixes
-```
-
-### Step 9: Summary
-
-Report to user:
-- Score progression table
-- Number of CRITICAL/MAJOR/MINOR issues fixed per round
-- Final page count
-- Remaining issues (if any)
-
-### Feishu Notification (if configured)
-
-After each round's review AND at final completion, check `~/.codex/feishu.json`:
-- **After each round**: Send `review_scored` — "Round N: X/10 — [key changes]"
-- **After final round**: Send `pipeline_done` — score progression table + final page count
-- If config absent or mode `"off"`: skip entirely (no-op)
-
-## Output
-
-```
-paper/
-├── main_round0_original.pdf    # Original
-├── main_round1.pdf             # After Round 1
-├── main_round2.pdf             # After Round 2 (final)
-├── main.pdf                    # = main_round2.pdf
-└── PAPER_IMPROVEMENT_LOG.md    # Full review log with scores
-```
-
-## Key Rules
-
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
-
-- **Preserve all PDF versions** — user needs to compare progression
-- **Save FULL raw review text** — do not summarize or truncate GPT-5.6-Sol responses
-- **Reviewer independence (Round 2+)**: when `REVIEWER_BIAS_GUARD = true` (default), use a **fresh** `spawn_agent` reviewer for every review round; never use stale reviewer continuation and never include "since last round" / fix summaries in the prompt. See the Reviewer Independence Protocol section above.
-- **Always recompile after fixes** — verify 0 errors before proceeding
-- **Do not fabricate experimental results** — synthetic validation must describe methodology, not invent numbers
-- **Respect the paper's claims** — soften overclaims rather than adding unsupported new claims
-- **Global consistency** — when renaming notation or softening claims, check ALL files (abstract, intro, method, experiments, theory sections, conclusion, tables, figure captions)
-- **Edit-whitelist rejections are LOGGED, not silently dropped** — when `EDIT_WHITELIST` is set and an edit is rejected for a path or forbidden-operation violation, the rejection MUST be appended to `PAPER_IMPROVEMENT_LOG.md` with file, reason, offending pattern, and the original reviewer concern. The loop reports a rejection summary at the end of every round (and in the checkpoint, if `HUMAN_CHECKPOINT = true`). Never silently swallow a whitelist rejection — the audit trail is the whole point of the parameter.
-
-## Typical Score Progression
-
-Based on end-to-end testing on a real theory-paper run:
-
-| Round | Score | Key Improvements |
-|-------|-------|-----------------|
-| Round 0 | 4/10 (content) | Baseline: assumption-model mismatch, overclaims, notation issues |
-| Round 1 | 6/10 (content) | Fixed assumptions, softened claims, added interpretation, renamed notation |
-| Round 2 | 7/10 (content) | Added synthetic validation, formal truncation proposition, stronger limitations |
-| Round 3 | 5→8.5/10 (format) | Removed hero fig, appendix, compressed conclusion, fixed overfull hbox |
-
-**+4.5 points across 3 rounds** (2 content + 1 format) is typical for a well-structured but rough first draft. Final state at submission: clean overfull-hbox count and venue-format-compliant length.
-
-## Review Tracing
-
-After each `spawn_agent`, `send_input`, or adversarial reviewer call, save the trace following `../shared-references/review-tracing.md`. Write files directly to `.aris/traces/auto-paper-improvement-loop/<date>_run<NN>/`. Respect the `--- trace:` parameter when present (default: `full`).
+Before executing the workflow, read [references/detailed-protocol.md](references/detailed-protocol.md) completely. Treat its workflow, output templates, and completion rules as normative.

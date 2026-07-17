@@ -1,11 +1,11 @@
 ---
-name: "research-refine-pipeline"
-description: "Run an end-to-end workflow that chains `research-refine` and `experiment-plan`. Use when the user wants a one-shot pipeline from vague research direction to focused final proposal plus detailed experiment roadmap, or asks to \"\u4e32\u8d77\u6765\", build a pipeline, do it end-to-end, or generate both the method and experiment plan together."
+name: research-refine-pipeline
+description: Run an end-to-end workflow that chains `research-refine` and `experiment-plan`. Use when the user wants a one-shot pipeline from vague research direction to focused final proposal plus detailed experiment roadmap, or asks to "串起来", build a pipeline, do it end-to-end, or generate both the method and experiment plan together.
 ---
 
 # Research Refine Pipeline: End-to-End Method and Experiment Planning
 
-Refine and concretize: **$ARGUMENTS**
+Refine and concretize: **the user's request**
 
 ## Overview
 
@@ -133,7 +133,7 @@ Write `refine-logs/PIPELINE_SUMMARY.md`:
 - [Mitigation]:
 
 ## Next Action
-- Proceed to `/run-experiment`
+- Proceed to `$run-experiment`
 ```
 
 ### Phase 5: Present a Brief Summary to the User
@@ -152,19 +152,19 @@ Pipeline summary:
 - refine-logs/PIPELINE_SUMMARY.md
 
 Best next step:
-- /run-experiment
+- $run-experiment
 ```
 
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - Do not let the experiment plan override the Problem Anchor.
 - Do not widen the paper story after method refinement unless a missing validation block is truly necessary.
@@ -178,9 +178,9 @@ Best next step:
 ## Composing with Other Skills
 
 ```
-/research-refine-pipeline -> one-shot method + experiment planning
-/research-refine   -> method refinement only
-/experiment-plan   -> experiment planning only
-/run-experiment    -> execution
+$research-refine-pipeline -> one-shot method + experiment planning
+$research-refine   -> method refinement only
+$experiment-plan   -> experiment planning only
+$run-experiment    -> execution
 ```
 

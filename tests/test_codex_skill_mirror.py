@@ -24,6 +24,13 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def read_skill_bundle(name: str) -> str:
+    root = CODEX_SKILLS / name
+    parts = [read(root / "SKILL.md")]
+    parts.extend(read(path) for path in sorted((root / "references").glob("*.md")))
+    return "\n".join(parts)
+
+
 def has_spawn_agent_block(text: str) -> bool:
     return re.search(r"(?m)^\s*spawn_agent:", text) is not None
 
@@ -35,7 +42,7 @@ def has_send_input_block(text: str) -> bool:
 def test_codex_skill_set_matches_mainline() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
-    assert len(main_names) == 79
+    assert len(main_names) == 80
     assert main_names == codex_names
 
 
@@ -60,8 +67,13 @@ def test_codex_mirror_shared_reference_links_resolve() -> None:
         for skill_md in root.glob("*/SKILL.md"):
             for ref in ref_re.findall(read(skill_md)):
                 if ref not in mirror_refs:
-                    dangling.append(f"{skill_md.relative_to(REPO_ROOT)} -> shared-references/{ref}")
-    assert not dangling, "mirror SKILL.md cites shared-references not in the mirror:\n" + "\n".join(dangling)
+                    dangling.append(
+                        f"{skill_md.relative_to(REPO_ROOT)} -> shared-references/{ref}"
+                    )
+    assert not dangling, (
+        "mirror SKILL.md cites shared-references not in the mirror:\n"
+        + "\n".join(dangling)
+    )
 
 
 def test_codex_mirror_wiki_writers_wired() -> None:
@@ -71,30 +83,56 @@ def test_codex_mirror_wiki_writers_wired() -> None:
     # supported/partial/invalidated as claim statuses, so a mirror that still instructs it
     # is a live broken path for Codex-CLI users).
     r2c = read(CODEX_SKILLS / "result-to-claim" / "SKILL.md")
-    assert "add_experiment" in r2c and "EXP_NODE_OK" in r2c, \
+    assert "add_experiment" in r2c and "EXP_NODE_OK" in r2c, (
         "mirror result-to-claim must create the exp node via add_experiment + gate edges on EXP_NODE_OK"
-    assert re.search(r"status\s*(?:→|->|:)\s*(supported|partial|invalidated)", r2c) is None, \
-        "mirror result-to-claim must NOT set a claim status to an empirical value"
-    assert "upsert_idea" in read(CODEX_SKILLS / "idea-creator" / "SKILL.md"), \
+    )
+    assert (
+        re.search(r"status\s*(?:→|->|:)\s*(supported|partial|invalidated)", r2c) is None
+    ), "mirror result-to-claim must NOT set a claim status to an empirical value"
+    assert "upsert_idea" in read(CODEX_SKILLS / "idea-creator" / "SKILL.md"), (
         "mirror idea-creator must record ideas via upsert_idea (not freehand)"
-    assert "add_claim" in read(CODEX_SKILLS / "proof-checker" / "SKILL.md"), \
+    )
+    assert "add_claim" in read(CODEX_SKILLS / "proof-checker" / "SKILL.md"), (
         "mirror proof-checker must mint claims via add_claim (Phase 5.5 birth point)"
+    )
     we = read(CODEX_SKILLS / "wiki-enrich" / "SKILL.md")
-    assert "populate via /proof-checker" in we and "populate via /result-to-claim" not in we, \
-        "mirror wiki-enrich must point claim-population at /proof-checker"
+    assert (
+        "populate via $proof-checker" in we
+        and "populate via $result-to-claim" not in we
+    ), "mirror wiki-enrich must point claim-population at $proof-checker"
     rw = read(CODEX_SKILLS / "research-wiki" / "SKILL.md")
-    assert "set_claim_status" not in rw, \
+    assert "set_claim_status" not in rw, (
         "mirror research-wiki must not set claim status (empirical support is edge-only)"
-    assert "add_claim" in rw, "mirror research-wiki must document the /proof-checker claim birth point (Hook 4)"
+    )
+    assert "add_claim" in rw, (
+        "mirror research-wiki must document the /proof-checker claim birth point (Hook 4)"
+    )
     # No mainline-convention bleed in the synced mirror files: no `.aris/tools` resolver,
     # no mainline `.aris/installed-skills.txt` manifest, and no bare `research_wiki.py <sub>`
     # call (Codex global-install won't have it on PATH — must be `python3 "$WIKI_SCRIPT"`).
-    for name in ("result-to-claim", "idea-creator", "proof-checker", "research-wiki", "wiki-enrich"):
+    for name in (
+        "result-to-claim",
+        "idea-creator",
+        "proof-checker",
+        "research-wiki",
+        "wiki-enrich",
+    ):
         t = read(CODEX_SKILLS / name / "SKILL.md")
-        assert ".aris/tools" not in t, f"{name} mirror leaked the mainline .aris/tools resolver"
-        assert ".aris/installed-skills.txt" not in t, f"{name} mirror leaked the mainline manifest (use installed-skills-codex.txt)"
-        assert re.search(r"research_wiki\.py\s+(add_claim|add_edge|add_experiment|upsert_idea)", t) is None, \
-            f"{name} mirror has a bare research_wiki.py command (use python3 \"$WIKI_SCRIPT\")"
+        assert ".aris/tools" not in t, (
+            f"{name} mirror leaked the mainline .aris/tools resolver"
+        )
+        assert ".aris/installed-skills.txt" not in t, (
+            f"{name} mirror leaked the mainline manifest (use installed-skills-codex.txt)"
+        )
+        assert (
+            re.search(
+                r"research_wiki\.py\s+(add_claim|add_edge|add_experiment|upsert_idea)",
+                t,
+            )
+            is None
+        ), (
+            f'{name} mirror has a bare research_wiki.py command (use python3 "$WIKI_SCRIPT")'
+        )
 
 
 def test_skill_inventory_check_passes() -> None:
@@ -182,21 +220,39 @@ def test_codex_review_assurance_is_explicit_and_honest() -> None:
         for phrase in forbidden:
             if phrase.lower() in text.lower():
                 offenders.append(f"{skill_file.relative_to(REPO_ROOT)}: {phrase}")
-    assert not offenders, "Codex base mirror falsely claims cross-family review:\n" + "\n".join(offenders)
+    assert not offenders, (
+        "Codex base mirror falsely claims cross-family review:\n" + "\n".join(offenders)
+    )
 
     provisional_skills = {
-        "auto-review-loop", "research-review", "paper-writing", "render-html",
-        "proof-checker", "paper-claim-audit", "citation-audit", "kill-argument",
-        "experiment-audit", "result-to-claim", "meta-apply",
+        "auto-review-loop",
+        "research-review",
+        "paper-writing",
+        "render-html",
+        "proof-checker",
+        "paper-claim-audit",
+        "citation-audit",
+        "kill-argument",
+        "experiment-audit",
+        "result-to-claim",
+        "meta-apply",
     }
     for skill in provisional_skills:
-        text = read(CODEX_SKILLS / skill / "SKILL.md")
-        assert "provisional" in text, f"{skill} must document same-family provisional output"
+        text = read_skill_bundle(skill)
+        assert "provisional" in text, (
+            f"{skill} must document same-family provisional output"
+        )
 
     experiment_audit = read(CODEX_SKILLS / "experiment-audit" / "SKILL.md")
     for field in (
-        "executor_model", "executor_family", "reviewer_model", "reviewer_family",
-        "review_independence", "acceptance_status", "trace_path", "verdict_id",
+        "executor_model",
+        "executor_family",
+        "reviewer_model",
+        "reviewer_family",
+        "review_independence",
+        "acceptance_status",
+        "trace_path",
+        "verdict_id",
     ):
         assert field in experiment_audit, f"experiment-audit must emit {field}"
     assert "Executor — Claude" not in experiment_audit
@@ -207,7 +263,12 @@ def test_codex_review_assurance_is_explicit_and_honest() -> None:
 
     shared_reference_text = "\n".join(
         read(CODEX_SKILLS / "shared-references" / name)
-        for name in ("acceptance-gate.md", "fan-out-pattern.md", "evidence-precheck.md", "external-cadence.md")
+        for name in (
+            "acceptance-gate.md",
+            "fan-out-pattern.md",
+            "evidence-precheck.md",
+            "external-cadence.md",
+        )
     )
     for stale_claim in (
         "**codex** assigns score & verdict",
@@ -219,8 +280,9 @@ def test_codex_review_assurance_is_explicit_and_honest() -> None:
         "score and the verdict both come from the cross-model reviewer",
         "Every Type-B gate routes to a cross-model verdict",
     ):
-        assert stale_claim.lower() not in shared_reference_text.lower(), \
+        assert stale_claim.lower() not in shared_reference_text.lower(), (
             f"Codex mirror retains false cross-model claim: {stale_claim}"
+        )
 
     for overlay in (CLAUDE_OVERLAY, GEMINI_OVERLAY):
         for skill_file in overlay.glob("*/SKILL.md"):
@@ -231,14 +293,18 @@ def test_codex_review_assurance_is_explicit_and_honest() -> None:
 
     for skill_file in CLAUDE_OVERLAY.glob("*/SKILL.md"):
         text = read(skill_file)
-        assert "spawn_agent" not in text, \
+        assert "spawn_agent" not in text, (
             f"{skill_file.relative_to(REPO_ROOT)} leaked the base Codex reviewer route"
-        assert "send_input" not in text, \
+        )
+        assert "send_input" not in text, (
             f"{skill_file.relative_to(REPO_ROOT)} leaked the base Codex continuation route"
-        assert "agent_id" not in text, \
+        )
+        assert "agent_id" not in text, (
             f"{skill_file.relative_to(REPO_ROOT)} must persist Claude threadId, not Codex agent_id"
-        assert "GPT-5.5" not in text and "Codex/GPT" not in text, \
+        )
+        assert "GPT-5.5" not in text and "Codex/GPT" not in text, (
             f"{skill_file.relative_to(REPO_ROOT)} must not retain a non-Claude reviewer identity"
+        )
         assert "mcp__claude-review__review_start" in text
         assert "mcp__claude-review__review_status" in text
 
@@ -323,14 +389,22 @@ def test_codex_skill_helper_commands_use_installed_aris_repo() -> None:
     failures: list[str] = []
     for skill_file in CODEX_SKILLS.glob("*/SKILL.md"):
         skill_name = skill_file.parent.name
-        if skill_name in allowed_bundled_mentions or skill_name in allowed_claude_style_fallbacks:
+        if (
+            skill_name in allowed_bundled_mentions
+            or skill_name in allowed_claude_style_fallbacks
+        ):
             continue
         text = read(skill_file)
         for line_no, line in enumerate(text.splitlines(), start=1):
             if any(re.search(pattern, line) for pattern in bad_command_patterns):
-                failures.append(f"{skill_file.relative_to(REPO_ROOT)}:{line_no}: {line}")
+                failures.append(
+                    f"{skill_file.relative_to(REPO_ROOT)}:{line_no}: {line}"
+                )
 
-    assert not failures, "Codex skills must not assume helper scripts exist in the user project:\n" + "\n".join(failures)
+    assert not failures, (
+        "Codex skills must not assume helper scripts exist in the user project:\n"
+        + "\n".join(failures)
+    )
 
 
 def test_codex_shared_reference_links_exist() -> None:
@@ -341,9 +415,14 @@ def test_codex_shared_reference_links_exist() -> None:
         text = read(skill_file)
         for ref_name in pattern.findall(text):
             if not (CODEX_SKILLS / "shared-references" / ref_name).exists():
-                failures.append(f"{skill_file.relative_to(REPO_ROOT)} -> shared-references/{ref_name}")
+                failures.append(
+                    f"{skill_file.relative_to(REPO_ROOT)} -> shared-references/{ref_name}"
+                )
 
-    assert not failures, "Codex skill shared-reference links must resolve inside skills-codex:\n" + "\n".join(failures)
+    assert not failures, (
+        "Codex skill shared-reference links must resolve inside skills-codex:\n"
+        + "\n".join(failures)
+    )
 
 
 def test_codex_high_risk_skills_preserve_claude_semantics() -> None:
@@ -412,12 +491,14 @@ def test_codex_high_risk_skills_preserve_claude_semantics() -> None:
 
     failures: list[str] = []
     for skill, terms in required_terms.items():
-        text = read(CODEX_SKILLS / skill / "SKILL.md")
+        text = read_skill_bundle(skill)
         for term in terms:
             if term not in text:
                 failures.append(f"{skill}: missing {term}")
 
-    assert not failures, "High-risk Codex skills must preserve Claude semantics:\n" + "\n".join(failures)
+    assert not failures, (
+        "High-risk Codex skills must preserve Claude semantics:\n" + "\n".join(failures)
+    )
 
 
 def test_codex_medium_risk_skills_preserve_claude_semantics() -> None:
@@ -436,7 +517,7 @@ def test_codex_medium_risk_skills_preserve_claude_semantics() -> None:
         "paper-writing": [
             "Architecture & Illustration Generation",
             "Submission pre-flight checklist",
-            "Invoking the three audits",
+            "Invoking the four audits",
             "Running the verifier",
             "Optional hardening",
             "assurance-contract.md",
@@ -462,12 +543,15 @@ def test_codex_medium_risk_skills_preserve_claude_semantics() -> None:
 
     failures: list[str] = []
     for skill, terms in required_terms.items():
-        text = read(CODEX_SKILLS / skill / "SKILL.md")
+        text = read_skill_bundle(skill)
         for term in terms:
             if term not in text:
                 failures.append(f"{skill}: missing {term}")
 
-    assert not failures, "Medium-risk Codex skills must preserve Claude semantics:\n" + "\n".join(failures)
+    assert not failures, (
+        "Medium-risk Codex skills must preserve Claude semantics:\n"
+        + "\n".join(failures)
+    )
 
 
 def test_codex_optional_helpers_are_guarded() -> None:
@@ -505,8 +589,8 @@ def test_codex_training_check_defaults_to_interactive_watch() -> None:
 
 
 def test_codex_skill_instructions_use_codex_paths() -> None:
-    auto_paper = read(CODEX_SKILLS / "auto-paper-improvement-loop" / "SKILL.md")
-    paper_writing = read(CODEX_SKILLS / "paper-writing" / "SKILL.md")
+    auto_paper = read_skill_bundle("auto-paper-improvement-loop")
+    paper_writing = read_skill_bundle("paper-writing")
     figure_spec = read(CODEX_SKILLS / "figure-spec" / "SKILL.md")
     meta_optimize = read(CODEX_SKILLS / "meta-optimize" / "SKILL.md")
 

@@ -1,13 +1,13 @@
 ---
-name: "auto-review-loop-minimax"
-description: "Autonomous multi-round research review loop using MiniMax API. Use when you want to use MiniMax instead of Codex MCP for external review. Trigger with \"auto review loop minimax\" or \"minimax review\"."
+name: auto-review-loop-minimax
+description: Autonomous multi-round research review loop using MiniMax API. Use when you want to use MiniMax instead of Codex subagent review for external review. Trigger with "auto review loop minimax" or "minimax review".
 ---
 
 # Auto Review Loop (MiniMax Version): Autonomous Research Improvement
 
 Autonomously iterate: review → implement fixes → re-review, until the external reviewer gives a positive assessment or MAX_ROUNDS is reached.
 
-## Context: $ARGUMENTS
+## Context: the user's request
 
 ## Constants
 
@@ -214,7 +214,7 @@ When loop ends (positive assessment or max rounds):
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - Be honest — include negative results and failed experiments
 - Do NOT hide weaknesses to game a positive score
@@ -285,6 +285,6 @@ curl -s "https://api.minimax.io/v1/chat/completions" \
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting

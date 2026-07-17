@@ -1,13 +1,13 @@
 ---
-name: "auto-review-loop-llm"
-description: "Autonomous research review loop using any OpenAI-compatible LLM API. Configure via llm-chat MCP server or environment variables. Trigger with \"auto review loop llm\" or \"llm review\"."
+name: auto-review-loop-llm
+description: Autonomous research review loop using any OpenAI-compatible LLM API. Configure via llm-chat MCP server or environment variables. Trigger with "auto review loop llm" or "llm review".
 ---
 
 # Auto Review Loop (Generic LLM): Autonomous Research Improvement
 
 Autonomously iterate: review → implement fixes → re-review, until the external reviewer gives a positive assessment or MAX_ROUNDS is reached.
 
-## Context: $ARGUMENTS
+## Context: the user's request
 
 ## Constants
 
@@ -201,7 +201,7 @@ Append to `review-stage/AUTO_REVIEW.md`:
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - Be honest about weaknesses
 - Implement fixes BEFORE re-reviewing
@@ -242,6 +242,6 @@ mcp__llm-chat__chat:
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting

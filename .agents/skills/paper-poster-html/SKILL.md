@@ -1,11 +1,13 @@
 ---
 name: paper-poster-html
-description: "DEFAULT poster pipeline — build an academic conference poster (ICML/NeurIPS/ICLR/CVPR/...) as a single HTML/CSS file with measurement-driven hard gates, real paper figures, a two-hue design-token system, and print-ready PDF via headless Chromium. Use when the user says \"做海报\", \"poster\", \"conference poster\", \"paper poster\", or asks to design/redo a research poster."
-argument-hint: "[paper-dir-or-pdf] [— venue: ICLR, canvas: 185x90cm landscape, venue-colors: true]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: DEFAULT poster pipeline — build an academic conference poster (ICML/NeurIPS/ICLR/CVPR/...) as a single HTML/CSS file with measurement-driven hard gates, real paper figures, a two-hue design-token system, and print-ready PDF via headless Chromium. Use when the user says "做海报", "poster", "conference poster", "paper poster", or asks to design/redo a research poster.
 ---
 
 # Paper Poster (HTML): measurement-gated poster generation
+
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `[paper-dir-or-pdf] [— venue: ICLR, canvas: 185x90cm landscape, venue-colors: true]`. Do not expect a dedicated argument variable or slash-command parser.
 
 One HTML file styled for an exact print canvas (`@page { size: W H }`), rendered to PDF
 via Playwright print emulation. **Iterate by measuring, not eyeballing** — the screen
@@ -372,6 +374,6 @@ poster_html/
 
 ## When NOT to use
 
-- Slides, not a poster → `/paper-talk` / `/slides-polish`.
+- Slides, not a poster → `$paper-talk` / `$slides-polish`.
 - The paper's headline isn't stable yet — fix the paper first; a poster amplifies
   whatever story it's given.

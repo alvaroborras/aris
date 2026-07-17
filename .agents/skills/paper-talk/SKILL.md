@@ -1,17 +1,19 @@
 ---
 name: paper-talk
-description: "End-to-end conference talk pipeline: paper → slide outline → Beamer + PPTX → per-page polish → assurance checks (claim / citation / anonymity) → final export and report. Default-good for academic conference talks (NeurIPS / ICML / ICLR / VALSE / 投稿 talks). Trigger phrases: \"做 talk\", \"做 PPT 全流程\", \"talk pipeline\", \"end-to-end slides\", \"做演讲\", \"conference talk full workflow\". Use when the user wants the complete talk artifact, not just a slide deck."
-argument-hint: "[paper-dir] [— talk_type: oral | spotlight | poster-talk | invited] [— minutes: N] [— assurance: draft | polished | conference-ready] [— reference: <pdf>] [— style: generic | why-rf | <venue>] [— style-ref: <paper-source>] [— effort: lite | balanced | max | beast] [— anonymous]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill, spawn_agent
+description: 'End-to-end conference talk pipeline: paper → slide outline → Beamer + PPTX → per-page polish → assurance checks (claim / citation / anonymity) → final export and report. Default-good for academic conference talks (NeurIPS / ICML / ICLR / VALSE / 投稿 talks). Trigger phrases: "做 talk", "做 PPT 全流程", "talk pipeline", "end-to-end slides", "做演讲", "conference talk full workflow". Use when the user wants the complete talk artifact, not just a slide deck.'
 ---
 
 # Paper Talk: End-to-End Conference Talk Pipeline
+
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `[paper-dir] [— talk_type: oral | spotlight | poster-talk | invited] [— minutes: N] [— assurance: draft | polished | conference-ready] [— reference: <pdf>] [— style: generic | why-rf | <venue>] [— style-ref: <paper-source>] [— effort: lite | balanced | max | beast] [— anonymous]`. Do not expect a dedicated argument variable or slash-command parser.
 
 Workflow: from a completed paper to a conference-ready talk artifact —
 slide outline, Beamer source, editable PPTX, speaker notes, full talk
 script, polished visuals, and assurance checks.
 
-Pipeline target: **$ARGUMENTS**
+Pipeline target: **the user's request**
 
 ## Assurance Ladder
 
@@ -32,11 +34,11 @@ when content has already been audited at the paper-writing stage.
 These are non-negotiable across all phases:
 
 1. **Original paper is read-only.** This workflow consumes the paper directory; it never modifies `paper/main.tex` or other paper artifacts.
-2. **Original deck is preserved.** `/paper-slides` produces a baseline deck; `/slides-polish` writes a `_polished` versioned copy. The original Beamer + PPTX are never overwritten.
+2. **Original deck is preserved.** `$paper-slides` produces a baseline deck; `$slides-polish` writes a `_polished` versioned copy. The original Beamer + PPTX are never overwritten.
 3. **Speaker notes are byte-stable.** Polish must not change `slide.notes_slide` content. Phase 4 verifies this.
 4. **No new content anywhere in the pipeline.** All slide text, speaker notes, talk script, Q&A answers, claims, numbers, citations, URLs, author names, affiliations, anonymity placeholders, and experiment results must be either paper-grounded (extracted from `PAPER_DIR/` artefacts) or explicitly user-provided. The pipeline never invents content during outline, build, polish, audit, or export. Phase-4 anonymity scan + claim audit verify this end-to-end.
 5. **No slide reordering.** Add / drop / reorder requires explicit user flags.
-6. **Fresh-context independence.** Per-page Codex calls in `/slides-polish` use fresh `spawn_agent` calls (no `send_input`) and are same-family provisional in the base mirror.
+6. **Fresh-context independence.** Per-page Codex calls in `$slides-polish` use fresh `spawn_agent` calls (no `send_input`) and are same-family provisional in the base mirror.
 7. **Anonymity fail-closed.** If any audit (or any Codex fix proposal) would replace a placeholder with a real title / count / URL, the workflow halts and surfaces the proposal for human review. See `../shared-references/experiment-integrity.md`.
 8. **Style references are guidance, not text source.** A `— reference:` PDF or `— style:` preset informs visual weight and structural rhythm; never copy prose, examples, slide titles, or speaker-note text from the reference.
 9. **Final report cannot be `conference-ready` unless required audits pass.** Phase 6 verifies and downgrades verdict if audits fail.
@@ -47,53 +49,53 @@ These are non-negotiable across all phases:
 - **PAPER_DIR = `paper/`** — Source paper directory. Override via positional argument.
 - **OUTPUT_DIR = `slides/`** — Where the deck artefacts live.
 - **STATE_DIR = `.aris/paper-talk/`** — Workflow state, audit logs, final report.
-- **TALK_TYPE = `spotlight`** — Default talk format. Inherited by `/paper-slides`.
-- **TALK_MINUTES = 15** — Default duration. Inherited by `/paper-slides`.
-- **VENUE = `NeurIPS`** — Default venue (used by `/paper-slides` color schemes when `— style` is not passed).
-- **ASPECT_RATIO = `16:9`** — Inherited by `/paper-slides`.
-- **STYLE_PRESET** — `generic` if not passed; `why-rf` and venue presets supported by `/slides-polish`.
+- **TALK_TYPE = `spotlight`** — Default talk format. Inherited by `$paper-slides`.
+- **TALK_MINUTES = 15** — Default duration. Inherited by `$paper-slides`.
+- **VENUE = `NeurIPS`** — Default venue (used by `$paper-slides` color schemes when `— style` is not passed).
+- **ASPECT_RATIO = `16:9`** — Inherited by `$paper-slides`.
+- **STYLE_PRESET** — `generic` if not passed; `why-rf` and venue presets supported by `$slides-polish`.
 - **REFERENCE_VISUAL** — Required when `assurance ≥ polished`. The Beamer compile of this talk is an acceptable self-reference; an external academic talk PDF is preferred when the user wants visual alignment beyond defaults.
 - **AUTO_PROCEED = false** — Each major phase pauses for user approval. Set `true` only when explicitly requested.
 
 ## Inputs
 
-Discovered from `$ARGUMENTS` and the project directory:
+Discovered from `the user's request` and the project directory:
 
 1. **`PAPER_DIR/`** — compiled paper (`main.tex` + `main.pdf`). The paper must already be in good shape; this workflow does not write the paper.
 2. **`PAPER_DIR/sections/*.tex`** — section sources for content extraction.
 3. **`PAPER_DIR/figures/`** — figures available for slide reuse.
 4. **(optional) `slides/SLIDE_OUTLINE.md`** — pre-existing outline (resume mode); skips Phase 1 generation.
-5. **(optional) `— reference: <pdf>`** — visual anchor for `/slides-polish`. If absent and the assurance level requires polish, the workflow uses the Beamer self-compile as reference.
+5. **(optional) `— reference: <pdf>`** — visual anchor for `$slides-polish`. If absent and the assurance level requires polish, the workflow uses the Beamer self-compile as reference.
 6. **(optional) `— talk_type`, `— minutes`, `— style`, `— effort`** — see Constants.
 
 ## Output Layout
 
-File names match `/paper-slides`'s emit contract — this workflow is a
+File names match `$paper-slides`'s emit contract — this workflow is a
 **non-renaming consumer**.
 
 ```
 slides/
 ├── SLIDE_OUTLINE.md                # Phase-1 outline (claim-first per slide)
-├── main.tex                        # Beamer source (from /paper-slides)
+├── main.tex                        # Beamer source (from $paper-slides)
 ├── main.pdf                        # compiled Beamer
-├── presentation.pptx               # editable PPTX (from /paper-slides; emit name fixed by /paper-slides)
-├── presentation_pre_polish.pptx    # snapshot before /slides-polish
-├── presentation_polished.pptx      # /slides-polish output (when assurance ≥ polished)
+├── presentation.pptx               # editable PPTX (from $paper-slides; emit name fixed by $paper-slides)
+├── presentation_pre_polish.pptx    # snapshot before $slides-polish
+├── presentation_polished.pptx      # $slides-polish output (when assurance ≥ polished)
 ├── presentation_polished.pdf       # rendered (LibreOffice or user-export)
-├── speaker_notes.md                # per-slide notes (from /paper-slides)
-├── TALK_SCRIPT.md                  # full word-for-word talk script + Q&A (from /paper-slides)
+├── speaker_notes.md                # per-slide notes (from $paper-slides)
+├── TALK_SCRIPT.md                  # full word-for-word talk script + Q&A (from $paper-slides)
 └── assets/                         # per-slide PNG previews
 
 .aris/paper-talk/
 ├── PIPELINE_STATE.json             # phase pointer, status, timestamps
 ├── FINAL_REPORT.md                 # human-readable summary at end
-├── audit-input/                    # Phase-4 staging copies of slide text + notes + script (so /paper-claim-audit and /citation-audit can run on slide content as a synthetic "paper")
+├── audit-input/                    # Phase-4 staging copies of slide text + notes + script (so $paper-claim-audit and $citation-audit can run on slide content as a synthetic "paper")
 │   ├── main.tex                    # \input{sections/slide_text.tex} \input{sections/notes.tex} \input{sections/script.tex}
 │   ├── sections/
 │   │   ├── slide_text.tex          # all visible slide bullets/titles/callouts as \section{Slide K}
 │   │   ├── notes.tex               # speaker_notes.md → LaTeX, one \section per slide
 │   │   └── script.tex              # TALK_SCRIPT.md → LaTeX, one \section per slide
-│   ├── references.bib → ../../../paper/references.bib   # symlink to source paper bib for /citation-audit
+│   ├── references.bib → ../../../paper/references.bib   # symlink to source paper bib for $citation-audit
 │   ├── results/ → ../../../paper/results/                # symlink — claim audit needs real evidence
 │   └── figures/ → ../../../paper/figures/                # symlink — citation audit may reference figure captions
 └── audits/
@@ -114,10 +116,10 @@ The audit JSON files follow the shared 6-state schema; see
 2. **Check prerequisites**:
    - LaTeX: `which xelatex pdflatex latexmk`
    - PPTX rendering: `which soffice` (LibreOffice headless) — required for Phase 4 export integrity check; otherwise prompt user to export PDF manually.
-   - PDF tools: `which pdfinfo pdftoppm` (poppler) — required for `/slides-polish` PNG rendering.
-   - Codex MCP availability.
+   - PDF tools: `which pdfinfo pdftoppm` (poppler) — required for `$slides-polish` PNG rendering.
+   - Codex subagent capability availability.
    - python-pptx (`python3 -c 'import pptx'`).
-3. **Resolve overrides** from `$ARGUMENTS`: `talk_type`, `minutes`, `assurance`, `reference`, `style`, `effort`.
+3. **Resolve overrides** from `the user's request`: `talk_type`, `minutes`, `assurance`, `reference`, `style`, `effort`.
 4. **State init**: write `.aris/paper-talk/PIPELINE_STATE.json` with `phase: 0`, timestamp, all resolved overrides.
 5. **Resume mode**: if `slides/SLIDE_OUTLINE.md` exists and `PIPELINE_STATE.json` shows recent in-progress work, prompt the user — resume from last phase or start fresh.
 
@@ -131,8 +133,8 @@ count, time budget, claim-per-slide map) to the user and ask:
 
 > "Use existing outline (Y/n)? Modify? Regenerate?"
 
-Otherwise, delegate to `/paper-slides` Phase-1 only (content extraction +
-slide outline generation). `/paper-slides` writes the outline into its own
+Otherwise, delegate to `$paper-slides` Phase-1 only (content extraction +
+slide outline generation). `$paper-slides` writes the outline into its own
 state; we adopt it as `slides/SLIDE_OUTLINE.md`.
 
 The outline must contain, per slide:
@@ -151,17 +153,17 @@ running unattended.
 
 ### Phase 2: Build Baseline Deck
 
-Invoke `/paper-slides` to generate Beamer source + PPTX from the approved
+Invoke `$paper-slides` to generate Beamer source + PPTX from the approved
 outline.
 
 ```
-/paper-slides "<paper-dir>" — talk_type: <T> — minutes: <N> — venue: <V> — aspect: 16:9 — notes: true
+$paper-slides "<paper-dir>" — talk_type: <T> — minutes: <N> — venue: <V> — aspect: 16:9 — notes: true
 ```
 
 Forward `— style-ref:` if the user originally passed it (writer-side; the
 reviewer-side polish in Phase 3 must NOT see it — see invariant 8).
 
-`/paper-slides` produces (emit names fixed by `/paper-slides`):
+`$paper-slides` produces (emit names fixed by `$paper-slides`):
 
 - `slides/main.tex` + `slides/main.pdf` (Beamer)
 - `slides/presentation.pptx` (editable PPTX)
@@ -176,21 +178,21 @@ exact paths.
 
 Skip when `assurance == draft`.
 
-Invoke `/slides-polish` against the freshly generated PPTX, with a
+Invoke `$slides-polish` against the freshly generated PPTX, with a
 reference. If the user passed `— reference:`, use that. Otherwise, use the
 Beamer compile (`slides/main.pdf`) as the visual reference — the Beamer is
 the design intent for the same talk, so it is the correct anchor when no
 external reference is available.
 
 ```
-/slides-polish "slides/presentation.pptx" — reference: slides/main.pdf — style: <preset> — effort: <effort>
+$slides-polish "slides/presentation.pptx" — reference: slides/main.pdf — style: <preset> — effort: <effort>
 ```
 
 After return: verify `slides/presentation_polished.pptx` exists; if
 rendering tools are available, also verify `slides/presentation_polished.pdf`.
 
 The polish phase is read-only on content (see Hard Invariants). If
-`/slides-polish` emits a `BLOCKED` verdict because a Codex fix proposal
+`$slides-polish` emits a `BLOCKED` verdict because a Codex fix proposal
 would alter content, surface that block to the user and halt rather than
 overriding.
 
@@ -198,7 +200,7 @@ overriding.
 
 Skip when `assurance ∈ {draft, polished}`.
 
-`/paper-claim-audit` and `/citation-audit` expect a paper-shaped input
+`$paper-claim-audit` and `$citation-audit` expect a paper-shaped input
 (`paper/main.tex` + `paper/sections/*.tex` + `paper/results/`) and emit
 JSON under `paper/`. Slides have a different shape, so this phase first
 **stages** slide artefacts into a synthetic paper directory, then invokes
@@ -209,7 +211,7 @@ the audits against that synthetic input. Verdicts are written under
 
 #### 4.0 Staging adapter
 
-The staged "paper" mirrors `/paper-claim-audit` and `/citation-audit`'s
+The staged "paper" mirrors `$paper-claim-audit` and `$citation-audit`'s
 expected layout: `main.tex` at the root that `\input{}`s `sections/*.tex`,
 plus a `.bib` file and `results/`+`figures/` symlinks.
 
@@ -237,12 +239,12 @@ in Phase 6 unless the user passes `— keep-audit-input`.
 
 #### 4.1 Slide claim audit
 
-Invoke `/paper-claim-audit` against the staged input. Scope is **slide
+Invoke `$paper-claim-audit` against the staged input. Scope is **slide
 text + speaker notes + full talk script** — talks often smuggle
 unsupported claims into spoken parts that the visible bullets don't show.
 
 ```
-/paper-claim-audit ".aris/paper-talk/audit-input"
+$paper-claim-audit ".aris/paper-talk/audit-input"
 ```
 
 The audit emits `audit-input/PAPER_CLAIM_AUDIT.json` with the shared
@@ -255,11 +257,11 @@ verdict from `conference-ready` to `polished`.
 
 #### 4.2 Citation audit
 
-Invoke `/citation-audit` over the staged input. Verify any `\cite{...}` in
+Invoke `$citation-audit` over the staged input. Verify any `\cite{...}` in
 slides + notes + script via DBLP / CrossRef; flag fabricated entries.
 
 ```
-/citation-audit ".aris/paper-talk/audit-input"
+$citation-audit ".aris/paper-talk/audit-input"
 ```
 
 Output → `.aris/paper-talk/audits/citation_audit.json` (6-state).
@@ -331,10 +333,10 @@ See `../shared-references/effort-contract.md`.
 
 | `effort` | Behavior |
 |---|---|
-| `lite` | Forwarded to sub-skills. `/slides-polish` runs in `lite` (BLOCKERS only). **Phase 4 still runs at the requested assurance level** — `effort` controls depth, never audit gating (see `../shared-references/assurance-contract.md`). |
-| `balanced` (default) | Standard pipeline. `/slides-polish` runs `balanced`. |
-| `max` | `/slides-polish` runs `max` (per-page review on every slide). Phase-4 audits read all artefacts in full. |
-| `beast` | `/slides-polish` runs `beast` (second polish round). Phase-4 audits include extended assurance checks; final report adds an executive summary. |
+| `lite` | Forwarded to sub-skills. `$slides-polish` runs in `lite` (BLOCKERS only). **Phase 4 still runs at the requested assurance level** — `effort` controls depth, never audit gating (see `../shared-references/assurance-contract.md`). |
+| `balanced` (default) | Standard pipeline. `$slides-polish` runs `balanced`. |
+| `max` | `$slides-polish` runs `max` (per-page review on every slide). Phase-4 audits read all artefacts in full. |
+| `beast` | `$slides-polish` runs `beast` (second polish round). Phase-4 audits include extended assurance checks; final report adds an executive summary. |
 
 `reasoning_effort: xhigh` is invariant.
 
@@ -345,30 +347,30 @@ but every audit must emit a verdict before finalisation."
 ## Parameter Pass-Through
 
 ```
-/paper-talk "paper/" — talk_type: oral — minutes: 25 — assurance: conference-ready \
+$paper-talk "paper/" — talk_type: oral — minutes: 25 — assurance: conference-ready \
             — reference: ./refs/why_rf_2025.pdf — style: why-rf — effort: max
 ```
 
 Forwarded to:
 
-- `/paper-slides` (Phase 2): `paper-dir`, `talk_type`, `minutes`, `venue`, `aspect`, `notes`, `style-ref` if writer-side.
-- `/slides-polish` (Phase 3): polished pptx target, `reference`, `style`, `effort`.
-- `/paper-claim-audit` (Phase 4.1): scoped to slide deck artefacts (not paper).
-- `/citation-audit` (Phase 4.2): scoped to slide-deck-only citations.
+- `$paper-slides` (Phase 2): `paper-dir`, `talk_type`, `minutes`, `venue`, `aspect`, `notes`, `style-ref` if writer-side.
+- `$slides-polish` (Phase 3): polished pptx target, `reference`, `style`, `effort`.
+- `$paper-claim-audit` (Phase 4.1): scoped to slide deck artefacts (not paper).
+- `$citation-audit` (Phase 4.2): scoped to slide-deck-only citations.
 - Anonymity scan (Phase 4.3): inline tool, no external skill.
 
 ## When NOT to Use
 
-- The paper is not yet compiled or claims are not stable. Run `/paper-writing` first.
-- The user wants a poster, not a talk. Use `/paper-poster-html`.
-- The user already has a finished deck and only needs visual polish. Use `/slides-polish` directly — `/paper-talk` would needlessly rebuild.
-- The talk content is unrelated to a paper (general lecture, demo). The orchestration assumes a paper-grounded talk; for ad-hoc decks, use `/paper-slides` directly with manual outline.
+- The paper is not yet compiled or claims are not stable. Run `$paper-writing` first.
+- The user wants a poster, not a talk. Use `$paper-poster-html`.
+- The user already has a finished deck and only needs visual polish. Use `$slides-polish` directly — `$paper-talk` would needlessly rebuild.
+- The talk content is unrelated to a paper (general lecture, demo). The orchestration assumes a paper-grounded talk; for ad-hoc decks, use `$paper-slides` directly with manual outline.
 
 ## Prior Skill Relationship
 
-- Composes `/paper-slides`, `/slides-polish`, `/paper-claim-audit`, `/citation-audit`.
-- Does **not** call `/kill-argument` by default — that is upstream intellectual stress-test, not deck QA. Users who want talk-story stress-test before slide build can run `/kill-argument paper/` first.
-- Sister workflow to `/paper-writing` (paper) and `/paper-poster-html` (poster).
+- Composes `$paper-slides`, `$slides-polish`, `$paper-claim-audit`, `$citation-audit`.
+- Does **not** call `$kill-argument` by default — that is upstream intellectual stress-test, not deck QA. Users who want talk-story stress-test before slide build can run `$kill-argument paper/` first.
+- Sister workflow to `$paper-writing` (paper) and `$paper-poster-html` (poster).
 
 ## Empirical Origin
 

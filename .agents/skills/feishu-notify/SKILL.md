@@ -1,11 +1,11 @@
 ---
-name: "feishu-notify"
-description: "Send notifications to Feishu/Lark. Internal utility used by other skills, or manually via /feishu-notify. Use when user says \"发飞书\", \"notify feishu\", or other skills need to send status updates."
+name: feishu-notify
+description: Send notifications to Feishu/Lark. Internal utility used by other skills, or manually via $feishu-notify. Use when user says "发飞书", "notify feishu", or other skills need to send status updates.
 ---
 
 # Feishu/Lark Notification
 
-Send a notification: **$ARGUMENTS**
+Send a notification: **the user's request**
 
 ## Overview
 
@@ -81,7 +81,7 @@ curl -s -X POST "$WEBHOOK_URL" \
 | `checkpoint` | Checkpoint: Waiting for Input | `yellow` | Question, options, context |
 | `error` | Error: [type] | `red` | Error message, what failed |
 | `pipeline_done` | Pipeline Complete | `purple` | Final summary, deliverables |
-| `custom` | Custom | `blue` | Free-form message from $ARGUMENTS |
+| `custom` | Custom | `blue` | Free-form message from the user's request |
 
 **Return immediately after curl** — push mode never waits for a response.
 
@@ -132,16 +132,16 @@ Skills send these events at these moments:
 
 | Skill | Event | When |
 |-------|-------|------|
-| `/auto-review-loop` | `review_scored` | After each round's review score |
-| `/auto-review-loop` | `pipeline_done` | Loop complete (positive or max rounds) |
-| `/auto-paper-improvement-loop` | `review_scored` | After each round's review score |
-| `/auto-paper-improvement-loop` | `pipeline_done` | All rounds complete |
-| `/run-experiment` | `experiment_done` | Screen session finishes |
-| `/idea-discovery` | `checkpoint` | Between phases (if interactive) |
-| `/idea-discovery` | `pipeline_done` | Final report ready |
-| `/monitor-experiment` | `experiment_done` | Results collected |
-| `/research-pipeline` | `checkpoint` | Between workflow stages |
-| `/research-pipeline` | `pipeline_done` | Full pipeline complete |
+| `$auto-review-loop` | `review_scored` | After each round's review score |
+| `$auto-review-loop` | `pipeline_done` | Loop complete (positive or max rounds) |
+| `$auto-paper-improvement-loop` | `review_scored` | After each round's review score |
+| `$auto-paper-improvement-loop` | `pipeline_done` | All rounds complete |
+| `$run-experiment` | `experiment_done` | Screen session finishes |
+| `$idea-discovery` | `checkpoint` | Between phases (if interactive) |
+| `$idea-discovery` | `pipeline_done` | Final report ready |
+| `$monitor-experiment` | `experiment_done` | Results collected |
+| `$research-pipeline` | `checkpoint` | Between workflow stages |
+| `$research-pipeline` | `pipeline_done` | Full pipeline complete |
 
 ## Key Rules
 

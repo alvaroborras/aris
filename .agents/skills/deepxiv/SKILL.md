@@ -1,11 +1,11 @@
 ---
-name: "deepxiv"
-description: "Search and progressively read open-access academic papers through DeepXiv. Use when the user wants layered paper access, section-level reading, trending papers, or DeepXiv-backed literature retrieval."
+name: deepxiv
+description: Search and progressively read open-access academic papers through DeepXiv. Use when the user wants layered paper access, section-level reading, trending papers, or DeepXiv-backed literature retrieval.
 ---
 
 # DeepXiv Paper Search & Progressive Reading
 
-Search topic or paper ID: $ARGUMENTS
+Search topic or paper ID: the user's request
 
 ## Role & Positioning
 
@@ -13,10 +13,10 @@ DeepXiv is the progressive-reading literature source:
 
 | Skill | Source | Best for |
 |-------|--------|----------|
-| `/arxiv` | arXiv API | Batch search, PDF download, metadata |
-| **`/deepxiv`** | **DeepXiv SDK** | **Progressive section-level reading** |
-| `/semantic-scholar` | S2 API | Published venue metadata, citation counts |
-| `/alphaxiv` | alphaxiv.org | Instant LLM-optimized summary of one paper, with LaTeX source fallback |
+| `$arxiv` | arXiv API | Batch search, PDF download, metadata |
+| **`$deepxiv`** | **DeepXiv SDK** | **Progressive section-level reading** |
+| `$semantic-scholar` | S2 API | Published venue metadata, citation counts |
+| `$alphaxiv` | alphaxiv.org | Instant LLM-optimized summary of one paper, with LaTeX source fallback |
 
 Use DeepXiv when you want to inspect papers incrementally instead of loading the full text immediately.
 
@@ -29,13 +29,13 @@ Use DeepXiv when you want to inspect papers incrementally instead of loading the
 - **MAX_RESULTS = 10** — Default number of search results.
 
 > Overrides (append to arguments):
-> - `/deepxiv "agent memory" - max: 5`
-> - `/deepxiv "2409.05591" - brief`
-> - `/deepxiv "2409.05591" - head`
-> - `/deepxiv "2409.05591" - section: Introduction`
-> - `/deepxiv "trending" - days: 14 - max: 10`
-> - `/deepxiv "karpathy" - web`
-> - `/deepxiv "258001" - sc`
+> - `$deepxiv "agent memory" - max: 5`
+> - `$deepxiv "2409.05591" - brief`
+> - `$deepxiv "2409.05591" - head`
+> - `$deepxiv "2409.05591" - section: Introduction`
+> - `$deepxiv "trending" - days: 14 - max: 10`
+> - `$deepxiv "karpathy" - web`
+> - `$deepxiv "258001" - sc`
 
 ## Setup
 
@@ -51,7 +51,7 @@ On first use, `deepxiv` auto-registers a free token and stores it in `~/.env`.
 
 ### Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` for:
+Parse `the user's request` for:
 
 - a paper topic, arXiv ID, or Semantic Scholar ID
 - `- max: N`
@@ -137,6 +137,6 @@ Follow [`shared-references/integration-contract.md`](../shared-references/integr
 ## Key Rules
 
 - Prefer the adapter script over raw `deepxiv` commands when available.
-- If DeepXiv is missing, give the install command and suggest `/arxiv` or `/research-lit "topic" - sources: web`.
+- If DeepXiv is missing, give the install command and suggest `$arxiv` or `$research-lit "topic" - sources: web`.
 - Use DeepXiv as an additive source, not a replacement for existing ARIS literature tooling.
 - If the result overlaps with a published venue paper from Semantic Scholar, keep the richer venue metadata in the final summary.

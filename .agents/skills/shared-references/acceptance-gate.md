@@ -1,12 +1,25 @@
 # Acceptance-Gate Provenance
 
+## Contents
+
+- [Core Principle](#core-principle)
+- [The two gate types](#the-two-gate-types)
+- [Compound gates: split, don't average](#compound-gates-split-dont-average)
+- [Decision procedure (for any new autonomous loop)](#decision-procedure-for-any-new-autonomous-loop)
+- [ARIS loops mapped to the taxonomy](#aris-loops-mapped-to-the-taxonomy)
+- [Tie to fan-out: breadth is same-family; the jury is not](#tie-to-fan-out-breadth-is-same-family-the-jury-is-not)
+- [Required components (for a loop to claim same-family-safe)](#required-components-for-a-loop-to-claim-same-family-safe)
+- [Anti-patterns to refuse in review](#anti-patterns-to-refuse-in-review)
+- [Epistemic status of a PASS](#epistemic-status-of-a-pass)
+- [See Also](#see-also)
+
 > **Codex mirror adaptation (normative).** In this mirror the executor is the
 > current Codex agent and the default reviewer is a fresh `spawn_agent` Codex
 > agent. That route is same-family: it may drive revisions and terminate a loop,
 > but its positive verdict is recorded as `acceptance_status: provisional` and
 > never as cross-family `accepted`. A Claude/Gemini overlay or a deterministic
 > verifier may record `accepted`. Where the mainline examples name Claude or
-> `mcp__codex__codex`, read them as current executor or fresh `spawn_agent`;
+> `spawn_agent`, read them as current executor or fresh `spawn_agent`;
 > follow-up dialogue uses `send_input` only when continuity is intentional.
 
 ## Core Principle
@@ -22,9 +35,9 @@ correctness, claim support, novelty — however it is labeled; see
 checks, and the audit aggregator, which rejects deterministic labels on the
 four semantic paper audits.)
 
-ARIS has loops that keep working until a condition is met: `/auto-review-loop`,
-`/dse-loop`, the `/experiment-bridge` auto-debug cycle, the
-`/auto-paper-improvement-loop`, and any future "keep going until X"
+ARIS has loops that keep working until a condition is met: `$auto-review-loop`,
+`$dse-loop`, the `$experiment-bridge` auto-debug cycle, the
+`$auto-paper-improvement-loop`, and any future "keep going until X"
 skill. Every such loop terminates on a gate it evaluates each iteration:
 "are we done yet?" That gate is where same-family self-acquittal can be
 mistaken for formal acceptance. The loop body can be all Codex; the **gate**
@@ -115,7 +128,7 @@ output is the right answer" — Type-B.
 ## Compound gates: split, don't average
 
 Many natural-language stop conditions secretly bundle an A-part and a
-B-part. `/auto-review-loop`'s real condition is *"score >= 6 AND verdict
+B-part. `$auto-review-loop`'s real condition is *"score >= 6 AND verdict
 contains 'ready'"* evaluated each round — the fresh base Codex reviewer
 records that score/verdict as `provisional`, while an overlay or deterministic
 route may record it `accepted`. The A-part is only "did round N's reviewer
@@ -182,20 +195,20 @@ writes.
 
 | Loop | Headline stop gate | Type | Who acquits | Status |
 |---|---|---|---|---|
-| `/dse-loop` | objective metric converged / TIMEOUT / PATIENCE | A | benchmark harness emits the number; Claude reads & compares to budget | ✅ safe same-model |
-| `/experiment-bridge` auto-debug | "did it run / did it converge" (exit 0, no NaN, training started) | A | exit codes, log parse | ✅ safe same-model |
-| `/run-experiment`, `/experiment-queue` retry | job finished / OOM-retry exhausted / N jobs done | A | scheduler + exit codes | ✅ safe same-model |
-| `/auto-review-loop` | score >= 6 AND verdict "ready", per round | B | fresh **Codex** score & verdict | ⚠ provisional in base |
-| `/auto-paper-improvement-loop` | "review satisfied" (2 rounds) | B | fresh **Codex** review | ⚠ provisional in base |
-| `/result-to-claim` | `claim_supported ∈ {yes,partial,no}` + `integrity_status` | B | fresh **Codex** result judgment | ⚠ provisional in base |
-| `/kill-argument` | rejection memo → defense, residual issues | B | two fresh **Codex** threads | ⚠ provisional in base |
-| `/proof-checker` | each gap closed, per round | B | fresh **Codex** re-review | ⚠ provisional in base |
-| `/experiment-audit` | integrity verdict (fake GT, normalization fraud) | B | fresh **Codex** audit | ⚠ provisional in base |
-| `/paper-claim-audit` | every number matches result files | B | fresh **Codex** reviewer | ⚠ provisional in base |
-| `/citation-audit` | every entry real & in-context | B | fresh **Codex** reviewer | ⚠ provisional in base |
-| `/paper-writing` Phase 6 (submission) | `verify_paper_audits.sh` exit 0 | A (gate) wrapping B (the audits) | verifier aggregates provenance JSON | ✅ accepted only with overlay/deterministic audits |
+| `$dse-loop` | objective metric converged / TIMEOUT / PATIENCE | A | benchmark harness emits the number; Claude reads & compares to budget | ✅ safe same-model |
+| `$experiment-bridge` auto-debug | "did it run / did it converge" (exit 0, no NaN, training started) | A | exit codes, log parse | ✅ safe same-model |
+| `$run-experiment`, `$experiment-queue` retry | job finished / OOM-retry exhausted / N jobs done | A | scheduler + exit codes | ✅ safe same-model |
+| `$auto-review-loop` | score >= 6 AND verdict "ready", per round | B | fresh **Codex** score & verdict | ⚠ provisional in base |
+| `$auto-paper-improvement-loop` | "review satisfied" (2 rounds) | B | fresh **Codex** review | ⚠ provisional in base |
+| `$result-to-claim` | `claim_supported ∈ {yes,partial,no}` + `integrity_status` | B | fresh **Codex** result judgment | ⚠ provisional in base |
+| `$kill-argument` | rejection memo → defense, residual issues | B | two fresh **Codex** threads | ⚠ provisional in base |
+| `$proof-checker` | each gap closed, per round | B | fresh **Codex** re-review | ⚠ provisional in base |
+| `$experiment-audit` | integrity verdict (fake GT, normalization fraud) | B | fresh **Codex** audit | ⚠ provisional in base |
+| `$paper-claim-audit` | every number matches result files | B | fresh **Codex** reviewer | ⚠ provisional in base |
+| `$citation-audit` | every entry real & in-context | B | fresh **Codex** reviewer | ⚠ provisional in base |
+| `$paper-writing` Phase 6 (submission) | `verify_paper_audits.sh` exit 0 | A (gate) wrapping B (the audits) | verifier aggregates provenance JSON | ✅ accepted only with overlay/deterministic audits |
 
-> 📌 The `/auto-review-loop` row reflects the skill's stop logic: `score >= 6`
+> 📌 The `$auto-review-loop` row reflects the skill's stop logic: `score >= 6`
 > AND verdict contains "ready"/"almost", evaluated each round. (Its `Constants`
 > block previously stated this with `OR` and a stale verdict vocabulary — an
 > internal inconsistency now reconciled to the `AND` form the Phase-E stop
@@ -219,7 +232,7 @@ Two patterns to notice:
 
 ### The dse-loop caveat (objective ≠ acceptance)
 
-`/dse-loop` optimizes a metric the benchmark *itself* produces (cycles,
+`$dse-loop` optimizes a metric the benchmark *itself* produces (cycles,
 area, coverage). "Config B beats config A on the harness's own number"
 is Type-A — a parser, not Claude, owns it. But two adjacent judgments are
 Type-B and must NOT be folded into the loop's self-acquittal:
@@ -230,7 +243,7 @@ Type-B and must NOT be folded into the loop's self-acquittal:
 
 So dse may self-terminate on *"best config found within budget"* (A), but
 the claim *"and this is a publishable result"* leaves the loop and goes
-through `/result-to-claim` (B). Driving the search is in-family; acquitting
+through `$result-to-claim` (B). Driving the search is in-family; acquitting
 the science is not.
 
 ## Tie to fan-out: breadth is same-family; the jury is not
@@ -325,7 +338,7 @@ A green gate lowers risk; it does not transfer accountability.
 - `reviewer-independence.md` — the single-shot form: executor never
   filters the reviewer's inputs. Type-B gates inherit this in full.
 - `experiment-integrity.md` — the experiment form: the model that writes
-  experiment code must not judge its integrity. `/experiment-audit`'s
+  experiment code must not judge its integrity. `$experiment-audit`'s
   Type-B verdict is the loop instance of this rule.
 - `reviewer-routing.md` — where Type-B gates send their verdict (codex
   default, oracle-pro on request, manual only with a verified non-Claude

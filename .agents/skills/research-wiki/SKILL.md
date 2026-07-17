@@ -1,13 +1,11 @@
 ---
 name: research-wiki
-description: "Persistent research knowledge base that accumulates papers, ideas, experiments, claims, and their relationships across the entire research lifecycle. Inspired by Karpathy's LLM Wiki pattern. Use when user says \"知识库\", \"research wiki\", \"add paper\", \"wiki query\", \"查知识库\", or wants to build/query a persistent field map."
-argument-hint: [subcommand: init|ingest|sync|query|update|lint|stats]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+description: Persistent research knowledge base that accumulates papers, ideas, experiments, claims, and their relationships across the entire research lifecycle. Inspired by Karpathy's LLM Wiki pattern. Use when user says "知识库", "research wiki", "add paper", "wiki query", "查知识库", or wants to build/query a persistent field map.
 ---
 
 # Research Wiki: Persistent Research Knowledge Base
 
-Subcommand: **$ARGUMENTS**
+Subcommand: **the user's request**
 
 ## Overview
 
@@ -24,7 +22,7 @@ Inspired by [Karpathy's LLM Wiki pattern](https://gist.github.com/karpathy/442a6
 | **Paper** | `papers/` | `paper:<slug>` | A published or preprint research paper |
 | **Idea** | `ideas/` | `idea:<id>` | A research idea (proposed, tested, or failed) |
 | **Experiment** | `experiments/` | `exp:<id>` | A concrete experiment run with results |
-| **Claim** | `claims/` | `claim:<id>` | A theorem/headline with an honest PROOF status — born via `/proof-checker` (see Hook 4) |
+| **Claim** | `claims/` | `claim:<id>` | A theorem/headline with an honest PROOF status — born via `$proof-checker` (see Hook 4) |
 
 ### Typed Relationships (`graph/edges.jsonl`)
 
@@ -71,7 +69,7 @@ research-wiki/
   index.md               # categorical index (auto-generated)
   log.md                 # append-only timeline
   gap_map.md             # field gaps with stable IDs (G1, G2, ...)
-  query_pack.md          # compressed summary for /idea-creator (auto-generated, max 8000 chars)
+  query_pack.md          # compressed summary for $idea-creator (auto-generated, max 8000 chars)
   papers/
     <slug>.md            # one page per paper
   ideas/
@@ -86,7 +84,7 @@ research-wiki/
 
 ## Subcommands
 
-### `/research-wiki init`
+### `$research-wiki init`
 
 Initialize the wiki for the current project:
 
@@ -95,7 +93,7 @@ Initialize the wiki for the current project:
 3. Create empty `graph/edges.jsonl`
 4. Log: "Wiki initialized"
 
-### `/research-wiki ingest "<paper title>" — arxiv: <id>`
+### `$research-wiki ingest "<paper title>" — arxiv: <id>`
 
 Add a paper to the wiki. This subcommand is thin wrapping around the
 canonical helper `python3 "$ARIS_REPO/tools/research_wiki.py" ingest_paper …`, which
@@ -137,12 +135,12 @@ WIKI_SCRIPT=""
     --type "extends" --evidence "Section 3.2: adapts the encoder block …"
 ```
 
-Other skills (`/research-lit`, `/arxiv`, `/alphaxiv`, `/deepxiv`,
-`/semantic-scholar`, `/exa-search`) call the same helper directly in
-their own last step — they don't re-route through `/research-wiki
+Other skills (`$research-lit`, `$arxiv`, `$alphaxiv`, `$deepxiv`,
+`$semantic-scholar`, `$exa-search`) call the same helper directly in
+their own last step — they don't re-route through `$research-wiki
 ingest` as a subcommand, so they don't need an LLM roundtrip.
 
-### `/research-wiki sync — arxiv-ids <id1>,<id2>,...`
+### `$research-wiki sync — arxiv-ids <id1>,<id2>,...`
 
 Batch backfill: ingest one or more arXiv IDs that were read earlier
 without being ingested (e.g., because `research-wiki/` was set up after
@@ -222,7 +220,7 @@ section after `Relevance to This Project` containing the raw abstract
 text as a blockquote. Manual ingests (no `--arxiv-id`) do not include
 this section._
 
-### `/research-wiki query "<topic>"`
+### `$research-wiki query "<topic>"`
 
 Generate `query_pack.md` — a compressed, context-window-friendly summary:
 
@@ -242,19 +240,19 @@ Generate `query_pack.md` — a compressed, context-window-friendly summary:
 
 **Key rule:** Read from short fields only (frontmatter, one-line thesis, gap summary, failure note). Do not summarize full page bodies every time.
 
-### `/research-wiki update <node_id> — <field>: <value>`
+### `$research-wiki update <node_id> — <field>: <value>`
 
 Update a specific entity:
 
 ```
-/research-wiki update paper:chen2025 — relevance: core
-/research-wiki update idea:001 — outcome: negative
-/research-wiki update claim:C1 — status: refuted
+$research-wiki update paper:chen2025 — relevance: core
+$research-wiki update idea:001 — outcome: negative
+$research-wiki update claim:C1 — status: refuted
 ```
 
 After any update: rebuild `query_pack.md`, update `log.md`.
 
-### `/research-wiki lint`
+### `$research-wiki lint`
 
 Health check the wiki:
 
@@ -267,7 +265,7 @@ Health check the wiki:
 
 Output a `LINT_REPORT.md` with suggested fixes.
 
-### `/research-wiki stats`
+### `$research-wiki stats`
 
 Quick overview:
 
@@ -293,7 +291,7 @@ All paper-reading skills follow the same **integration contract** (see
 - backfill — `sync --arxiv-ids …`
 - diagnostic — `verify_wiki_coverage.sh` (Policy E; resolved per integration-contract §2)
 
-### Hook 1: After `/research-lit` finds papers
+### Hook 1: After `$research-lit` finds papers
 
 ```
 # At end of research-lit, after synthesis:
@@ -319,7 +317,7 @@ active)" that calls the same helper once per paper it touched. The
 business logic is not duplicated — only the loop over that skill's
 specific result set differs.
 
-### Hook 2: `/idea-creator` reads AND writes wiki
+### Hook 2: `$idea-creator` reads AND writes wiki
 
 **Before ideation:**
 ```
@@ -339,12 +337,12 @@ for idea in all_generated_ideas (recommended + killed):
          --based-on <paper:slug,...> --target-gaps <G2,...>
     # one call: writes ideas/<slug>.md, wires inspired_by/addresses_gap edges, rebuilds
     # index + query_pack, logs. Default skip-on-exist (won't clobber an idea enriched
-    # by /result-to-claim). `outcome` ∈ {unknown,pending,negative,mixed,positive} — the
-    # experiment verdict is set later by /result-to-claim, never guessed at ideation.
+    # by $result-to-claim). `outcome` ∈ {unknown,pending,negative,mixed,positive} — the
+    # experiment verdict is set later by $result-to-claim, never guessed at ideation.
 log "idea-creator wrote N ideas to wiki"
 ```
 
-### Hook 3: After `/result-to-claim` verdict
+### Hook 3: After `$result-to-claim` verdict
 
 ```
 # Create/refresh the experiment node FIRST via add_experiment (verdict owner →
@@ -356,7 +354,7 @@ EXP_NODE_OK = (python3 "$WIKI_SCRIPT" add_experiment research-wiki/ --slug <exp_
 
 # Record empirical support as EDGES ONLY, and ONLY if EXP_NODE_OK — never set a claim's
 # `status`. A claim's `status` is the PROOF axis (verified / sound-modulo-imports /
-# refuted / unproven / drafted / retracted), owned by /proof-checker (Hook 4). The ARIS
+# refuted / unproven / drafted / retracted), owned by $proof-checker (Hook 4). The ARIS
 # helper REJECTS "supported"/"partial"/"invalidated" as claim statuses.
 if EXP_NODE_OK:
     for claim_id in resolved_claims:
@@ -378,12 +376,12 @@ rebuild query_pack
 log "result-to-claim: exp_id updated, verdict=..."
 ```
 
-### Hook 4: Claim birth — from `/proof-checker` (the ONLY birth point)
+### Hook 4: Claim birth — from `$proof-checker` (the ONLY birth point)
 
-Wiki **claim nodes are born here.** `/proof-checker` mints a claim node for each
+Wiki **claim nodes are born here.** `$proof-checker` mints a claim node for each
 top-level theorem/headline after writing `PROOF_AUDIT.json`, stamping an honest
 PROOF-axis `status` and a `provenance` pointer. No other skill creates a claim node:
-`/result-to-claim` (Hook 3) only adds empirical `supports`/`invalidates` edges to an
+`$result-to-claim` (Hook 3) only adds empirical `supports`/`invalidates` edges to an
 already-born claim and never edits its `status`.
 
 ```
@@ -398,7 +396,7 @@ edges (Hook 3), never written into `status`.
 
 ## Re-ideation Trigger
 
-After significant wiki updates, suggest re-running `/idea-creator`:
+After significant wiki updates, suggest re-running `$idea-creator`:
 
 - ≥5 new papers ingested since last ideation
 - ≥3 new failed/partial ideas since last ideation

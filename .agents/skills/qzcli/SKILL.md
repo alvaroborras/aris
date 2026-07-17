@@ -1,8 +1,6 @@
 ---
 name: qzcli
 description: Manage GPU compute jobs on the Qizhi (启智) platform using qzcli — a kubectl-style CLI tool. Use when user says "qzcli", "启智平台", "submit job", "stop job", "查计算组", "avail", "list jobs", "batch submit", or needs to manage distributed training jobs on a Qizhi instance.
-argument-hint: [login|avail|list|create|stop <job-id>|batch|status|watch]
-allowed-tools: Bash(*), Read, Write
 ---
 
 # qzcli — 启智平台任务管理
@@ -29,11 +27,11 @@ cd qzcli_tool && pip install -e .
 
 ### MCP Integration (optional)
 
-To use qzcli as an MCP tool directly from Claude Code or Codex:
+To use qzcli as an MCP tool directly from Codex or Codex:
 
 ```bash
-# Claude Code
-claude mcp add qzcli -- qzcli-mcp
+# Codex
+codex mcp add qzcli -- qzcli-mcp
 
 # Codex
 codex mcp add qzcli -- qzcli-mcp

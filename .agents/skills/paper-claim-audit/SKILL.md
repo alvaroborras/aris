@@ -1,8 +1,6 @@
 ---
 name: paper-claim-audit
-description: "Zero-context verification that every number, comparison, and scope claim in the paper matches raw result files. Uses a fresh Codex reviewer with no prior context; base output is same-family provisional. Use when user says \"审查论文数据\", \"check paper claims\", \"verify numbers\", \"论文数字核对\", or before submission to ensure paper-to-evidence fidelity."
-argument-hint: [paper-directory]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Zero-context verification that every number, comparison, and scope claim in the paper matches raw result files. Uses a fresh Codex reviewer with no prior context; base output is same-family provisional. Use when user says "审查论文数据", "check paper claims", "verify numbers", "论文数字核对", or before submission to ensure paper-to-evidence fidelity.
 ---
 
 # Paper Claim Audit: Zero-Context Evidence Verification
@@ -12,7 +10,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
 > advance the pipeline but cannot produce submission-ready yes. Missing/failed
 > review emits BLOCKED; overlay/deterministic acceptance uses accepted.
 
-Verify that every claim in the paper matches raw evidence for: **$ARGUMENTS**
+Verify that every claim in the paper matches raw evidence for: **the user's request**
 
 ## Why This Exists
 
@@ -28,9 +26,9 @@ A **fresh reviewer with zero prior context** catches these because it has no exp
 
 | Skill | Question it answers |
 |-------|-------------------|
-| `/experiment-audit` | Is the experiment code honest? (fake GT, normalization fraud) |
-| `/result-to-claim` | Does the data scientifically support this claim? |
-| **`/paper-claim-audit`** | **Does the paper report the data truthfully and precisely?** |
+| `$experiment-audit` | Is the experiment code honest? (fake GT, normalization fraud) |
+| `$result-to-claim` | Does the data scientifically support this claim? |
+| **`$paper-claim-audit`** | **Does the paper report the data truthfully and precisely?** |
 
 ## Core Principle
 
@@ -218,13 +216,13 @@ Also write `PAPER_CLAIM_AUDIT.json` for machine consumption.
 
 ## When to Run
 
-1. **After `/paper-write`** — first check before improvement loop
-2. **After `/auto-paper-improvement-loop`** — recheck if improvement loop changed numbers
+1. **After `$paper-write`** — first check before improvement loop
+2. **After `$auto-paper-improvement-loop`** — recheck if improvement loop changed numbers
 3. **Before submission** — final verification
 
 ## Integration with Other Skills
 
-### Read by `/auto-paper-improvement-loop` (if exists)
+### Read by `$auto-paper-improvement-loop` (if exists)
 
 ```
 if PAPER_CLAIM_AUDIT.json exists:
@@ -234,22 +232,22 @@ if PAPER_CLAIM_AUDIT.json exists:
 
 ### Advisory, Never Blocking
 
-Same pattern as `/experiment-audit`:
+Same pattern as `$experiment-audit`:
 - `PASS` → continue normally
 - `WARN` → print warning, continue, flag draft as "check numbers before submission"
 - `FAIL` → print alert, continue, but do NOT mark as submission-ready
 
 ## Render HTML view (auto, when `RENDER_HTML = true`, default)
 
-After writing `paper/PAPER_CLAIM_AUDIT.md` and `paper/PAPER_CLAIM_AUDIT.json`, invoke `/render-html` on the audit report:
+After writing `paper/PAPER_CLAIM_AUDIT.md` and `paper/PAPER_CLAIM_AUDIT.json`, invoke `$render-html` on the audit report:
 
 ```
-/render-html "paper/PAPER_CLAIM_AUDIT.md" --json "paper/PAPER_CLAIM_AUDIT.json"
+$render-html "paper/PAPER_CLAIM_AUDIT.md" --json "paper/PAPER_CLAIM_AUDIT.json"
 ```
 
 Uses **full review gate** (audit-class artifact; base Codex review is fresh same-family provisional). Output: `paper/PAPER_CLAIM_AUDIT.html` with embedded source SHA256 + `.review.json` sidecar.
 
-**Non-blocking**: if `/render-html` fails (helper missing, secondary Codex agent unavailable, file write error), log the failure and treat the audit as complete — the JSON + MD verdict files are canonical; the HTML view is a human-reader convenience.
+**Non-blocking**: if `$render-html` fails (helper missing, secondary Codex agent unavailable, file write error), log the failure and treat the audit as complete — the JSON + MD verdict files are canonical; the HTML view is a human-reader convenience.
 
 Skip if `RENDER_HTML = false` is set in `AGENTS.md` / `CLAUDE.md` or passed as `— render html: false`.
 

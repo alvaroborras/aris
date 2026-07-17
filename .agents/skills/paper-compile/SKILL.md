@@ -1,11 +1,11 @@
 ---
-name: "paper-compile"
-description: "Compile LaTeX paper to PDF, fix errors, and verify output. Use when user says \\\"\u7f16\u8bd1\u8bba\u6587\\\", \\\"compile paper\\\", \\\"build PDF\\\", \\\"\u751f\u6210PDF\\\", or wants to compile LaTeX into a submission-ready PDF."
+name: paper-compile
+description: Compile LaTeX paper to PDF, fix errors, and verify output. Use when user says \"编译论文\", \"compile paper\", \"build PDF\", \"生成PDF\", or wants to compile LaTeX into a submission-ready PDF.
 ---
 
 # Paper Compile: LaTeX to Submission-Ready PDF
 
-Compile the LaTeX paper and fix any issues: **$ARGUMENTS**
+Compile the LaTeX paper and fix any issues: **the user's request**
 
 ## Constants
 
@@ -85,7 +85,7 @@ LaTeX Warning: Citation `smith2024' undefined
 → Add the missing entry to `references.bib` or fix the citation key.
 
 **`[VERIFY]` markers in text:**
-→ Search for `[VERIFY]` markers left by `/paper-write`. These indicate unverified citations or facts. Search for the correct information or flag to the user.
+→ Search for `[VERIFY]` markers left by `$paper-write`. These indicate unverified citations or facts. Search for the correct information or flag to the user.
 
 **Overfull hbox:**
 ```
@@ -229,7 +229,7 @@ For conference submission, additional checks:
 
 ### Next Steps
 - [ ] Visual inspection of PDF
-- [ ] Run `/paper-write` to fix any content issues
+- [ ] Run `$paper-write` to fix any content issues
 - [ ] Submit to [venue] via OpenReview / CMT / HotCRP
 ```
 

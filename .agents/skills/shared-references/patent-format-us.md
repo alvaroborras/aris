@@ -1,12 +1,22 @@
 # USPTO Patent Format Guide
 
+## Contents
+
+- [When to Read](#when-to-read)
+- [Applicable Law](#applicable-law)
+- [Document Structure](#document-structure)
+- [IDS (Information Disclosure Statement)](#ids-information-disclosure-statement)
+- [Means-Plus-Function (35 USC 112(f))](#means-plus-function-35-usc-112f)
+- [Continuation and CIP Strategy](#continuation-and-cip-strategy)
+- [Common 102/103 Rejection Responses](#common-102103-rejection-responses)
+
 Use this reference when drafting US patent applications for filing with USPTO.
 
 ## When to Read
 
 - Read when `JURISDICTION = "US"` or `JURISDICTION = "ALL"`
 - Read before writing claims in US format
-- Read during `/jurisdiction-format` for US output
+- Read during `$jurisdiction-format` for US output
 
 ## Applicable Law
 
@@ -154,7 +164,7 @@ When a claim element uses "means for [function]" or equivalent language:
 
 ## Common 102/103 Rejection Responses
 
-Document these patterns for use in `/patent-review`:
+Document these patterns for use in `$patent-review`:
 - Amend claims to distinguish over cited reference
 - Argue the reference does not teach a specific claim element
 - Argue the combination of references would not have been obvious

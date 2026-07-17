@@ -6,7 +6,7 @@
 > is same-family and therefore provisional. Only a Claude/Gemini overlay or a
 > deterministic verifier supplies accepted assurance.
 
-ARIS's claim audits (`/result-to-claim`, `/experiment-audit`, `/paper-claim-audit`)
+ARIS's claim audits (`$result-to-claim`, `$experiment-audit`, `$paper-claim-audit`)
 spend a semantic reviewer call to judge whether a claim is supported. In the base
 Codex mirror that call is same-family/provisional; an overlay or deterministic
 verifier is required for accepted assurance. The
@@ -43,13 +43,13 @@ normalized substring.
 
 ## Where ARIS uses it
 
-- **`/result-to-claim`** Step 1.5: parse each claim's cited `(value, source)`,
+- **`$result-to-claim`** Step 1.5: parse each claim's cited `(value, source)`,
   run the batch pre-check, and **before the codex judgment** mark any claim whose
   evidence is `path_missing` / `value_not_found` as **unsupported — evidence not
   found**, and pass the per-claim pre-check status into the codex prompt so the
   jury sees which claims have verified vs hallucinated evidence.
-- **To extend:** `/experiment-audit` (the "phantom results" check is exactly
-  this) and `/paper-claim-audit` (every reported number → its result file).
+- **To extend:** `$experiment-audit` (the "phantom results" check is exactly
+  this) and `$paper-claim-audit` (every reported number → its result file).
 
 ## API / CLI
 

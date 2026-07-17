@@ -1,15 +1,13 @@
 ---
 name: patent-novelty-check
-description: "Assess patent novelty and non-obviousness against prior art. Use when user says \"专利查新\", \"patent novelty\", \"可专利性评估\", \"patentability check\", or wants to evaluate if an invention is patentable."
-argument-hint: [invention-description-or-brief-path]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+description: Assess patent novelty and non-obviousness against prior art. Use when user says "专利查新", "patent novelty", "可专利性评估", "patentability check", or wants to evaluate if an invention is patentable.
 ---
 
 # Patent Novelty and Non-Obviousness Check
 
-Assess patentability of: **$ARGUMENTS**
+Assess patentability of: **the user's request**
 
-Adapted from `/novelty-check` for patent legal standards. Research novelty is NOT the same as patent novelty.
+Adapted from `$novelty-check` for patent legal standards. Research novelty is NOT the same as patent novelty.
 
 ## Constants
 
@@ -18,8 +16,8 @@ Adapted from `/novelty-check` for patent legal standards. Research novelty is NO
 
 ## Inputs
 
-1. Invention description from `$ARGUMENTS`
-2. `patent/PRIOR_ART_REPORT.md` (output of `/prior-art-search`)
+1. Invention description from `the user's request`
+2. `patent/PRIOR_ART_REPORT.md` (output of `$prior-art-search`)
 3. `patent/INVENTION_BRIEF.md` if exists
 
 ## Shared References

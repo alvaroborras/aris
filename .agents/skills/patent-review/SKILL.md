@@ -1,28 +1,25 @@
 ---
 name: patent-review
-description: "Get an external patent examiner review of a patent application. Use when user says \"专利审查\", \"patent review\", \"审查意见\", \"examiner review\", or wants critical feedback on patent claims and specification."
-argument-hint: [patent-directory-or-scope]
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
+description: Get an external patent examiner review of a patent application. Use when user says "专利审查", "patent review", "审查意见", "examiner review", or wants critical feedback on patent claims and specification.
 ---
 
-# Patent Examiner Review via Codex MCP (xhigh reasoning)
+# Patent Examiner Review via Codex subagent capability (xhigh reasoning)
 
-Get a multi-round patent examiner review of the patent application based on: **$ARGUMENTS**
+Get a multi-round patent examiner review of the patent application based on: **the user's request**
 
-Adapted from `/research-review`. The reviewer persona is a patent examiner, not a paper reviewer.
+Adapted from `$research-review`. The reviewer persona is a patent examiner, not a paper reviewer.
 
 ## Constants
 
-- `REVIEWER_MODEL = gpt-5.6-sol` — Model used via Codex MCP
+- `REVIEWER_MODEL = gpt-5.6-sol` — Model used via Codex subagent capability
 - `REVIEW_ROUNDS = 2` — Number of review rounds
 - `EXAMINER_PERSONA = "patent-examiner"` — GPT-5.6-Sol persona
 
 ## Prerequisites
 
-- Codex MCP Server configured:
-  ```bash
-  claude mcp add codex -s user -- codex mcp-server
-  ```
+- Use the native Codex subagent capability when it is surfaced in the current
+  session. If unavailable, perform the examiner pass locally and mark it as a
+  same-agent review rather than claiming independent review.
 
 ## Inputs
 

@@ -1,11 +1,13 @@
 ---
 name: interview-cheatsheet
-description: "Generate a long-form Chinese interview-prep cheat sheet on a specific ML/LLM topic — formulas with derivations, from-scratch PyTorch code, comparison tables, and 25 高频面试题 (L1 必会 / L2 进阶 / L3 顶级 lab). Use when the user says '写面试 cheat sheet', '写一份 X 教程', '帮我准备 Y 面试题', '出一份 X 速查', or wants a 600-1000 line Chinese tutorial on a specific ML topic."
-argument-hint: <topic> [--effort balanced|max] [--byline "Name (姓名), Affiliation"] [--commit false]
-allowed-tools: Bash(*), Read, Write, Edit, spawn_agent
+description: Generate a long-form Chinese interview-prep cheat sheet on a specific ML/LLM topic — formulas with derivations, from-scratch PyTorch code, comparison tables, and 25 高频面试题 (L1 必会 / L2 进阶 / L3 顶级 lab). Use when the user says '写面试 cheat sheet', '写一份 X 教程', '帮我准备 Y 面试题', '出一份 X 速查', or wants a 600-1000 line Chinese tutorial on a specific ML topic.
 ---
 
-# /interview-cheatsheet — long-form Chinese ML/LLM interview prep
+# $interview-cheatsheet — long-form Chinese ML/LLM interview prep
+
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `<topic> [--effort balanced|max] [--byline "Name (姓名), Affiliation"] [--commit false]`. Do not expect a dedicated argument variable or slash-command parser.
 
 Generate one comprehensive Chinese cheat sheet per invocation: formulas + derivations + from-scratch code + 25 高频题. Output receives fresh-agent same-family provisional math/code review before rendering. **Detect-only by default: never auto-commits.**
 
@@ -13,7 +15,7 @@ Generate one comprehensive Chinese cheat sheet per invocation: formulas + deriva
 
 - **`<topic>`** (required) — narrow enough for one 600-1000 line tutorial. Good: "RLHF / DPO / PPO", "MoE", "KV Cache + Speculative Decoding". Bad (too broad): "all of LLM training", "diffusion" (split into Forward Process / Sampling / CFG separately).
 - **`--effort`** (default `balanced`) — `balanced` ≈ 600 lines, `max` ≈ 1000 lines with deeper proofs and more L3 questions.
-- **`--byline`** (default `"<Your Name>, <Affiliation>"`) — passed to `/render-html --author`.
+- **`--byline`** (default `"<Your Name>, <Affiliation>"`) — passed to `$render-html --author`.
 - **`--commit`** (default `false`) — if `false` (default), stop after rendering; user reviews and commits. Never push without explicit user approval.
 
 ## Style guide — STRICT (read `docs/tutorials/attention_tutorial.md` as canonical reference)
@@ -123,9 +125,9 @@ For each FAIL issue, edit the MD. Then re-invoke Codex with a **fresh `spawn_age
 
 Most tutorials converge in 3-5 rounds. Going to 5-6 rounds is fine if substantive bugs are still being caught — the Video Generation tutorial (May 2026) went to 5 rounds and the final 2 rounds caught real citation errors and an over-attribution to Sora's patch size that would have shipped otherwise.
 
-### Step 5 — Render via /render-html
+### Step 5 — Render via $render-html
 
-Call directly (do not invoke `/render-html` as a sub-skill; call its python script — gives clear control):
+Call directly (do not invoke `$render-html` as a sub-skill; call its python script — gives clear control):
 
 ```bash
 python3 skills/render-html/scripts/render_html.py docs/tutorials/<slug>_tutorial.md \
@@ -174,7 +176,7 @@ After both reviews pass, merge math/code review history + render review history 
 Do **NOT** `git add` / `git commit` / `git push`. Report:
 
 ```
-✅ /interview-cheatsheet "<TOPIC>" complete.
+✅ $interview-cheatsheet "<TOPIC>" complete.
 
   Files:
     docs/tutorials/<slug>_tutorial.md          (<lines> lines, <bytes> bytes)
@@ -189,7 +191,7 @@ Do **NOT** `git add` / `git commit` / `git push`. Report:
     - <one line per non-trivial fix>
 
   Suggested commit message:
-    docs(tutorials): add <Topic> cheat sheet (rendered via /render-html)
+    docs(tutorials): add <Topic> cheat sheet (rendered via $render-html)
 
   ⚠️ Did NOT auto-commit — user reviews and pushes manually.
   Also update docs/tutorials/README.md to add the new row.
@@ -221,17 +223,17 @@ Suggest the row to the user but let them edit it in themselves if they want to c
 - Topic too broad — split into smaller scopes first
 - Topic outside ML/LLM core — this style guide assumes math + code + Chinese; for general topics use a different format or write directly
 - Already have a draft you want to edit — use Edit directly, this skill is for greenfield generation
-- Don't want HTML output — call `/render-html` separately or skip Step 5
+- Don't want HTML output — call `$render-html` separately or skip Step 5
 
 ## Reference invocations
 
 ```
-/interview-cheatsheet "RLHF / DPO / PPO"
-/interview-cheatsheet "MoE (Mixture-of-Experts)" — effort: max
-/interview-cheatsheet "KV Cache + Speculative Decoding"
-/interview-cheatsheet "Long-context: RoPE / YaRN / NTK / MLA"
-/interview-cheatsheet "Distributed Training (DDP / FSDP / ZeRO / TP / PP)"
-/interview-cheatsheet "Quantization (GPTQ / AWQ / INT4 / FP8 / SmoothQuant)"
+$interview-cheatsheet "RLHF / DPO / PPO"
+$interview-cheatsheet "MoE (Mixture-of-Experts)" — effort: max
+$interview-cheatsheet "KV Cache + Speculative Decoding"
+$interview-cheatsheet "Long-context: RoPE / YaRN / NTK / MLA"
+$interview-cheatsheet "Distributed Training (DDP / FSDP / ZeRO / TP / PP)"
+$interview-cheatsheet "Quantization (GPTQ / AWQ / INT4 / FP8 / SmoothQuant)"
 ```
 
 ## Reference style files

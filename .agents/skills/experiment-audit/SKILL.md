@@ -1,8 +1,6 @@
 ---
 name: experiment-audit
-description: "Audit experiment integrity before claiming results. Uses fresh-agent GPT-5.6-Sol review (same-family provisional in the base Codex mirror) to check for fake ground truth, score normalization fraud, phantom results, and insufficient scope. Use when user says \"审计实验\", \"check experiment integrity\", \"audit results\", \"实验诚实度\", or after experiments complete before writing claims."
-argument-hint: [experiment-dir-or-results-path]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Audit experiment integrity before claiming results. Uses fresh-agent GPT-5.6-Sol review (same-family provisional in the base Codex mirror) to check for fake ground truth, score normalization fraud, phantom results, and insufficient scope. Use when user says "审计实验", "check experiment integrity", "audit results", "实验诚实度", or after experiments complete before writing claims.
 ---
 
 # Experiment Audit: Fresh-Agent Integrity Verification
@@ -12,7 +10,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
 > Deterministic evidence checks may be accepted; unavailable reviewer calls emit
 > BLOCKED/ERROR rather than a provisional PASS.
 
-Audit experiment integrity for: **$ARGUMENTS**
+Audit experiment integrity for: **the user's request**
 
 ## Why This Exists
 
@@ -52,7 +50,7 @@ Scan project directory for:
 
 **DO NOT summarize, interpret, or explain any file content.** Only collect paths.
 
-### Step 2: Send to Reviewer (GPT-5.6-Sol via Codex MCP)
+### Step 2: Send to Reviewer (GPT-5.6-Sol via Codex subagent capability)
 
 Pass ONLY file paths and the audit checklist to the reviewer. The reviewer reads everything directly.
 
@@ -232,24 +230,24 @@ Also write `EXPERIMENT_AUDIT.json` for machine consumption:
 
 ## Integration with Other Skills
 
-### Automatic in /research-pipeline (advisory, never blocks)
+### Automatic in $research-pipeline (advisory, never blocks)
 
-When integrated into the pipeline, this skill runs automatically after `/experiment-bridge` and before `/auto-review-loop`:
+When integrated into the pipeline, this skill runs automatically after `$experiment-bridge` and before `$auto-review-loop`:
 
 ```
-/experiment-bridge → results ready
+$experiment-bridge → results ready
     ↓
-/experiment-audit (automatic, advisory)
+$experiment-audit (automatic, advisory)
     ├── PASS  → continue normally
     ├── WARN  → print ⚠️ warning, continue, tag claims as [INTEGRITY: WARN]
     └── FAIL  → print 🔴 alert, continue, tag claims as [INTEGRITY CONCERN]
     ↓
-/auto-review-loop → proceeds with integrity tags visible to reviewer
+$auto-review-loop → proceeds with integrity tags visible to reviewer
 ```
 
 **Never blocks the pipeline.** Even on FAIL, the pipeline continues — but claims carry visible integrity tags.
 
-### Read by /result-to-claim (if exists)
+### Read by $result-to-claim (if exists)
 
 ```
 if EXPERIMENT_AUDIT.json exists:
@@ -262,7 +260,7 @@ else:
     mark as "provisional — no integrity audit"
 ```
 
-### Read by /paper-write (if exists)
+### Read by $paper-write (if exists)
 
 ```
 if EXPERIMENT_AUDIT.json exists AND integrity_status == "fail":

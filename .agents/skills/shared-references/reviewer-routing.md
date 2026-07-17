@@ -1,5 +1,13 @@
 # Reviewer Routing
 
+## Contents
+
+- [Default Reviewer Contract](#default-reviewer-contract)
+- [Default Pattern](#default-pattern)
+- [Oracle Pro Override](#oracle-pro-override)
+- [Invariants](#invariants)
+- [Skills That Commonly Benefit From oracle-pro](#skills-that-commonly-benefit-from-oracle-pro)
+
 ## Default Reviewer Contract
 
 All reviewer-heavy Codex base skills use the same default contract:
@@ -90,7 +98,7 @@ If reviewer=oracle-pro:
 
 ## Invariants
 
-- Base skills do not use the legacy Codex MCP thread path as the default reviewer route.
+- Base skills do not use the legacy Codex subagent capability thread path as the default reviewer route.
 - Reviewer independence still applies: pass file paths and task framing, not executor summaries.
 - Overlay packages may replace only the reviewer route.
 - Overlay packages do not change executor semantics.

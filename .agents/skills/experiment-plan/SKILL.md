@@ -1,15 +1,15 @@
 ---
-name: "experiment-plan"
-description: "Turn a refined research proposal or method idea into a detailed, claim-driven experiment roadmap. Use after `research-refine`, or when the user asks for a detailed experiment plan, ablation matrix, evaluation protocol, run order, compute budget, or paper-ready validation that supports the core problem, novelty, simplicity, and any LLM / VLM / Diffusion / RL-based contribution."
+name: experiment-plan
+description: Turn a refined research proposal or method idea into a detailed, claim-driven experiment roadmap. Use after `research-refine`, or when the user asks for a detailed experiment plan, ablation matrix, evaluation protocol, run order, compute budget, or paper-ready validation that supports the core problem, novelty, simplicity, and any LLM / VLM / Diffusion / RL-based contribution.
 ---
 
 # Experiment Plan: Claim-Driven, Paper-Oriented Validation
 
-Refine and concretize: **$ARGUMENTS**
+Refine and concretize: **the user's request**
 
 ## Overview
 
-Use this skill after the method is stable enough that the next question becomes: **what exact experiments should we run, in what order, to defend the paper?** If the user wants the full chain in one request, prefer `/research-refine-pipeline`.
+Use this skill after the method is stable enough that the next question becomes: **what exact experiments should we run, in what order, to defend the paper?** If the user wants the full chain in one request, prefer `$research-refine-pipeline`.
 
 The goal is not to generate a giant benchmark wishlist. The goal is to turn a proposal into a **claim -> evidence -> run order** roadmap that supports four things:
 
@@ -220,13 +220,13 @@ Tracker file: refine-logs/EXPERIMENT_TRACKER.md
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - **Every experiment must defend a claim.** If it does not change a reviewer belief, cut it.
 - **Prefer a compact paper story.** Design the main table first, then add only the ablations that defend it.
@@ -240,10 +240,10 @@ Tracker file: refine-logs/EXPERIMENT_TRACKER.md
 ## Composing with Other Skills
 
 ```
-/research-refine-pipeline -> one-shot method + experiment planning
-/research-refine   -> method and claim refinement
-/experiment-plan   -> detailed experiment roadmap
-/run-experiment    -> execute the runs
-/auto-review-loop  -> react to results and iterate on the paper
+$research-refine-pipeline -> one-shot method + experiment planning
+$research-refine   -> method and claim refinement
+$experiment-plan   -> detailed experiment roadmap
+$run-experiment    -> execute the runs
+$auto-review-loop  -> react to results and iterate on the paper
 ```
 

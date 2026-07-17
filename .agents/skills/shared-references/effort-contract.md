@@ -1,5 +1,17 @@
 # Effort Contract
 
+## Contents
+
+- [Overview](#overview)
+- [Hard Invariants (NEVER changed by effort)](#hard-invariants-never-changed-by-effort)
+- [Four Levels](#four-levels)
+- [Per-Skill Profiles](#per-skill-profiles)
+- [How to Read Effort in a Skill](#how-to-read-effort-in-a-skill)
+- [Constants](#constants)
+- [Transparency](#transparency)
+- [Precedence](#precedence)
+- [Token Cost Estimation](#token-cost-estimation)
+
 ## Overview
 
 Every ARIS skill accepts an optional `effort` parameter that controls how much work the system does. This affects breadth, depth, iterations, and coverage — but **never** the quality of cross-model review.
@@ -104,7 +116,7 @@ Add this to the Constants section of each skill:
 Then adjust numeric constants based on effort level. Example:
 
 ```
-Parse $ARGUMENTS for `— effort:` directive.
+Parse the user's request for `— effort:` directive.
 If not specified, default to `balanced`.
 
 Adjust constants:

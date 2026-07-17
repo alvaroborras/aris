@@ -1,13 +1,11 @@
 ---
 name: openalex
 description: Search academic papers via OpenAlex API for open citation data, institutional affiliations, and funding information. Use when user says "openalex search", "search openalex", "open citation graph", or wants comprehensive academic metadata beyond arXiv/Semantic Scholar.
-argument-hint: [search-query]
-allowed-tools: Bash(*), Read, Write
 ---
 
 # OpenAlex Academic Search
 
-Search query: $ARGUMENTS
+Search query: the user's request
 
 ## Role & Positioning
 
@@ -15,12 +13,12 @@ This skill uses OpenAlex as a **comprehensive open academic graph** source:
 
 | Skill | Source | Best for |
 |-------|--------|----------|
-| `/arxiv` | arXiv API | Latest preprints, cutting-edge unrefereed work |
-| `/semantic-scholar` | Semantic Scholar API | Published venue papers (IEEE, ACM, Springer) with citation counts |
-| `/openalex` | OpenAlex API | **Open citation graph, institutional affiliations, funding data, comprehensive metadata** |
-| `/deepxiv` | DeepXiv CLI | Layered reading: search, brief, section map, section reads |
-| `/exa-search` | Exa API | Broad web search: blogs, docs, news, companies, research papers |
-| `/gemini-search` | Gemini MCP / CLI | AI-powered broad literature discovery |
+| `$arxiv` | arXiv API | Latest preprints, cutting-edge unrefereed work |
+| `$semantic-scholar` | Semantic Scholar API | Published venue papers (IEEE, ACM, Springer) with citation counts |
+| `$openalex` | OpenAlex API | **Open citation graph, institutional affiliations, funding data, comprehensive metadata** |
+| `$deepxiv` | DeepXiv CLI | Layered reading: search, brief, section map, section reads |
+| `$exa-search` | Exa API | Broad web search: blogs, docs, news, companies, research papers |
+| `$gemini-search` | Gemini MCP / CLI | AI-powered broad literature discovery |
 
 Use OpenAlex when you want:
 - **Open citation data** — fully open citation graph (no API key required for basic use)
@@ -35,19 +33,19 @@ Use OpenAlex when you want:
 - **DEFAULT_SORT = relevance** — Sort by relevance. Override with `— sort: citations` or `— sort: date`.
 - **OPENALEX_FETCHER** — canonical name `openalex_fetch.py`, resolved per
   [`shared-references/integration-contract.md`](../shared-references/integration-contract.md) §2
-  (Policy D1 — standalone `/openalex` has no documented inline fallback,
+  (Policy D1 — standalone `$openalex` has no documented inline fallback,
   so unresolved helper terminates with an explicit error).
 
 > Overrides (append to arguments):
-> - `/openalex "topic" — max: 20` — return up to 20 results
-> - `/openalex "topic" — year: 2023-` — papers from 2023 onward
-> - `/openalex "topic" — year: 2020-2023` — papers from 2020 to 2023
-> - `/openalex "topic" — type: article` — only journal articles
-> - `/openalex "topic" — type: preprint` — only preprints
-> - `/openalex "topic" — open-access` — only open access papers
-> - `/openalex "topic" — min-citations: 50` — minimum 50 citations
-> - `/openalex "topic" — sort: citations` — sort by citation count (descending)
-> - `/openalex "topic" — sort: date` — sort by publication date (newest first)
+> - `$openalex "topic" — max: 20` — return up to 20 results
+> - `$openalex "topic" — year: 2023-` — papers from 2023 onward
+> - `$openalex "topic" — year: 2020-2023` — papers from 2020 to 2023
+> - `$openalex "topic" — type: article` — only journal articles
+> - `$openalex "topic" — type: preprint` — only preprints
+> - `$openalex "topic" — open-access` — only open access papers
+> - `$openalex "topic" — min-citations: 50` — minimum 50 citations
+> - `$openalex "topic" — sort: citations` — sort by citation count (descending)
+> - `$openalex "topic" — sort: date` — sort by publication date (newest first)
 
 ## Setup
 
@@ -80,7 +78,7 @@ python3 "$OPENALEX_FETCHER" search "machine learning" --max 3
 
 ### Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` for:
+Parse `the user's request` for:
 - **query**: The research topic (required)
 - **max**: Override MAX_RESULTS
 - **year**: Publication year filter (e.g., `2023-`, `2020-2023`)
@@ -184,10 +182,10 @@ For each paper, also show:
 After presenting results, suggest:
 
 ```text
-/semantic-scholar "DOI:..."     — get S2 citation context and related papers
-/arxiv "arXiv:XXXX.XXXXX"      — fetch arXiv preprint if available
-/research-lit "topic" — sources: openalex, semantic-scholar  — combined multi-source review
-/novelty-check "idea"          — verify novelty against literature
+$semantic-scholar "DOI:..."     — get S2 citation context and related papers
+$arxiv "arXiv:XXXX.XXXXX"      — fetch arXiv preprint if available
+$research-lit "topic" — sources: openalex, semantic-scholar  — combined multi-source review
+$novelty-check "idea"          — verify novelty against literature
 ```
 
 ## Key Rules
@@ -198,7 +196,7 @@ After presenting results, suggest:
 - **Rate limits**: Without API key, very limited (~$0.01/day). With free API key: 10,000 list calls/day, 1,000 search calls/day.
 - **Polite pool**: Set `OPENALEX_EMAIL` environment variable for faster response times
 - **Cross-reference with other sources**: OpenAlex indexes papers from arXiv, PubMed, Crossref, etc. — use DOI/arXiv ID to cross-reference
-- If OpenAlex API is unreachable or rate-limited, suggest using `/semantic-scholar`, `/arxiv`, or `/research-lit "topic" — sources: web` as alternatives.
+- If OpenAlex API is unreachable or rate-limited, suggest using `$semantic-scholar`, `$arxiv`, or `$research-lit "topic" — sources: web` as alternatives.
 
 ## OpenAlex vs Other Sources
 

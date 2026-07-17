@@ -1,13 +1,11 @@
 ---
 name: embodiment-description
-description: "Write detailed embodiment descriptions for patent specifications. Use when user says \"撰写实施例\", \"write embodiment\", \"实施例描述\", \"detailed description\", or wants to describe how to practice an invention."
-argument-hint: [claims-path-or-embodiment-details]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Write detailed embodiment descriptions for patent specifications. Use when user says "撰写实施例", "write embodiment", "实施例描述", "detailed description", or wants to describe how to practice an invention.
 ---
 
 # Embodiment Description
 
-Write detailed embodiments for: **$ARGUMENTS**
+Write detailed embodiments for: **the user's request**
 
 Embodiments describe HOW to make and use the invention -- they are the patent equivalent of experiment sections, but describe the invention rather than evaluating it empirically.
 
@@ -23,7 +21,7 @@ Embodiments describe HOW to make and use the invention -- they are the patent eq
 1. `patent/INVENTION_DISCLOSURE.md` — invention decomposition (core/supporting/optional features)
 2. `patent/CLAIMS.md` — drafted claims that the embodiments must support
 3. User-provided figures (if any) in any directory
-4. `patent/figures/numeral_index.md` if it exists (from `/figure-description`)
+4. `patent/figures/numeral_index.md` if it exists (from `$figure-description`)
 
 ## Workflow
 

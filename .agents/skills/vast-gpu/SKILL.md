@@ -1,13 +1,11 @@
 ---
 name: vast-gpu
-description: "Rent, manage, and destroy GPU instances on vast.ai. Use when user says \"rent gpu\", \"vast.ai\", \"rent a server\", \"cloud gpu\", or needs on-demand GPU without owning hardware."
-argument-hint: [task-description or action]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Rent, manage, and destroy GPU instances on vast.ai. Use when user says "rent gpu", "vast.ai", "rent a server", "cloud gpu", or needs on-demand GPU without owning hardware.
 ---
 
 # Vast.ai GPU Management
 
-Manage vast.ai GPU instance: $ARGUMENTS
+Manage vast.ai GPU instance: the user's request
 
 ## Overview
 
@@ -48,13 +46,13 @@ All active vast.ai instances are tracked in `vast-instances.json` at the project
 ]
 ```
 
-This file is the source of truth for `/run-experiment` and `/monitor-experiment` to connect to vast.ai instances.
+This file is the source of truth for `$run-experiment` and `$monitor-experiment` to connect to vast.ai instances.
 
 ## Workflow
 
 ### Action: Provision (default)
 
-Analyze the task, find the best GPU, and present cost-optimized options. This is the main entry point — called directly or automatically by `/run-experiment` when `gpu: vast` is set.
+Analyze the task, find the best GPU, and present cost-optimized options. This is the main entry point — called directly or automatically by `$run-experiment` when `gpu: vast` is set.
 
 **Step 1: Analyze Task Requirements**
 
@@ -229,8 +227,8 @@ Vast.ai instance ready:
 - SSH: ssh -p <PORT> root@<HOST>
 - Docker: <IMAGE>
 
-To deploy: /run-experiment (will auto-detect this instance)
-To destroy when done: /vast-gpu destroy <ID>
+To deploy: $run-experiment (will auto-detect this instance)
+To destroy when done: $vast-gpu destroy <ID>
 ```
 
 ### Action: Setup
@@ -241,7 +239,7 @@ To destroy when done: /vast-gpu destroy <ID>
 > kernel witness before launching the real experiment — a fresh instance whose
 > `import torch` succeeds can still have the wrong-SM wheel.
 
-Set up the rented instance for a specific experiment. Called automatically by `/run-experiment` when targeting a vast.ai instance.
+Set up the rented instance for a specific experiment. Called automatically by `$run-experiment` when targeting a vast.ai instance.
 
 **Step 1: Install Dependencies (render the env spec, phase by phase)**
 
@@ -381,14 +379,14 @@ The skill analyzes experiment scripts and plans to determine what GPU to rent. N
 ## Composing with Other Skills
 
 ```
-/run-experiment "train model"       ← detects gpu: vast, calls /vast-gpu provision
-  ↳ /vast-gpu provision             ← analyzes task, presents options with cost
+$run-experiment "train model"       ← detects gpu: vast, calls $vast-gpu provision
+  ↳ $vast-gpu provision             ← analyzes task, presents options with cost
   ↳ user picks option               ← rent + setup + deploy
-  ↳ /vast-gpu destroy               ← auto-destroy when done (if auto_destroy: true)
+  ↳ $vast-gpu destroy               ← auto-destroy when done (if auto_destroy: true)
 
-/vast-gpu provision                 ← manual: analyze task + show options
-/vast-gpu rent <offer_id>           ← manual: rent a specific offer
-/vast-gpu list                      ← show active instances
-/vast-gpu destroy <instance_id>     ← tear down, stop billing
-/vast-gpu destroy-all               ← tear down everything
+$vast-gpu provision                 ← manual: analyze task + show options
+$vast-gpu rent <offer_id>           ← manual: rent a specific offer
+$vast-gpu list                      ← show active instances
+$vast-gpu destroy <instance_id>     ← tear down, stop billing
+$vast-gpu destroy-all               ← tear down everything
 ```

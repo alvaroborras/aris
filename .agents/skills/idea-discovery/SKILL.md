@@ -1,18 +1,18 @@
 ---
-name: "idea-discovery"
-description: "Workflow 1: Full idea discovery pipeline to go from a broad research direction to validated, pilot-tested ideas. Use when user says \"找idea全流程\", \"idea discovery pipeline\", \"从零开始找方向\", or wants the complete idea exploration workflow."
+name: idea-discovery
+description: 'Workflow 1: Full idea discovery pipeline to go from a broad research direction to validated, pilot-tested ideas. Use when user says "找idea全流程", "idea discovery pipeline", "从零开始找方向", or wants the complete idea exploration workflow.'
 ---
 
 # Workflow 1: Idea Discovery Pipeline
 
-Orchestrate a complete idea discovery workflow for: **$ARGUMENTS**
+Orchestrate a complete idea discovery workflow for: **the user's request**
 
 ## Overview
 
 This skill chains sub-skills into a single automated pipeline:
 
 ```
-/research-lit → /idea-creator → /novelty-check → /research-review → /research-refine-pipeline
+$research-lit → $idea-creator → $novelty-check → $research-review → $research-refine-pipeline
   (survey)      (brainstorm)    (verify novel)    (critical feedback)  (refine method + plan experiments)
 ```
 
@@ -26,13 +26,13 @@ Each phase builds on the previous one's output. The final deliverables are a val
 - **MAX_TOTAL_GPU_HOURS = 8** — Total GPU budget across all pilots. If exceeded, skip remaining pilots and note in report.
 - **AUTO_PROCEED = true** — If user doesn't respond at a checkpoint, automatically proceed with the best option after presenting results. Set to `false` to always wait for explicit user confirmation.
 - **REVIEWER_MODEL = `gpt-5.6-sol`** — Model used via a secondary Codex agent. Must be an OpenAI model (e.g., `gpt-5.6-sol`, `o3`, `gpt-4o`). Passed to sub-skills.
-- **ARXIV_DOWNLOAD = false** — When `true`, `/research-lit` downloads the top relevant arXiv PDFs during Phase 1. When `false` (default), only fetches metadata. Passed through to `/research-lit`.
+- **ARXIV_DOWNLOAD = false** — When `true`, `$research-lit` downloads the top relevant arXiv PDFs during Phase 1. When `false` (default), only fetches metadata. Passed through to `$research-lit`.
 - **COMPACT = false** — When `true`, generate compact summary files for short-context sessions and downstream skills. Writes `idea-stage/IDEA_CANDIDATES.md`.
 - **OUTPUT_DIR = `idea-stage/`** — All idea-stage outputs go here. Create the directory if it doesn't exist.
 - **REF_PAPER = false** — Reference paper to base ideas on. Accepts a local PDF path, arXiv URL, or paper URL. When set, summarize it first and use it as idea-generation context.
-- **RENDER_HTML = true** — When `true` (default), auto-render `idea-stage/IDEA_REPORT.md` to HTML at workflow end via `/render-html`. Uses `--no-review` because the source already received novelty + same-family provisional review. Set `false` to skip.
+- **RENDER_HTML = true** — When `true` (default), auto-render `idea-stage/IDEA_REPORT.md` to HTML at workflow end via `$render-html`. Uses `--no-review` because the source already received novelty + same-family provisional review. Set `false` to skip.
 
-> 💡 These are defaults. Override by telling the skill, e.g., `/idea-discovery "topic" — ref paper: https://arxiv.org/abs/2406.04329` or `/idea-discovery "topic" — compact: true`.
+> 💡 These are defaults. Override by telling the skill, e.g., `$idea-discovery "topic" — ref paper: https://arxiv.org/abs/2406.04329` or `$idea-discovery "topic" — compact: true`.
 
 ## Pipeline
 
@@ -40,7 +40,7 @@ Each phase builds on the previous one's output. The final deliverables are a val
 
 Before starting any other phase, check for a detailed research brief in the project:
 
-1. Look for `RESEARCH_BRIEF.md` in the project root or a path passed in `$ARGUMENTS`.
+1. Look for `RESEARCH_BRIEF.md` in the project root or a path passed in `the user's request`.
 2. If found, read it and extract:
    - problem statement and context
    - constraints: compute, data, timeline, venue
@@ -48,9 +48,9 @@ Before starting any other phase, check for a detailed research brief in the proj
    - domain knowledge and non-goals
    - existing results, if any
 3. Use this as the primary context for all subsequent phases; it replaces the one-line prompt when more specific.
-4. If both `RESEARCH_BRIEF.md` and one-line `$ARGUMENTS` exist, merge them: the brief has priority for details, and the argument sets the direction.
+4. If both `RESEARCH_BRIEF.md` and one-line `the user's request` exist, merge them: the brief has priority for details, and the argument sets the direction.
 
-If no brief exists, proceed normally with `$ARGUMENTS` as the research direction.
+If no brief exists, proceed normally with `the user's request` as the research direction.
 
 Recommended template:
 
@@ -82,7 +82,7 @@ Recommended template:
 
 Summarize the reference paper before searching the literature:
 
-1. **If arXiv URL** — invoke `/arxiv "ARXIV_ID" — download` to fetch the PDF, then read the first 5 pages.
+1. **If arXiv URL** — invoke `$arxiv "ARXIV_ID" — download` to fetch the PDF, then read the first 5 pages.
 2. **If local PDF path** — read the PDF directly, focusing on the title, abstract, introduction, and method overview.
 3. **If other URL** — fetch the content and extract the method, results, and limitations.
 4. **Generate `idea-stage/REF_PAPER_SUMMARY.md`** using this template:
@@ -110,10 +110,10 @@ Use `idea-stage/REF_PAPER_SUMMARY.md` as additional context in both Phase 1 and 
 
 ### Phase 1: Literature Survey
 
-Invoke `/research-lit` to map the research landscape:
+Invoke `$research-lit` to map the research landscape:
 
 ```
-/research-lit "$ARGUMENTS" — composed: idea-stage/IDEA_REPORT.md
+$research-lit "the user's request" — composed: idea-stage/IDEA_REPORT.md
 ```
 
 **What this does:**
@@ -133,14 +133,14 @@ Does this match your understanding? Should I adjust the scope before generating 
 ```
 
 - **User approves** (or no response + AUTO_PROCEED=true) → proceed to Phase 2 with best direction.
-- **User requests changes** (e.g., "focus more on X", "ignore Y", "too broad") → refine the search with updated queries, re-run `/research-lit` with adjusted scope, and present again. Repeat until the user is satisfied.
+- **User requests changes** (e.g., "focus more on X", "ignore Y", "too broad") → refine the search with updated queries, re-run `$research-lit` with adjusted scope, and present again. Repeat until the user is satisfied.
 
 ### Phase 2: Idea Generation + Filtering + Pilots
 
-Invoke `/idea-creator` with the landscape context and `idea-stage/REF_PAPER_SUMMARY.md` if available:
+Invoke `$idea-creator` with the landscape context and `idea-stage/REF_PAPER_SUMMARY.md` if available:
 
 ```
-/idea-creator "$ARGUMENTS" — composed: idea-stage/IDEA_REPORT.md
+$idea-creator "the user's request" — composed: idea-stage/IDEA_REPORT.md
 ```
 
 **What this does:**
@@ -174,8 +174,8 @@ Which ideas should I validate further? Or should I regenerate with different con
 For each top idea (positive pilot signal), run a thorough novelty check:
 
 ```
-/novelty-check "[top idea 1 description]"
-/novelty-check "[top idea 2 description]"
+$novelty-check "[top idea 1 description]"
+$novelty-check "[top idea 2 description]"
 ```
 
 **What this does:**
@@ -191,7 +191,7 @@ For each top idea (positive pilot signal), run a thorough novelty check:
 For the surviving top idea(s), get brutal feedback:
 
 ```
-/research-review "[top idea with hypothesis + pilot results]" — composed: idea-stage/IDEA_REPORT.md
+$research-review "[top idea with hypothesis + pilot results]" — composed: idea-stage/IDEA_REPORT.md
 ```
 
 **What this does:**
@@ -212,7 +212,7 @@ manifests. Without that signal, every sub-skill remains standalone. See
 After review, refine the top idea into a concrete proposal and plan experiments:
 
 ```
-/research-refine-pipeline "[top idea description + pilot results + reviewer feedback]"
+$research-refine-pipeline "[top idea description + pilot results + reviewer feedback]"
 ```
 
 **What this does:**
@@ -235,8 +235,8 @@ Proceed to implementation? Or adjust the proposal?
 ```
 
 - **User approves** (or AUTO_PROCEED=true) → proceed to Final Report.
-- **User requests changes** → pass feedback to `/research-refine` for another round.
-- **Lite mode:** If reviewer score < 6 or pilot was weak, run `/research-refine` only (skip `/experiment-plan`) and note remaining risks in the report.
+- **User requests changes** → pass feedback to `$research-refine` for another round.
+- **Lite mode:** If reviewer score < 6 or pilot was weak, run `$research-refine` only (skip `$experiment-plan`) and note remaining risks in the report.
 
 ### Phase 5: Final Report
 
@@ -245,7 +245,7 @@ Finalize `idea-stage/IDEA_REPORT.md` with all accumulated information:
 ```markdown
 # Idea Discovery Report
 
-**Direction**: $ARGUMENTS
+**Direction**: the user's request
 **Date**: [today]
 **Pipeline**: research-lit → idea-creator → novelty-check → research-review → research-refine-pipeline
 
@@ -262,7 +262,7 @@ Finalize `idea-stage/IDEA_REPORT.md` with all accumulated information:
 - Pilot: POSITIVE (+X%)
 - Novelty: CONFIRMED (closest: [paper], differentiation: [what's different])
 - Reviewer score: X/10
-- Next step: implement full experiment → /auto-review-loop
+- Next step: implement full experiment → $auto-review-loop
 
 ### Idea 2: [title] — BACKUP
 ...
@@ -276,9 +276,9 @@ Finalize `idea-stage/IDEA_REPORT.md` with all accumulated information:
 - Tracker: `refine-logs/EXPERIMENT_TRACKER.md`
 
 ## Next Steps
-- [ ] /run-experiment to deploy experiments from the plan
-- [ ] /auto-review-loop to iterate until submission-ready
-- [ ] Or invoke /research-pipeline for the complete end-to-end flow
+- [ ] $run-experiment to deploy experiments from the plan
+- [ ] $auto-review-loop to iterate until submission-ready
+- [ ] Or invoke $research-pipeline for the complete end-to-end flow
 ```
 
 ### Phase 5.5: Write Compact Files (when COMPACT = true)
@@ -299,7 +299,7 @@ Write `idea-stage/IDEA_CANDIDATES.md` — a lean summary of the top 3-5 survivin
 ## Active Idea: #1 — [title]
 - Hypothesis: [one sentence]
 - Key evidence: [pilot result]
-- Next step: /experiment-bridge or /research-refine
+- Next step: $experiment-bridge or $research-refine
 ```
 
 ### Phase 5.6: Instantiate the Research Contract (always — NOT gated on COMPACT)
@@ -308,32 +308,32 @@ When Phase 4 ends with a RECOMMENDED idea, create `idea-stage/docs/research_cont
 from `templates/RESEARCH_CONTRACT_TEMPLATE.md` (repo root or `$ARIS_REPO/templates/`),
 filling in: the selected idea + selection rationale, core claims, minimum
 convincing evidence, and the next-step pointer. Skip only when the run produced
-no RECOMMENDED idea. `/experiment-bridge` implements against this contract;
-`/result-to-claim` + `/ablation-planner` read it as the claims source; session
+no RECOMMENDED idea. `$experiment-bridge` implements against this contract;
+`$result-to-claim` + `$ablation-planner` read it as the claims source; session
 recovery reloads the ACTIVE idea from it instead of the full idea pool.
 
 ## Output Protocols
 
 > Follow these shared protocols for all output files:
-> - **[Output Versioning Protocol](../../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
-> - **[Output Manifest Protocol](../../shared-references/output-manifest.md)** — log every output to MANIFEST.md
-> - **[Output Language Protocol](../../shared-references/output-language.md)** — respect the project's language setting
+> - **[Output Versioning Protocol](../shared-references/output-versioning.md)** — write timestamped file first, then copy to fixed name
+> - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
+> - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 
 ## Render HTML view (auto, when `RENDER_HTML = true`)
 
-After finalizing `idea-stage/IDEA_REPORT.md` (and the optional `IDEA_CANDIDATES.md`), invoke `/render-html` on the report so the user has a single-file HTML view for tablet / phone reading:
+After finalizing `idea-stage/IDEA_REPORT.md` (and the optional `IDEA_CANDIDATES.md`), invoke `$render-html` on the report so the user has a single-file HTML view for tablet / phone reading:
 
 ```
-/render-html "idea-stage/IDEA_REPORT.md" --no-review
+$render-html "idea-stage/IDEA_REPORT.md" --no-review
 ```
 
 `--no-review` is intentional: source MD already received this skill's novelty + same-family provisional review. HTML render is a structural conversion, not a new claim-audit gate.
 
-**Non-blocking**: if `/render-html` fails (helper missing, secondary Codex agent unavailable, file write error), log the failure and continue. Skip entirely if `RENDER_HTML = false`.
+**Non-blocking**: if `$render-html` fails (helper missing, secondary Codex agent unavailable, file write error), log the failure and continue. Skip entirely if `RENDER_HTML = false`.
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - **Don't skip phases.** Each phase filters and validates — skipping leads to wasted effort later.
 - **Checkpoint between phases.** Briefly summarize what was found before moving on.
@@ -348,9 +348,9 @@ After finalizing `idea-stage/IDEA_REPORT.md` (and the optional `IDEA_CANDIDATES.
 After this pipeline produces a validated top idea:
 
 ```
-/idea-discovery "direction"         ← you are here (Workflow 1, includes method refinement + experiment planning)
-/run-experiment                     ← deploy experiments from the plan
-/auto-review-loop "top idea"        ← Workflow 2: iterate until submission-ready
+$idea-discovery "direction"         ← you are here (Workflow 1, includes method refinement + experiment planning)
+$run-experiment                     ← deploy experiments from the plan
+$auto-review-loop "top idea"        ← Workflow 2: iterate until submission-ready
 
-Or use /research-pipeline for the full end-to-end flow.
+Or use $research-pipeline for the full end-to-end flow.
 ```

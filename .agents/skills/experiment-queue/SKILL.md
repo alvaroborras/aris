@@ -1,8 +1,6 @@
 ---
 name: experiment-queue
-description: SSH job queue for multi-seed/multi-config ML experiments with OOM-aware retry, stale-screen cleanup, and wave-transition race prevention. Use when user says "batch experiments", "队列实验", "run grid", "multi-seed sweep", "auto-chain experiments", or when /run-experiment is insufficient for 10+ jobs that need orchestration.
-argument-hint: [manifest-or-grid-spec]
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, Skill(run-experiment), Skill(monitor-experiment)
+description: SSH job queue for multi-seed/multi-config ML experiments with OOM-aware retry, stale-screen cleanup, and wave-transition race prevention. Use when user says "batch experiments", "队列实验", "run grid", "multi-seed sweep", "auto-chain experiments", or when $run-experiment is insufficient for 10+ jobs that need orchestration.
 ---
 
 # Experiment Queue
@@ -11,7 +9,7 @@ Orchestrate large batches of ML experiments on SSH remote GPU servers with prope
 
 ## When to Use This Skill
 
-Use when `/run-experiment` is insufficient:
+Use when `$run-experiment` is insufficient:
 - **≥10 jobs** that need batching across GPUs
 - **Multi-seed sweeps** (e.g., 21 seeds × 12 cells)
 - **Wave transitions** (run wave 1, wait, run wave 2, wait, run wave 3...)
@@ -20,7 +18,7 @@ Use when `/run-experiment` is insufficient:
 - **Mixed seed grids** where failed cells need re-running
 
 Do NOT use for:
-- Single ad-hoc experiment (use `/run-experiment`)
+- Single ad-hoc experiment (use `$run-experiment`)
 - Modal/Vast.ai deployments (those have their own orchestration)
 - Experiments that need manual inspection between runs
 
@@ -115,7 +113,7 @@ A "wave" is a batch of jobs that fit available GPUs. Next wave only starts when:
 Input can be:
 - **YAML manifest** (explicit job list, recommended for complex cases)
 - **Grid spec** (Cartesian product of param values, e.g., `N=[64,128,256] × n=[50K,150K,500K,652K]`)
-- **Natural language description** (Claude parses into manifest)
+- **Natural language description** (Codex parses it into the manifest)
 
 Bind run identifiers once so every later step refers to the same paths:
 
@@ -147,11 +145,11 @@ Resolve the bundled helper directory (`$PROJECT_DIR` / `$RUN_TS` / `$LOCAL_RUN_D
 if [ -z "${ARIS_REPO:-}" ] && [ -f .aris/installed-skills-codex.txt ]; then
     ARIS_REPO=$(awk -F'\t' '$1=="repo_root"{print $2; exit}' .aris/installed-skills-codex.txt 2>/dev/null) || true
 fi
-[ -n "${ARIS_REPO:-}" ] || { echo "ERROR: ARIS_REPO not set. Use install_aris_codex.sh managed install or export ARIS_REPO=/path/to/ARIS."; exit 1; }
-# Prefer the new canonical location; fall back to legacy tools/ shim path.
-QUEUE_TOOLS="$ARIS_REPO/skills/experiment-queue/scripts"
+# Prefer the repository-local skill bundle; fall back to managed/global ARIS installs.
+QUEUE_TOOLS=".agents/skills/experiment-queue/scripts"
+[ -f "$QUEUE_TOOLS/queue_manager.py" ] || QUEUE_TOOLS="$ARIS_REPO/.agents/skills/experiment-queue/scripts"
 [ -f "$QUEUE_TOOLS/queue_manager.py" ] || QUEUE_TOOLS="$ARIS_REPO/tools/experiment_queue"
-[ -f "$QUEUE_TOOLS/queue_manager.py" ] || { echo "ERROR: queue_manager.py not found at $ARIS_REPO/skills/experiment-queue/scripts/ or $ARIS_REPO/tools/experiment_queue/"; exit 1; }
+[ -f "$QUEUE_TOOLS/queue_manager.py" ] || { echo "ERROR: bundled experiment-queue helpers were not found; reinstall the skill or set ARIS_REPO."; exit 1; }
 ```
 
 Compute remote paths (note: modern `scp` runs in SFTP mode and does NOT reliably expand `$HOME` in destination paths — use remote-relative for `scp`, `$HOME`-prefixed for `ssh` command strings):
@@ -222,14 +220,14 @@ ssh <server> "cat \"$REMOTE_RUN_DIR/queue_state.json\"" \
   | jq '.jobs | group_by(.status) | map({(.[0].status): length}) | add'
 ```
 
-Note: `/monitor-experiment` is currently focused on screen sessions, result JSONs, and W&B; it does not yet read `queue_state.json` directly. For queue-state monitoring, use the literal command above.
+Note: `$monitor-experiment` is currently focused on screen sessions, result JSONs, and W&B; it does not yet read `queue_state.json` directly. For queue-state monitoring, use the literal command above.
 
 ### Step 5: Post-completion
 
 When all jobs in `manifest.json` are `completed` or `stuck`:
 - The remote scheduler (`queue_manager.py`) exits cleanly with `All jobs done` to its own stdout (captured in `$REMOTE_RUN_DIR/queue_mgr.log`). It does NOT write the local summary.
 - The **local** skill agent then aggregates state into `$LOCAL_RUN_DIR/summary.md` (read `$REMOTE_RUN_DIR/queue_state.json`, group by status, optionally pull per-job logs).
-- Local skill agent invokes `/analyze-results` if `analyze_on_complete: true`.
+- Local skill agent invokes `$analyze-results` if `analyze_on_complete: true`.
 
 ## Grid Spec Syntax
 
@@ -327,13 +325,13 @@ If scheduler crashes / is killed:
 - 42 JSON files in `figures/distill_sw_*.json`
 
 ## Next Steps
-- Run `/analyze-results` on output JSONs
+- Run `$analyze-results` on output JSONs
 - Figures auto-regen via `artifact-sync` (if configured)
 ```
 
-## Comparison with `/run-experiment`
+## Comparison with `$run-experiment`
 
-| Feature | `/run-experiment` | `experiment-queue` |
+| Feature | `$run-experiment` | `experiment-queue` |
 | --- | --- | --- |
 | Single-shot experiment | ✅ | ✅ (overkill) |
 | Multi-GPU parallel | Basic | Proper scheduling |
@@ -345,7 +343,7 @@ If scheduler crashes / is killed:
 | Resume on crash | No | Yes |
 | Grid expansion | Manual | Declarative |
 
-**Rule**: Use `/run-experiment` for ≤5 jobs. Use `experiment-queue` for ≥10 jobs or anything with phases.
+**Rule**: Use `$run-experiment` for ≤5 jobs. Use `experiment-queue` for ≥10 jobs or anything with phases.
 
 ## Key Rules
 
@@ -366,7 +364,7 @@ If scheduler crashes / is killed:
 
 User: "跑 T5+T6 全部实验：T5 = N∈{80,192} × n 4 values × seed {200,201}, T6 = N∈{384,512} × n 4 values × seed {42,200,201}; T6 需要先 train teacher"
 
-Claude invokes `/experiment-queue`:
+Codex invokes `$experiment-queue`:
 1. Parses description into 2-phase manifest
 2. Phase 1: T5 (16 jobs, no teacher dependency) + T6 teacher training (2 jobs)
 3. Phase 2: T6 distillation (24 jobs, depends on teachers)
@@ -377,9 +375,9 @@ Then user can check anytime or wait for summary report.
 
 ## See Also
 
-- `/run-experiment` — single experiment deployment
-- `/monitor-experiment` — check progress (now reads from queue_state.json)
-- `/analyze-results` — post-hoc analysis
+- `$run-experiment` — single experiment deployment
+- `$monitor-experiment` — check progress (now reads from queue_state.json)
+- `$analyze-results` — post-hoc analysis
 - `skills/experiment-queue/scripts/queue_manager.py` (canonical, Phase 3.3 move) — the scheduler implementation. Legacy entry at `tools/experiment_queue/queue_manager.py` is an `os.execv` shim.
 - `skills/experiment-queue/scripts/build_manifest.py` (canonical, Phase 3.3 move) — build manifest from grid spec. Legacy entry at `tools/experiment_queue/build_manifest.py` is an `os.execv` shim.
 

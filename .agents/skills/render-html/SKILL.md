@@ -1,17 +1,15 @@
 ---
 name: render-html
-description: "Render an ARIS Markdown / JSON artifact (IDEA_REPORT, AUTO_REVIEW, KILL_ARGUMENT, PAPER_PLAN, research-wiki state, etc.) into a single-file HTML view designed for human reading. Use when the user says \"渲染 HTML\", \"出一份 HTML 报告\", \"render html\", \"make this readable\", \"export to html\", or wants a polished web-rendered view of a Markdown artifact."
-argument-hint: <input.md> [--template academic|dashboard] [--out <path>] [--title ...] [--state <state.json>] [--json <sidecar.json>] [--offline] [--review|--no-review]
-allowed-tools: Bash(*), Read, Write, spawn_agent
+description: Render an ARIS Markdown / JSON artifact (IDEA_REPORT, AUTO_REVIEW, KILL_ARGUMENT, PAPER_PLAN, research-wiki state, etc.) into a single-file HTML view designed for human reading. Use when the user says "渲染 HTML", "出一份 HTML 报告", "render html", "make this readable", "export to html", or wants a polished web-rendered view of a Markdown artifact.
 ---
 
-# /render-html: Markdown → single-file HTML for human reading
+# $render-html: Markdown → single-file HTML for human reading
 
-> **Markdown is for writers. HTML is for readers.** ARIS workflow nodes write Markdown (canonical, audit-trail-friendly, machine-parseable). `/render-html` turns *selected* artifacts into a polished single-file HTML view for the human who actually has to read them. The Markdown stays the source of truth.
+> **Markdown is for writers. HTML is for readers.** ARIS workflow nodes write Markdown (canonical, audit-trail-friendly, machine-parseable). `$render-html` turns *selected* artifacts into a polished single-file HTML view for the human who actually has to read them. The Markdown stays the source of truth.
 
 ## When to use this skill
 
-**Use `/render-html` for** ARIS artifacts that have a real human reader:
+**Use `$render-html` for** ARIS artifacts that have a real human reader:
 
 | Artifact | Why HTML helps | Template |
 |----------|----------------|----------|
@@ -56,7 +54,7 @@ fi
 [ -z "$RENDER_HTML" ] && [ -f ~/.codex/skills/render-html/scripts/render_html.py ] && RENDER_HTML="$HOME/.codex/skills/render-html/scripts/render_html.py"
 [ -z "$RENDER_HTML" ] && {
   echo "ERROR: render_html.py not resolved at .agents/skills/render-html/scripts/, skills/render-html/scripts/, \$ARIS_REPO/skills/render-html/scripts/, or ~/.codex/skills/render-html/scripts/." >&2
-  echo "       /render-html cannot produce HTML output. Fix: rerun install_aris_codex.sh, export ARIS_REPO, or copy the render-html skill into ~/.codex/skills/." >&2
+  echo "       $render-html cannot produce HTML output. Fix: rerun install_aris_codex.sh, export ARIS_REPO, or copy the render-html skill into ~/.codex/skills/." >&2
   exit 1
 }
 ```
@@ -101,7 +99,7 @@ python3 "$RENDER_HTML" idea-stage/IDEA_REPORT.md
 ```
 
 The `--review` / `--no-review` flags are parsed by the SKILL orchestrator
-(Claude Code), not by `render_html.py`. The helper itself stays pure
+(Codex), not by `render_html.py`. The helper itself stays pure
 stdlib and never calls MCP. See § *HTML Review Gate* below for the
 exact resolution and prompt.
 
@@ -109,7 +107,7 @@ exact resolution and prompt.
 
 ### Step 1: Identify the artifact
 
-From `$ARGUMENTS`, determine what to render. Common patterns:
+From `the user's request`, determine what to render. Common patterns:
 
 - "render IDEA_REPORT" → `idea-stage/IDEA_REPORT.md`, academic template
 - "make AUTO_REVIEW readable" → `review-stage/AUTO_REVIEW.md` + `--state review-stage/REVIEW_STATE.json`
@@ -146,7 +144,7 @@ So:
 
 **If `should_review` is true**, fire a fresh `spawn_agent` call (NEVER `send_input`; pin `model: gpt-5.6-sol` + `reasoning_effort: xhigh` per `../shared-references/reviewer-routing.md`) with the prompt below. The reviewer reads the source MD + generated HTML directly; it does **not** see this skill's intermediate state.
 
-**Scope of review (narrow on purpose).** The HTML reviewer audits **render fidelity / safety / structure only** — not claim truthfulness. Claim audit belongs upstream (`/paper-claim-audit`, `/research-review`, `/result-to-claim`). Specifically the reviewer checks:
+**Scope of review (narrow on purpose).** The HTML reviewer audits **render fidelity / safety / structure only** — not claim truthfulness. Claim audit belongs upstream (`$paper-claim-audit`, `$research-review`, `$result-to-claim`). Specifically the reviewer checks:
 
 1. **Information fidelity** — every section, claim, table, code block, list, math snippet, sidecar payload is present in the HTML (no silent drop)
 2. **Structural integrity** — heading hierarchy / nested lists / table cells / code fences / `<details>` blocks / math delimiters survive parsing
@@ -231,7 +229,7 @@ Verdict rules:
 
 **If `verdict == WARN`**: deliver the HTML but surface the warning list. User decides whether to fix or accept.
 
-**If `spawn_agent` is not available** (e.g., user runs `/render-html` on a Codex-CLI-only setup where Codex MCP isn't wired): emit `verdict: REVIEW_UNAVAILABLE` to the sidecar, do not fabricate `PASS`, and tell the user the HTML was generated but **not** independently reviewed. The user can manually invoke `/research-review` on the source MD or re-run with Codex MCP available.
+**If `spawn_agent` is not available** (e.g., user runs `$render-html` on a Codex-CLI-only setup where Codex subagent capability isn't wired): emit `verdict: REVIEW_UNAVAILABLE` to the sidecar, do not fabricate `PASS`, and tell the user the HTML was generated but **not** independently reviewed. The user can manually invoke `$research-review` on the source MD or re-run with Codex subagent capability available.
 
 ### Step 5: (Optional) Verify in browser
 
@@ -266,16 +264,16 @@ Verdict rules:
 
 ## Two-phase integration plan (Phase 1 is this skill; Phase 2 is workflow hooks)
 
-**Phase 1 (this skill, currently shipped):** Opt-in only. Users explicitly call `/render-html <artifact.md>` after a workflow completes. No existing skill changes. Lets us validate which HTML views are actually useful before automating.
+**Phase 1 (this skill, currently shipped):** Opt-in only. Users explicitly call `$render-html <artifact.md>` after a workflow completes. No existing skill changes. Lets us validate which HTML views are actually useful before automating.
 
 **Phase 2 (later, planned):** Selectively auto-emit HTML at workflow termination:
 
-- `/idea-discovery` completes → also writes `idea-stage/IDEA_REPORT.html` (academic)
-- `/auto-review-loop` terminates → also writes `review-stage/AUTO_REVIEW.html` (academic, with `--state`)
-- `/kill-argument` already writes `.md + .json` → naturally extends to `+ .html`
-- `/research-pipeline` final report links to the HTML files above (doesn't re-render)
-- `/research-wiki render` subcommand generates `research-wiki/index.html` dashboard
-- `/paper-writing` **does not** auto-emit HTML (the final reader artifact is PDF)
+- `$idea-discovery` completes → also writes `idea-stage/IDEA_REPORT.html` (academic)
+- `$auto-review-loop` terminates → also writes `review-stage/AUTO_REVIEW.html` (academic, with `--state`)
+- `$kill-argument` already writes `.md + .json` → naturally extends to `+ .html`
+- `$research-pipeline` final report links to the HTML files above (doesn't re-render)
+- `$research-wiki render` subcommand generates `research-wiki/index.html` dashboard
+- `$paper-writing` **does not** auto-emit HTML (the final reader artifact is PDF)
 
 Phase 2 will be guarded by a `— html: true` flag in each affected skill, defaulting to `false` until we have empirical evidence the HTML views are read.
 
@@ -286,20 +284,20 @@ The two templates live at `skills/render-html/scripts/templates/{academic,dashbo
 1. Copy one of the templates to a new name, e.g., `my_brand.html`.
 2. Edit the CSS variables in `:root { ... }` to change colors, the font stack, or layout dimensions.
 3. Add the template name to the `--template` choices in `render_html.py` `argparse`.
-4. Re-run `/render-html <input> --template my_brand`.
+4. Re-run `$render-html <input> --template my_brand`.
 
 The default templates are derived from the user's own academic-newspaper tutorial style (Source Serif Pro + Songti SC, 3-color palette, sticky TOC, low-flash). Stay close to that idiom for ARIS artifacts unless you have a specific reason to break the visual language.
 
 ## External alternatives (for richer surfaces)
 
-For deck / poster / Xiaohongshu card / tweet card / data report style outputs, point users to **[html-anything](https://github.com/nexu-io/html-anything)** (Apache-2.0, 3000⭐ at time of writing). It ships 75 SKILL.md templates across 9 surfaces and detects 8 coding-agent CLIs (including Claude Code, Codex, Copilot). ARIS does *not* depend on it — `/render-html` covers ARIS-native artifacts; html-anything is the recommended path for richer publishing surfaces.
+For deck / poster / Xiaohongshu card / tweet card / data report style outputs, point users to **[html-anything](https://github.com/nexu-io/html-anything)** (Apache-2.0, 3000⭐ at time of writing). It ships 75 SKILL.md templates across 9 surfaces and detects 8 coding-agent CLIs (including Codex, Copilot). ARIS does *not* depend on it — `$render-html` covers ARIS-native artifacts; html-anything is the recommended path for richer publishing surfaces.
 
 ## Key rules
 
 - **Do not auto-render every Markdown file.** Only artifacts on the whitelist above. File proliferation is the main anti-pattern.
 - **Do not hand-edit the generated HTML.** Edit the source, then re-render. The embedded SHA256 in the HTML meta tells you if the source has changed since render.
 - **academic-template HTML is a reviewed artifact**, not raw output. Base Codex review is fresh but same-family provisional; never call it cross-model acceptance. `--no-review` exists for fast iteration but should not be the way you ship.
-- **The reviewer audits rendering, not research.** Claim truthfulness is owned upstream by `/paper-claim-audit`, `/result-to-claim`, `/research-review`. The HTML reviewer asks: "did the renderer faithfully + safely convert this source?" — nothing more.
+- **The reviewer audits rendering, not research.** Claim truthfulness is owned upstream by `$paper-claim-audit`, `$result-to-claim`, `$research-review`. The HTML reviewer asks: "did the renderer faithfully + safely convert this source?" — nothing more.
 - **CDN dependency is opt-out, not opt-in.** Most users have internet; `--offline` is for air-gapped runs / archival.
 - **The default style is academic-newspaper, not marketing-flashy.** Match the existing ARIS tonal voice. If you want decks/posters/social cards, point users to html-anything.
 - **Pure stdlib only.** Adding a `pip install` dependency to `render_html.py` requires an explicit decision — the helper currently has none. MCP calls live in the skill orchestrator, never in the helper script.

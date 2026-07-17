@@ -6,7 +6,7 @@
 > or deterministic verifier produces accepted authorization.
 
 When ARIS captures *durable* knowledge — a research-wiki idea / claim / experiment
-node, a `/meta-optimize` SKILL.md proposal — it must not store **operational
+node, a `$meta-optimize` SKILL.md proposal — it must not store **operational
 noise** that later hardens into a self-cited falsehood. This is the failure mode
 Hermes's self-improvement loop hit and patched with a hand-written "Do NOT
 capture" list: negative tool-capability claims that *"harden into refusals the
@@ -64,10 +64,10 @@ python3 tools/capture_filter.py <file|->   # exit 1 + reasons if anti-pattern fo
 ```
 
 ## Where ARIS uses it
-- **`/research-wiki`** (and `/idea-creator` Phase-3 annotations): screen an
+- **`$research-wiki`** (and `$idea-creator` Phase-3 annotations): screen an
   idea/claim/experiment note before persisting it; if flagged, rewrite to the
   fix or drop it — don't let operational noise become a durable node.
-- **`/meta-optimize`**: screen the rationale of a proposed SKILL.md change; never
+- **`$meta-optimize`**: screen the rationale of a proposed SKILL.md change; never
   propose a change that encodes a negative tool-capability claim or a one-off
   failure as a durable rule.
 

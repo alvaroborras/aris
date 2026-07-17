@@ -1,11 +1,11 @@
 ---
-name: "run-experiment"
-description: "Deploy and run ML experiments on local or remote GPU servers. Use when user says \"run experiment\", \"deploy to server\", \"\u8dd1\u5b9e\u9a8c\", or needs to launch training jobs."
+name: run-experiment
+description: Deploy and run ML experiments on local or remote GPU servers. Use when user says "run experiment", "deploy to server", "跑实验", or needs to launch training jobs.
 ---
 
 # Run Experiment
 
-Deploy and run ML experiment: $ARGUMENTS
+Deploy and run ML experiment: the user's request
 
 ## Workflow
 
@@ -162,7 +162,7 @@ CUDA_VISIBLE_DEVICES=<gpu_id> python <script> <args> 2>&1 | tee <log_file>
 python <script> <args> 2>&1 | tee <log_file>
 ```
 
-For local long-running jobs, use `run_in_background: true` to keep the conversation responsive.
+For local long-running jobs, launch through the available terminal capability and retain its yielded session identifier so progress can be polled without blocking the conversation.
 
 ### Step 5: Verify Launch
 
@@ -196,7 +196,7 @@ If any artifact copy fails, do not destroy the instance.
 - ALWAYS check GPU availability first — never blindly assign GPUs
 - Each experiment gets its own screen session + GPU (remote) or background process (local)
 - Use `tee` to save logs for later inspection
-- Run deployment commands with `run_in_background: true` to keep conversation responsive
+- Keep long-running deployment commands in yielded terminal sessions and poll them without blocking the conversation
 - Report back: which GPU, which screen/process, what command, estimated time
 - If multiple experiments, launch them in parallel on different GPUs
 

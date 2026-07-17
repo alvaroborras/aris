@@ -1,8 +1,6 @@
 ---
 name: meta-apply
-description: "Privileged applier that LANDS meta-optimize / corpus-audit patches the user approved, with a fresh landing review and human approval. Base Codex review is same-family provisional. Use when the user says \"meta apply\", \"/meta-apply\", \"land the staged patches\", \"应用优化\", after a /meta-optimize run."
-argument-hint: [patch-number-or-all]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Privileged applier that LANDS meta-optimize / corpus-audit patches the user approved, with a fresh landing review and human approval. Base Codex review is same-family provisional. Use when the user says "meta apply", "$meta-apply", "land the staged patches", "应用优化", after a $meta-optimize run.
 ---
 
 # Meta-Apply: the privileged landing gate for self-modification patches
@@ -13,14 +11,14 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
 > deterministic verifier may produce accepted authorization.
 
 This skill exists to enforce a **privilege boundary**. Producers like
-[`/meta-optimize`](../meta-optimize/SKILL.md) (and, later, `corpus-audit`) are
+[`$meta-optimize`](../meta-optimize/SKILL.md) (and, later, `corpus-audit`) are
 **read-only** — no `Write`/`Edit`, no apply step; they can only *stage* candidate patches
 under `.aris/meta/pending/`. **This skill is the only place a staged patch becomes a real
 change to the corpus.** Splitting "propose" from "land" across two skills with different
 tool grants is what makes "a loop cannot apply its own patch" structural rather than a
 sentence the producer is asked to obey.
 
-It is **human-invoked only.** It runs when the user explicitly types `/meta-apply` after
+It is **human-invoked only.** It runs when the user explicitly types `$meta-apply` after
 reading the producer's REPORT. That invocation IS the landing authorization (the locked
 2026-05-30 decision: the human stays at the landing gate).
 
@@ -38,7 +36,7 @@ privileged human-invoked skill — nothing to forge.
 For each staged patch the user asks to land, in order — any failure ⇒ skip & report,
 never silently apply:
 
-1. **The human named THIS patch.** Apply only patches the user listed (`/meta-apply 1,3`
+1. **The human named THIS patch.** Apply only patches the user listed (`$meta-apply 1,3`
    or `all`); default to applying nothing.
 2. **Fresh landing review PASS, obtained now.** Spawn a fresh `gpt-5.6-sol`
    reviewer via `spawn_agent` (`reasoning_effort: ultra`, read-only, paths-only per
@@ -59,7 +57,7 @@ never silently apply:
 
 ```bash
 PENDING=".aris/meta/pending"
-[ -d "$PENDING" ] || { echo "Nothing staged. Run /meta-optimize first."; exit 0; }
+[ -d "$PENDING" ] || { echo "Nothing staged. Run $meta-optimize first."; exit 0; }
 echo "Staged:"; cat "$PENDING/manifest.jsonl"
 ```
 

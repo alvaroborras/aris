@@ -1,12 +1,15 @@
 ---
 name: system-profile
-description: "Profile a target (script, process, GPU, memory, interconnect) for performance analysis. Use when user says \"profile\", \"benchmark\", \"bottleneck\", or wants performance analysis."
-argument-hint: <target, e.g. "train.py", "gpu", "pid 1234", "vllm serving">
+description: Profile a target (script, process, GPU, memory, interconnect) for performance analysis. Use when user says "profile", "benchmark", "bottleneck", or wants performance analysis.
 ---
 
 # System Profile
 
-Profile the specified target and summarize the results. Target: $ARGUMENTS
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `<target, e.g. "train.py", "gpu", "pid 1234", "vllm serving">`. Do not expect a dedicated argument variable or slash-command parser.
+
+Profile the specified target and summarize the results. Target: the user's request
 
 ## Instructions
 
@@ -14,14 +17,14 @@ You are a profiling assistant. Based on the user's target, choose appropriate pr
 
 ### Step 1: Determine the profiling target
 
-Parse `$ARGUMENTS` to understand what to profile. Examples:
+Parse `the user's request` to understand what to profile. Examples:
 - A Python script or module
 - A running process (PID or service name)
 - A specific function or code block
 - An entire framework or system (e.g., "autogen", "vllm serving") — profile its end-to-end execution, identify bottlenecks across components
 - "gpu" / "interconnect" / "memory" for focused profiling
 
-If `$ARGUMENTS` is empty or unclear, ask the user.
+If `the user's request` is empty or unclear, ask the user.
 
 ### Step 2: Choose profiling methods
 

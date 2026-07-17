@@ -1,15 +1,13 @@
 ---
 name: prior-art-search
-description: "Search patent databases and academic literature for prior art relevant to an invention. Use when user says \"现有技术检索\", \"prior art search\", \"专利检索\", \"check patents\", or wants to find relevant prior art."
-argument-hint: [invention-description-or-path]
-allowed-tools: Bash(*), Read, Glob, Grep, WebSearch, WebFetch, Write
+description: Search patent databases and academic literature for prior art relevant to an invention. Use when user says "现有技术检索", "prior art search", "专利检索", "check patents", or wants to find relevant prior art.
 ---
 
 # Prior Art Search
 
-Search patents and literature for prior art relevant to: **$ARGUMENTS**
+Search patents and literature for prior art relevant to: **the user's request**
 
-Adapted from `/research-lit` for patent-specific searching.
+Adapted from `$research-lit` for patent-specific searching.
 
 ## Constants
 
@@ -21,7 +19,7 @@ Adapted from `/research-lit` for patent-specific searching.
 ## Inputs
 
 Read the invention description from:
-1. `$ARGUMENTS` if it contains technical details
+1. `the user's request` if it contains technical details
 2. `patent/INVENTION_BRIEF.md` if it exists
 3. `INVENTION_BRIEF.md` if it exists at project root
 
@@ -43,34 +41,34 @@ From the invention description, identify:
 
 For EACH search concept, search via:
 
-**Google Patents** (via WebSearch):
+**Google Patents** (via web search):
 ```
-WebSearch: "site:patents.google.com [keywords]"
-WebSearch: "[keywords] patent"
+web search: "site:patents.google.com [keywords]"
+web search: "[keywords] patent"
 ```
 - Try primary keywords + technical problem keywords
 - Search in English regardless of target jurisdiction
-- For CN inventions, also search Chinese keywords via WebSearch
+- For CN inventions, also search Chinese keywords via web search
 
-**Espacenet** (via WebFetch):
-- WebFetch worldwide.espacenet.com/search results for key queries
+**Espacenet** (via web page fetch):
+- web page fetch worldwide.espacenet.com/search results for key queries
 - Search by predicted IPC/CPC classes
 
 **Assignee/Inventor Search**:
 - If known companies/universities work in this area, search their patent portfolios
-- WebSearch: "[assignee name] patent [technical area]"
+- web search: "[assignee name] patent [technical area]"
 
 For each potentially relevant patent found:
-- WebFetch the patent page to extract: title, abstract, representative claims, filing date, assignee, current status
+- web page fetch the patent page to extract: title, abstract, representative claims, filing date, assignee, current status
 - Record IPC/CPC classification codes
 
 ### Step 3: Academic Literature Search
 
 Search the same concepts in academic databases:
 
-1. **Google Scholar** (via WebSearch): `WebSearch "[keywords] site:scholar.google.com"`
-2. **arXiv** (via `/arxiv` if available, or WebSearch): Search for preprints
-3. **Semantic Scholar** (via `/semantic-scholar` if API key set, or WebSearch)
+1. **Google Scholar** (via web search): `web search "[keywords] site:scholar.google.com"`
+2. **arXiv** (via `$arxiv` if available, or web search): Search for preprints
+3. **Semantic Scholar** (via `$semantic-scholar` if API key set, or web search)
 
 For each relevant paper found:
 - Extract title, authors, venue, year, key contribution

@@ -1,21 +1,19 @@
 ---
 name: specification-writing
-description: "Write the full patent specification from claims and invention disclosure. Use when user says \"撰写说明书\", \"write specification\", \"写说明书\", \"patent description\", or wants to draft the complete patent specification."
-argument-hint: [claims-path]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill, WebSearch, WebFetch
+description: Write the full patent specification from claims and invention disclosure. Use when user says "撰写说明书", "write specification", "写说明书", "patent description", or wants to draft the complete patent specification.
 ---
 
 # Specification Writing: Section-by-Section Patent Description
 
-Write the patent specification based on: **$ARGUMENTS**
+Write the patent specification based on: **the user's request**
 
-Adapted from `/paper-write` for patent specifications. The specification supports the claims -- it is not a paper.
+Adapted from `$paper-write` for patent specifications. The specification supports the claims -- it is not a paper.
 
 ## Constants
 
 - `REVIEWER_MODEL = gpt-5.6-sol` — External reviewer for specification quality
 - `JURISDICTION = "auto"` — Inherit from pipeline or detect from args; `CN`, `US`, `EP`, `ALL`
-- `OUTPUT_FORMAT = "markdown"` — Markdown drafts; converted to filing format by `/jurisdiction-format`
+- `OUTPUT_FORMAT = "markdown"` — Markdown drafts; converted to filing format by `$jurisdiction-format`
 - `OUTPUT_DIR = "patent/"` — Base output directory
 - `LANGUAGE = "auto"` — Auto from jurisdiction: CN->Chinese, US/EP->English
 
@@ -98,9 +96,9 @@ Three parts, directly mirroring INVENTION_DISCLOSURE.md:
 
 ### Step 6: Write Brief Description of Drawings (附图说明)
 
-Invoke `/figure-description` as a sub-skill if user has provided figures:
+Invoke `$figure-description` as a sub-skill if user has provided figures:
 ```
-/figure-description "patent/figures/"
+$figure-description "patent/figures/"
 ```
 
 If no user figures, describe what figures should exist based on the claims.
@@ -111,9 +109,9 @@ Format:
 
 ### Step 7: Write Detailed Description (具体实施方式)
 
-Invoke `/embodiment-description` as a sub-skill:
+Invoke `$embodiment-description` as a sub-skill:
 ```
-/embodiment-description "patent/CLAIMS.md"
+$embodiment-description "patent/CLAIMS.md"
 ```
 
 This section must:
@@ -207,5 +205,5 @@ Summary file: `patent/specification/SPECIFICATION_INDEX.md` with:
 - Reference numerals must be consistent: same component, same numeral, everywhere.
 - Background section describes specific deficiencies, not general "need for improvement."
 - Multiple embodiments strengthen the specification but are not always required.
-- Large file handling: if a Write operation fails, retry with Bash `cat <<'EOF'` heredoc.
+- Large file handling: if an edit is too large, apply it in smaller reviewable patches.
 - If reviewer delegation is unavailable in the current Codex host, stop and ask the user to enable Codex agent support before continuing.

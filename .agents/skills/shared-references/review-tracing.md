@@ -1,5 +1,17 @@
 # Review Tracing Protocol
 
+## Contents
+
+- [Purpose](#purpose)
+- [When to Trace](#when-to-trace)
+- [How to Trace](#how-to-trace)
+- [Trace Directory](#trace-directory)
+- [File Schemas](#file-schemas)
+- [Configuration](#configuration)
+- [Events](#events)
+- [Debugging With Traces](#debugging-with-traces)
+- [Privacy](#privacy)
+
 ## Purpose
 
 Save full prompt/response pairs for every reviewer call, enabling:

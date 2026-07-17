@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-ARIS is a collection of **79 composable Claude Code skills** that orchestrate **cross-model collaboration**: Claude Code drives the research (reads files, writes code, deploys experiments) while an external LLM (GPT-5.6-Sol via [Codex MCP](https://github.com/openai/codex)) acts as a critical reviewer. The two models disagree, debate, and force each other to do better — adversarial, not self-play.
+ARIS is a collection of **80 composable Claude Code skills** that orchestrate **cross-model collaboration**: Claude Code drives the research (reads files, writes code, deploys experiments) while an external LLM (GPT-5.6-Sol via [Codex MCP](https://github.com/openai/codex)) acts as a critical reviewer. The two models disagree, debate, and force each other to do better — adversarial, not self-play.
 
 Seven workflows (W1 / W1.5 / W2 / W3 / W4 / W5 / W6) compose into a full research lifecycle: idea discovery → experiment bridge → auto-review → paper writing → rebuttal → resubmit → conference talk. Tested end-to-end on real ICLR/NeurIPS submissions. Score progression on a real overnight run: **5/10 → 7.5/10 with 20+ GPU experiments**.
 
@@ -263,7 +263,7 @@ A real overnight 4-round run on an ML research project, from borderline reject t
 
 ---
 
-## The 79 Skills
+## The 80 Skills
 
 Grouped by role (full catalog: [`docs/SKILLS_CATALOG.md`](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/docs/SKILLS_CATALOG.md)).
 
@@ -306,6 +306,8 @@ ARIS skills are plain `SKILL.md` files. They run anywhere an agent reads markdow
 > 📝 **ARIS is a methodology, not a platform.** Fork it, rewrite it, adapt it to your stack. The only invariants are: cross-family review, fresh threads for reviewers, audit integrity. Everything else — model choice, install path, integration surface — is yours.
 
 ---
+
+
 
 ## Get Started
 

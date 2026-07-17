@@ -1,11 +1,11 @@
 ---
-name: "paper-write"
-description: "Draft LaTeX paper section by section from an outline. Use when user says \\\"\u5199\u8bba\u6587\\\", \\\"write paper\\\", \\\"draft LaTeX\\\", \\\"\u5f00\u59cb\u5199\\\", or wants to generate LaTeX content from a paper plan."
+name: paper-write
+description: Draft LaTeX paper section by section from an outline. Use when user says \"写论文\", \"write paper\", \"draft LaTeX\", \"开始写\", or wants to generate LaTeX content from a paper plan.
 ---
 
 # Paper Write: Section-by-Section LaTeX Generation
 
-Draft a LaTeX paper based on: **$ARGUMENTS**
+Draft a LaTeX paper based on: **the user's request**
 
 ## Constants
 
@@ -17,13 +17,13 @@ Draft a LaTeX paper based on: **$ARGUMENTS**
 
 ## Inputs
 
-1. **PAPER_PLAN.md** — outline with claims-evidence matrix, section plan, figure plan (from `/paper-plan`)
+1. **PAPER_PLAN.md** — outline with claims-evidence matrix, section plan, figure plan (from `$paper-plan`)
 2. **NARRATIVE_REPORT.md** — the research narrative (primary source of content)
-3. **Generated figures** — PDF/PNG files in `figures/` (from `/paper-figure`)
-4. **LaTeX includes** — `figures/latex_includes.tex` (from `/paper-figure`)
+3. **Generated figures** — PDF/PNG files in `figures/` (from `$paper-figure`)
+4. **LaTeX includes** — `figures/latex_includes.tex` (from `$paper-figure`)
 5. **Bibliography** — existing `.bib` file, or will create one
 
-If no PAPER_PLAN.md exists, ask the user to run `/paper-plan` first or provide a brief outline.
+If no PAPER_PLAN.md exists, ask the user to run `$paper-plan` first or provide a brief outline.
 
 ## Orchestra-Guided Writing Overlay
 
@@ -255,7 +255,7 @@ curl -sLH "Accept: application/x-bibtex" "https://doi.org/{doi}"
 **Step C: Mark `[VERIFY]` (last resort)**
 If both DBLP and CrossRef return nothing, mark the entry with `% [VERIFY]` comment. Do NOT fabricate.
 
-**Why this matters:** LLM-generated BibTeX frequently hallucinates venue names, page numbers, or even co-authors. DBLP and CrossRef return publisher-verified metadata. Upstream skills (`/research-lit`, `/novelty-check`) may mention papers from LLM memory — this fetch chain is the gate that prevents hallucinated citations from entering the final `.bib`.
+**Why this matters:** LLM-generated BibTeX frequently hallucinates venue names, page numbers, or even co-authors. DBLP and CrossRef return publisher-verified metadata. Upstream skills (`$research-lit`, `$novelty-check`) may mention papers from LLM memory — this fetch chain is the gate that prevents hallucinated citations from entering the final `.bib`.
 
 If the DBLP/CrossRef flow is not enough, load `../shared-references/citation-discipline.md` for stricter fallback rules before adding placeholders.
 
@@ -372,7 +372,7 @@ Before declaring done:
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - **Do NOT generate author names, emails, or affiliations** — use anonymous block or placeholder
 - **Write complete sections, not outlines** — the output should be compilable LaTeX

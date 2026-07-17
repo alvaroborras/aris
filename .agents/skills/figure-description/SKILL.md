@@ -1,15 +1,13 @@
 ---
 name: figure-description
-description: "Process user-provided patent figures and generate formal drawing descriptions. Use when user says \"附图处理\", \"figure description\", \"附图说明\", \"drawings description\", or wants to describe patent figures with reference numerals."
-argument-hint: [figure-directory-or-figure-list]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+description: Process user-provided patent figures and generate formal drawing descriptions. Use when user says "附图处理", "figure description", "附图说明", "drawings description", or wants to describe patent figures with reference numerals.
 ---
 
 # Figure Description for Patents
 
-Process patent figures and generate drawing descriptions based on: **$ARGUMENTS**
+Process patent figures and generate drawing descriptions based on: **the user's request**
 
-Unlike `/paper-figure` which generates data plots, this skill processes user-provided technical diagrams and assigns reference numerals.
+Unlike `$paper-figure` which generates data plots, this skill processes user-provided technical diagrams and assigns reference numerals.
 
 ## Constants
 
@@ -38,7 +36,7 @@ Unlike `/paper-figure` which generates data plots, this skill processes user-pro
 
 For each figure found:
 
-1. **Read the image** using the Read tool (supports image files)
+1. **Read the image** using the image inspection capability (supports image files)
 2. **Identify components**: What labeled or visually distinct components are shown?
 3. **Identify connections**: How do components relate to each other?
 4. **Identify flow**: If it's a flowchart or sequence, what is the step order?

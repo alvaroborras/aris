@@ -1,15 +1,13 @@
 ---
 name: jurisdiction-format
-description: "Compile patent application into jurisdiction-specific filing format. Use when user says \"格式转换\", \"jurisdiction format\", \"国家格式\", \"compile patent\", or wants formatted patent documents for CN/US/EP filing."
-argument-hint: [patent-directory-or-jurisdiction]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Compile patent application into jurisdiction-specific filing format. Use when user says "格式转换", "jurisdiction format", "国家格式", "compile patent", or wants formatted patent documents for CN/US/EP filing.
 ---
 
 # Jurisdiction Format: Patent Filing Compilation
 
-Compile the patent application into filing-ready format based on: **$ARGUMENTS**
+Compile the patent application into filing-ready format based on: **the user's request**
 
-Analogous to `/paper-compile` but for patent document formatting instead of LaTeX.
+Analogous to `$paper-compile` but for patent document formatting instead of LaTeX.
 
 ## Constants
 
@@ -35,7 +33,7 @@ Load `../shared-references/patent-format-ep.md` for EPO document structure.
 
 ### Step 1: Determine Output Jurisdictions
 
-From `$ARGUMENTS` or constant:
+From `the user's request` or constant:
 - `CN` -> Generate CNIPA format only
 - `US` -> Generate USPTO format only
 - `EP` -> Generate EPO format only

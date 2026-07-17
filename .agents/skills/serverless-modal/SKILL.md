@@ -1,13 +1,11 @@
 ---
 name: serverless-modal
-description: "Run GPU workloads on Modal — training, fine-tuning, inference, batch processing. Zero-config serverless: no SSH, no Docker, auto scale-to-zero. Use when user says \"modal run\", \"modal training\", \"modal inference\", \"deploy to modal\", \"need a GPU\", \"run on modal\", \"serverless GPU\", or needs remote GPU compute."
-argument-hint: [task-description]
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write
+description: 'Run GPU workloads on Modal — training, fine-tuning, inference, batch processing. Zero-config serverless: no SSH, no Docker, auto scale-to-zero. Use when user says "modal run", "modal training", "modal inference", "deploy to modal", "need a GPU", "run on modal", "serverless GPU", or needs remote GPU compute.'
 ---
 
 # Modal Cloud GPU — Training & Inference
 
-Task: $ARGUMENTS
+Task: the user's request
 
 ## Overview
 
@@ -42,7 +40,7 @@ modal run -q 'print("ok")'
 
 > **Recommended setup**: Bind a card to unlock $30/month, then immediately set a spending limit (e.g., $30) so you never exceed the free tier. Modal will pause your workloads when the limit is hit.
 >
-> **SECURITY WARNING**: Always bind your card and set spending limits directly on https://modal.com/settings in your browser. NEVER enter payment information, card numbers, or billing details through Codex, Claude Code, or any CLI tool. Only the official Modal website is safe for payment operations.
+> **SECURITY WARNING**: Always bind your card and set spending limits directly on https://modal.com/settings in your browser. NEVER enter payment information, card numbers, or billing details through Codex, or any CLI tool. Only the official Modal website is safe for payment operations.
 
 ## Pricing (source: modal.com/pricing, per-second billing)
 
@@ -304,13 +302,13 @@ modal secret create NAME KEY=VALUE       # Create secret
 ## Composing with Other Skills
 
 ```
-/run-experiment "train model"       <- detects gpu: modal, calls /serverless-modal
-  -> /serverless-modal              <- analyzes task, generates launcher, runs
+$run-experiment "train model"       <- detects gpu: modal, calls $serverless-modal
+  -> $serverless-modal              <- analyzes task, generates launcher, runs
   -> Results returned locally or to Modal Volume
   -> No destroy step needed (auto scale-to-zero)
 
-/serverless-modal                   <- standalone: any Modal GPU workload
-/serverless-modal "deploy vLLM"     <- inference service deployment
+$serverless-modal                   <- standalone: any Modal GPU workload
+$serverless-modal "deploy vLLM"     <- inference service deployment
 ```
 
 ## AGENTS.md Example

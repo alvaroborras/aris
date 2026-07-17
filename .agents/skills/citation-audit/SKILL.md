@@ -1,11 +1,13 @@
 ---
 name: citation-audit
-description: "Zero-context verification that every bibliographic entry in the paper is real, correctly attributed, and used in a context the cited paper actually supports — catching hallucinated authors, wrong years, fabricated venues, version mismatches, and wrong-context citations. Use when user says \"审查引用\", \"check citations\", \"citation audit\", \"verify references\", \"引用核对\", or before submission to ensure bibliography integrity."
-argument-hint: "[paper-directory-or-bib-file] [--uncited] [— soft-only]"
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, WebSearch, WebFetch
+description: Zero-context verification that every bibliographic entry in the paper is real, correctly attributed, and used in a context the cited paper actually supports — catching hallucinated authors, wrong years, fabricated venues, version mismatches, and wrong-context citations. Use when user says "审查引用", "check citations", "citation audit", "verify references", "引用核对", or before submission to ensure bibliography integrity.
 ---
 
 # Citation Audit
+
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `[paper-directory-or-bib-file] [--uncited] [— soft-only]`. Do not expect a dedicated argument variable or slash-command parser.
 
 > **Codex assurance:** base audit artifacts record
 > `review_independence: same-family` and `acceptance_status: provisional`.
@@ -48,7 +50,7 @@ The dangerous citation problems are **not** wildly fake citations — those are 
 - **WEB_SEARCH = required** — The reviewer must perform real web/DBLP/arXiv lookups, not pattern-match from memory.
 - **OUTPUT = `CITATION_AUDIT.md`** — Human-readable per-entry verdict report.
 - **STATE = `CITATION_AUDIT.json`** — Machine-readable verdict ledger consumable by downstream tools.
-- **SOFT_ONLY = `false`** — When true (set via `— soft-only` / `— soft_only` flag), the audit runs all three layers normally but **forbids any `.bib` file mutation**. Findings that would otherwise mutate the bib (FIX / REPLACE / REMOVE) are translated into per-occurrence sentence-rewrite proposals against the citing `*.tex` files. Used by `/resubmit-pipeline` Phase 1 to honor the user's hard "freeze the bib" constraint.
+- **SOFT_ONLY = `false`** — When true (set via `— soft-only` / `— soft_only` flag), the audit runs all three layers normally but **forbids any `.bib` file mutation**. Findings that would otherwise mutate the bib (FIX / REPLACE / REMOVE) are translated into per-occurrence sentence-rewrite proposals against the citing `*.tex` files. Used by `$resubmit-pipeline` Phase 1 to honor the user's hard "freeze the bib" constraint.
 - **RENDER_HTML = true** — When `true` (default), auto-render `CITATION_AUDIT.md` to HTML after writing the report. Uses **full review gate** (audit-class artifact). Set `false` to skip, or pass `— render html: false`. **Non-blocking**: failures don't invalidate the audit verdict.
 
 ## Workflow
@@ -287,10 +289,10 @@ If the bib file cannot be read well enough to audit even the cited entries, fall
 
 | Skill | What it audits | What it catches |
 |-------|---------------|-----------------|
-| `/experiment-audit` | Evaluation code | Fake ground truth, self-normalized scores, phantom results |
-| `/result-to-claim` | Result-to-claim mapping | Claims unsupported by evidence |
-| `/paper-claim-audit` | Numerical claims in manuscript | Number inflation, best-seed cherry-pick, config mismatch |
-| `/citation-audit` | Bibliographic entries | Hallucinated refs, wrong-context citations, metadata errors |
+| `$experiment-audit` | Evaluation code | Fake ground truth, self-normalized scores, phantom results |
+| `$result-to-claim` | Result-to-claim mapping | Claims unsupported by evidence |
+| `$paper-claim-audit` | Numerical claims in manuscript | Number inflation, best-seed cherry-pick, config mismatch |
+| `$citation-audit` | Bibliographic entries | Hallucinated refs, wrong-context citations, metadata errors |
 
 Together: code → result → numerical claim → cited claim. Each layer uses a fresh validator context; base Codex results are same-family provisional and overlays may be cross-family accepted.
 
@@ -312,13 +314,13 @@ After each reviewer agent call, save the trace following `shared-references/revi
 - `.aris/traces/citation-audit/<date>_runNN/` (per-entry review traces)
 - Optional: applied fixes to `references.bib` + `sec/*.tex` (with `--apply` flag)
 - Optional: `details.uncited_entries` field in JSON + `## Uncited Entries (opt-in)` MD section (with `--uncited` flag; field absent and section omitted when flag is unset)
-- `CITATION_AUDIT.html` (when `RENDER_HTML = true`, default) — auto-rendered single-file HTML view via `/render-html "CITATION_AUDIT.md" --json "CITATION_AUDIT.json"`. Full review gate. Sidecar `.review.json` carries render-fidelity verdict. **Non-blocking**: failures are logged and the audit MD + JSON remain the canonical outputs.
+- `CITATION_AUDIT.html` (when `RENDER_HTML = true`, default) — auto-rendered single-file HTML view via `$render-html "CITATION_AUDIT.md" --json "CITATION_AUDIT.json"`. Full review gate. Sidecar `.review.json` carries render-fidelity verdict. **Non-blocking**: failures are logged and the audit MD + JSON remain the canonical outputs.
 
 ## Optional: Soft-Only Mode (— soft-only)
 
 **Default**: disabled. The audit emits the standard `KEEP / FIX / REPLACE / REMOVE` per-entry verdicts and a downstream caller (or the `--apply` path of Step 6) is free to mutate the bib.
 
-**Opt-in**: pass `— soft-only` (also accepts `— soft_only`) on invocation. This mode is designed for callers — notably `/resubmit-pipeline` Phase 1 — that operate under a **hard "freeze the bib" constraint**: if a citation is wrong-context, soften the surrounding sentence; do **not** change, add, or remove the cite itself.
+**Opt-in**: pass `— soft-only` (also accepts `— soft_only`) on invocation. This mode is designed for callers — notably `$resubmit-pipeline` Phase 1 — that operate under a **hard "freeze the bib" constraint**: if a citation is wrong-context, soften the surrounding sentence; do **not** change, add, or remove the cite itself.
 
 ### What soft-only changes
 
@@ -396,109 +398,6 @@ The existing per-entry verdict table in the Summary block is **kept** but FIX/RE
 - The top-level `verdict` decision table is **unchanged**: a wrong-context cite still produces `FAIL` with `reason_code: wrong_context`. Soft-only does not silence the finding; it only constrains the action layer.
 - `--soft-only` composes with `--uncited`: both flags can be set together. Uncited entries remain detect-only and are not subject to soft-only translation (there is no citing sentence to soften).
 
-## Submission Artifact Emission
+## Detailed Protocol
 
-This skill **always** writes `paper/CITATION_AUDIT.json`, regardless of
-caller or detector outcome. A paper with no `.bib` file or no `\cite{...}`
-usage emits verdict `NOT_APPLICABLE`; silent skip is forbidden.
-`paper-writing` Phase 6 and `verify_paper_audits.sh` both rely on
-this artifact existing at a predictable path.
-
-The artifact conforms to the schema in `shared-references/assurance-contract.md`:
-
-```json
-{
-  "audit_skill":      "citation-audit",
-  "verdict":          "PASS | WARN | FAIL | NOT_APPLICABLE | BLOCKED | ERROR",
-  "reason_code":      "all_entries_keep | metadata_drift | wrong_context | hallucinated | ...",
-  "summary":          "One-line human-readable verdict summary.",
-  "audited_input_hashes": {
-    "references.bib":             "sha256:...",
-    "main.tex":                   "sha256:...",
-    "sections/3.related.tex":     "sha256:..."
-  },
-  "trace_path":       ".aris/traces/citation-audit/<date>_run<NN>/",
-  "thread_id":        "<codex mcp thread id>",
-  "executor_model":   "codex-gpt-5.6-sol",
-  "executor_family":  "openai",
-  "reviewer_model":   "gpt-5.6-sol",
-  "reviewer_family":  "openai",
-  "review_independence": "same-family",
-  "acceptance_status": "provisional",
-  "reviewer_reasoning": "xhigh",
-  "generated_at":     "<UTC ISO-8601>",
-  "details": {
-    "total_entries":  <int>,                 // count of audited cited entries (= |cited_keys|), NOT the bib-file size
-    "per_entry":      [ { "key": "madaan2023selfrefine",
-                          "verdict": "KEEP | FIX | REPLACE | REMOVE",
-                          "axis_failures": [ "CONTEXT" | "METADATA" | "EXISTENCE" ],
-                          "note": "..." }, ... ]
-  }
-}
-```
-
-### Optional: `details.uncited_entries` (only when `--uncited` is set)
-
-```json
-"details": {
-  ...
-  "uncited_entries": [
-    {"key": "<bibkey>", "suggestion": "prune" | "check", "note": "..."}
-  ],
-  "uncited_entries_status": "ok" | "unavailable"
-}
-```
-
-Field semantics:
-- Both fields are **omitted entirely** when the flag is not set. The default schema does not include either key.
-- When the flag is set and the set-diff completes normally, `uncited_entries_status` is `"ok"` and `uncited_entries` lists the detected keys (possibly empty if every bib entry is cited).
-- When the flag is set but bib-key enumeration fails (per "Fallback when bib enumeration fails" above), `uncited_entries_status` is `"unavailable"` and `uncited_entries` is `[]`. Downstream consumers MUST treat `"unavailable"` identically to the field being absent: not blocking.
-- Downstream consumers MUST treat absence of either field as the only valid default state and MUST NOT raise on missing.
-- `suggestion` is advisory only; the verifier and `paper-writing` Phase 6 do not block on it.
-
-### `audited_input_hashes` scope
-
-Hash the **declared input set** actually passed to this audit: the `.bib`
-file, `main.tex`, and every `sections/*.tex` file that supplied citation
-contexts. Do NOT hash extracted contexts from `/tmp` or other transient
-paths — if you need to stage extracted contexts, materialize them under
-`paper/.aris/` so the verifier can rehash reproducibly. Do NOT hash
-repo-wide unions or the reviewer's self-reported opened subset.
-
-**Path convention** (must match `verify_paper_audits.sh`): keys are
-**paths relative to the paper directory** (no `paper/` prefix — the
-verifier already resolves relative to the paper dir; prefixing produces
-`paper/paper/...` and false-fails as STALE). Use **absolute paths** for
-any file outside the paper dir.
-
-### Verdict decision table
-
-| Input state                                                    | Verdict          | `reason_code` example |
-|----------------------------------------------------------------|------------------|-----------------------|
-| No `.bib` file or no `\cite{...}` usage                        | `NOT_APPLICABLE` | `no_citations`        |
-| `.bib` file referenced but unreadable / missing                | `BLOCKED`        | `bib_unreadable`      |
-| Every entry KEEP, all three axes green                         | `PASS`           | `all_entries_keep`    |
-| Only FIX verdicts (metadata drift, no context errors)          | `WARN`           | `metadata_drift`      |
-| Any REPLACE or REMOVE (wrong-context or hallucinated entry)    | `FAIL`           | `wrong_context`       |
-| Web lookups timed out / reviewer invocation failed             | `ERROR`          | `reviewer_error`      |
-
-The `--uncited` flag does **not** appear in this table: uncited entries are advisory only and never alter the top-level verdict or reason_code. They surface exclusively through `details.uncited_entries` and the optional MD section.
-
-### Thread independence
-
-Every invocation uses a fresh reviewer agent. Never reuse `send_input` across
-different bibliography entries. Do not accept prior audit outputs (PROOF_AUDIT,
-PAPER_CLAIM_AUDIT, EXPERIMENT_LOG) as input — the fresh thread preserves
-reviewer independence per `shared-references/reviewer-independence.md`.
-
-This skill never blocks by itself; `paper-writing` Phase 6 plus the
-verifier decide whether the verdict blocks finalization based on the
-`assurance` level.
-
-## See Also
-
-- `/paper-claim-audit` — sibling skill for numerical claim verification
-- `/experiment-audit` — sibling skill for evaluation code integrity
-- `/result-to-claim` — claim verdict assignment from results
-- `shared-references/citation-discipline.md` — protocol document for citation hygiene
-- `shared-references/reviewer-independence.md` — cross-model review constraints
+Before executing the workflow, read [references/detailed-protocol.md](references/detailed-protocol.md) completely. Treat its workflow, output templates, and completion rules as normative.

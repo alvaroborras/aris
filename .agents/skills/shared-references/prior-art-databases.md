@@ -1,6 +1,15 @@
 # Prior Art Search Databases Guide
 
-Use this reference in `/prior-art-search` for systematic patent and literature searching.
+## Contents
+
+- [When to Read](#when-to-read)
+- [Patent Databases (Free, Web-Accessible)](#patent-databases-free-web-accessible)
+- [Academic Literature Databases](#academic-literature-databases)
+- [IPC/CPC Classification System](#ipccpc-classification-system)
+- [Search Strategy Template](#search-strategy-template)
+- [Output Format](#output-format)
+
+Use this reference in `$prior-art-search` for systematic patent and literature searching.
 
 ## When to Read
 
@@ -16,7 +25,7 @@ Use this reference in `/prior-art-search` for systematic patent and literature s
 - **Search syntax**: Full-text search, inventor:, assignee:, CPC:, before:, after:
 - **Strengths**: Best free full-text search, automatic translation of CN/JP/KR patents, family grouping
 - **Weaknesses**: No legal status data, may lag behind official databases by weeks
-- **Usage in skills**: `WebSearch "site:patents.google.com [keywords]"` or `WebFetch` for specific patent pages
+- **Usage in skills**: `web search "site:patents.google.com [keywords]"` or `web page fetch` for specific patent pages
 
 ### Espacenet (EPO)
 - **URL**: worldwide.espacenet.com
@@ -24,27 +33,27 @@ Use this reference in `/prior-art-search` for systematic patent and literature s
 - **Search syntax**: Classification=(CPC/IPC), Applicant=, Title/Abstract/Claims full text
 - **Strengths**: Most comprehensive free database, machine translation, legal status via INPADOC
 - **Weaknesses**: Interface is less intuitive, some features require registration
-- **Usage**: `WebFetch` for search results and individual patent pages
+- **Usage**: `web page fetch` for search results and individual patent pages
 
 ### CNIPA Patent Search (中国及多国专利审查信息查询)
 - **URL**: pss-system.cponline.cnipa.gov.cn (or similar)
 - **Coverage**: Chinese patents (CN), the authoritative source for CN applications
 - **Strengths**: Official Chinese patent data, full Chinese text, examination status
 - **Weaknesses**: Interface in Chinese only, limited foreign coverage
-- **Usage**: `WebFetch` for Chinese-specific searches
+- **Usage**: `web page fetch` for Chinese-specific searches
 
 ### USPTO Patent Full-Text Databases
 - **PatFT**: patents.google.com/patents (US granted patents)
 - **AppFT**: patents.google.com (US published applications)
 - **PAIR**: patentcenter.uspto.gov (prosecution history)
 - **Coverage**: US patents and applications
-- **Usage**: `WebFetch` for specific US patent numbers
+- **Usage**: `web page fetch` for specific US patent numbers
 
 ### WIPO PATENTSCOPE
 - **URL**: patentscope.wipo.int
 - **Coverage**: PCT international applications (WO publications)
 - **Strengths**: Full PCT application texts, CLIR cross-lingual search
-- **Usage**: `WebFetch` for PCT applications
+- **Usage**: `web page fetch` for PCT applications
 
 ## Academic Literature Databases
 
@@ -52,7 +61,7 @@ These are also prior art (non-patent literature, NPL):
 
 | Database | URL | Coverage | API Available |
 |----------|-----|----------|---------------|
-| Google Scholar | scholar.google.com | Broadest academic coverage | No API, use WebSearch |
+| Google Scholar | scholar.google.com | Broadest academic coverage | No API, use web search |
 | Semantic Scholar | semanticscholar.org | CS, biomedical, 200M+ papers | Yes (SEMANTIC_SCHOLAR_API_KEY) |
 | arXiv | arxiv.org | Preprints (CS, physics, math, etc.) | Yes (arxiv_fetch.py) |
 | DBLP | dblp.org | CS bibliography | Yes (XML API) |

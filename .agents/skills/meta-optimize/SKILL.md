@@ -1,13 +1,11 @@
 ---
 name: meta-optimize
-description: "Analyze ARIS usage logs and propose optimizations to SKILL.md files, reviewer prompts, and workflow defaults. Outer-loop harness optimization inspired by Meta-Harness (Lee et al., 2026). Use when user says \"优化技能\", \"meta optimize\", \"improve skills\", \"分析使用记录\", or wants to optimize ARIS's own harness components based on accumulated experience."
-argument-hint: [target-skill-or-all]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+description: Analyze ARIS usage logs and propose optimizations to SKILL.md files, reviewer prompts, and workflow defaults. Outer-loop harness optimization inspired by Meta-Harness (Lee et al., 2026). Use when user says "优化技能", "meta optimize", "improve skills", "分析使用记录", or wants to optimize ARIS's own harness components based on accumulated experience.
 ---
 
 # Meta-Optimize: Outer-Loop Harness Optimization for ARIS
 
-Analyze accumulated usage logs and propose optimizations for: **$ARGUMENTS**
+Analyze accumulated usage logs and propose optimizations for: **the user's request**
 
 ## Context
 
@@ -94,10 +92,10 @@ Read `.aris/meta/events.jsonl` and compute:
 
 **Trigger-rate analysis (measured, not from the event log):** the log shows
 which skills were USED, not which were WANTED-but-omitted. Mainline ships
-`tools/meta_opt/trigger_eval.py`, which measures Claude Code's skill triggering
-via `claude -p` probes (trigger / confusion / miss). It is Claude-Code-specific
-— there is no equivalent `codex` skill-selection probe yet, so for a Codex
-executor treat trigger-rate as a mainline signal, not a step you run here.
+`tools/meta_opt/trigger_eval.py`, which measures Codex's skill triggering
+via native `codex exec --json --ephemeral --sandbox read-only
+--skip-git-repo-check` probes (trigger / confusion / miss). Run it from a Codex
+environment with the realistic user-level skill corpus installed.
 Measure-only regardless: a low rate is INPUT to a proposal, never a self-applied
 rewrite; the confusion matrix (which sibling a query lands on) points at
 disambiguation, not "make it pushier".
@@ -154,8 +152,8 @@ Based on Step 1, rank optimization opportunities by expected impact:
 The Proposed-Change column is explicitly allowed to be a **deletion** — "DELETE
 step N, new model does this for free" is a first-class optimization.
 
-If `$ARGUMENTS` specifies a target skill, focus analysis on that skill only.
-If `$ARGUMENTS` is empty or "all", analyze all skills with sufficient data.
+If `the user's request` specifies a target skill, focus analysis on that skill only.
+If `the user's request` is empty or "all", analyze all skills with sufficient data.
 
 ### Step 3: Generate Patch Proposals
 
@@ -253,13 +251,13 @@ resolved by <patch ids> / unresolved / first recorded cycle]. (Ledger:
 - [ ] Consider manual review of Change 2
 
 ## Next Steps
-Run `/meta-optimize apply 1` to apply a specific change, or
-`/meta-optimize apply all` to apply all recommended changes.
+Run `$meta-optimize apply 1` to apply a specific change, or
+`$meta-optimize apply all` to apply all recommended changes.
 ```
 
 ### Step 6: Apply Changes (if user approves)
 
-If user runs `/meta-optimize apply [N]`:
+If user runs `$meta-optimize apply [N]`:
 1. Back up original SKILL.md to `.aris/meta/backups/`
 2. Apply the patch
 3. Log the change to `.aris/meta/optimizations.jsonl`
@@ -283,10 +281,10 @@ The log at `.aris/meta/events.jsonl` contains JSONL records with these shapes:
 
 ```jsonl
 {"ts":"...","session":"...","event":"skill_invoke","skill":"auto-review-loop","args":"difficulty: hard"}
-{"ts":"...","session":"...","event":"PostToolUse","tool":"Bash","input_summary":"pdflatex main.tex"}
+{"ts":"...","session":"...","event":"PostToolUse","tool":"exec_command","input_summary":"pdflatex main.tex"}
 {"ts":"...","session":"...","event":"spawn_agent","tool":"spawn_agent","input_summary":"review..."}
-{"ts":"...","session":"...","event":"tool_failure","tool":"Bash","input_summary":"python train.py"}
-{"ts":"...","session":"...","event":"slash_command","command":"/auto-review-loop","args":""}
+{"ts":"...","session":"...","event":"tool_failure","tool":"exec_command","input_summary":"python train.py"}
+{"ts":"...","session":"...","event":"slash_command","command":"$auto-review-loop","args":""}
 {"ts":"...","session":"...","event":"user_prompt","prompt_preview":"change difficulty to hard"}
 {"ts":"...","session":"...","event":"session_start","source":"startup","model":"claude-opus-4-6"}
 {"ts":"...","session":"...","event":"session_end"}

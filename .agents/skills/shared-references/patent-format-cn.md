@@ -1,12 +1,23 @@
 # CNIPA Patent Format Guide (中国专利格式指南)
 
+## Contents
+
+- [When to Read](#when-to-read)
+- [Applicable Law and Regulations](#applicable-law-and-regulations)
+- [Document Structure](#document-structure)
+- [Word Limits and Practical Constraints](#word-limits-and-practical-constraints)
+- [Fees (2026 approximate, in CNY)](#fees-2026-approximate-in-cny)
+- [Utility Model (实用新型) Specific Rules](#utility-model-实用新型-specific-rules)
+- [Critical Chinese Patent Writing Rules](#critical-chinese-patent-writing-rules)
+- [Chinese Patent Terminology Glossary](#chinese-patent-terminology-glossary)
+
 Use this reference when drafting Chinese patent applications for filing with CNIPA (国家知识产权局).
 
 ## When to Read
 
 - Read when `JURISDICTION = "CN"` or `JURISDICTION = "ALL"`
 - Read before writing claims in Chinese format
-- Read during `/jurisdiction-format` for CN output
+- Read during `$jurisdiction-format` for CN output
 - Read when choosing between invention patent (发明专利) and utility model (实用新型)
 
 ## Applicable Law and Regulations

@@ -1,11 +1,11 @@
 ---
-name: "paper-figure"
-description: "Generate publication-quality figures and tables from experiment results. Use when user says \\\"\u753b\u56fe\\\", \\\"\u4f5c\u56fe\\\", \\\"generate figures\\\", \\\"paper figures\\\", or needs plots for a paper."
+name: paper-figure
+description: Generate publication-quality figures and tables from experiment results. Use when user says \"画图\", \"作图\", \"generate figures\", \"paper figures\", or needs plots for a paper.
 ---
 
 # Paper Figure: Publication-Quality Plots from Experiment Data
 
-Generate all figures and tables for a paper based on: **$ARGUMENTS**
+Generate all figures and tables for a paper based on: **the user's request**
 
 ## Scope: What This Skill Can and Cannot Do
 
@@ -18,7 +18,7 @@ Generate all figures and tables for a paper based on: **$ARGUMENTS**
 | **Generated image grids** | ❌ No — manual | Grids of generated samples (e.g., GAN/diffusion outputs). These come from running your model, not from this skill |
 | **Photographs / screenshots** | ❌ No — manual | Real-world images, UI screenshots, qualitative examples |
 
-**In practice:** For a typical ML paper, this skill handles ~60% of figures (all data plots + tables). The remaining ~40% (hero figure, architecture diagram, qualitative results) need to be created manually and placed in `figures/` before running `/paper-write`. The skill will detect these as "existing figures" and preserve them.
+**In practice:** For a typical ML paper, this skill handles ~60% of figures (all data plots + tables). The remaining ~40% (hero figure, architecture diagram, qualitative results) need to be created manually and placed in `figures/` before running `$paper-write`. The skill will detect these as "existing figures" and preserve them.
 
 ## Constants
 
@@ -32,7 +32,7 @@ Generate all figures and tables for a paper based on: **$ARGUMENTS**
 
 ## Inputs
 
-1. **PAPER_PLAN.md** — figure plan table (from `/paper-plan`)
+1. **PAPER_PLAN.md** — figure plan table (from `$paper-plan`)
 2. **Experiment data** — JSON files, CSV files, or screen logs in `figures/` or project root
 3. **Existing figures** — any manually created figures to preserve
 

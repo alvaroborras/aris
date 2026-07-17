@@ -4,8 +4,12 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 ## Scope
 
-- Base mirror coverage: all `79` mainline skills under `skills/`
+- Base mirror coverage: all `80` mainline skills under `skills/`
 - Support directory: `shared-references/`, with all `30/30` mainline reference names mirrored
+- Native skill format: `name` + `description` frontmatter, `$skill` invocation,
+  and `agents/openai.yaml` metadata for every skill
+- Self-contained runtime assets for deterministic figure, queue, poster,
+  Overleaf, rendering, and image-finalization workflows
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
   - follow-up: `send_input`
@@ -17,7 +21,9 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
   - `skills-codex-claude-review`
   - `skills-codex-gemini-review`
 
-This package is still an appendage to the Claude mainline, not a separate Codex-first product line.
+This package is the Codex-first runtime. Upstream workflow semantics are
+preserved, while invocation, subagents, tools, metadata, and bundled resources
+follow Codex conventions.
 
 ## Recommended Install
 

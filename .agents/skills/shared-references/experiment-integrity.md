@@ -44,6 +44,6 @@
 
 ## Who Checks
 
-The **reviewer model** (different family from executor) performs integrity checks via `/experiment-audit`. The executor collects file paths; the reviewer reads code and results directly.
+The **reviewer model** (different family from executor) performs integrity checks via `$experiment-audit`. The executor collects file paths; the reviewer reads code and results directly.
 
 **Never let the executor judge its own experiment integrity.**

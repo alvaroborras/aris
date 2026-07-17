@@ -1,9 +1,26 @@
 # External Cadence
 
+## Contents
+
+- [Core Principle](#core-principle)
+- [Known failure mode (why this doc exists)](#known-failure-mode-why-this-doc-exists)
+- [The distinction](#the-distinction)
+- [ADDITIVE cases (external-world-wait shape)](#additive-cases-external-world-wait-shape)
+- [NOISE / HARMFUL cases (wrapping internal semantic loops)](#noise-harmful-cases-wrapping-internal-semantic-loops)
+- [The fence: do NOT wrap these in external cadence](#the-fence-do-not-wrap-these-in-external-cadence)
+- [The affordance: natural external-wait surfaces](#the-affordance-natural-external-wait-surfaces)
+- [The overnight-pipeline rule](#the-overnight-pipeline-rule)
+- [Loop self-heartbeat + watchdog liveness (catch a silent death)](#loop-self-heartbeat-watchdog-liveness-catch-a-silent-death)
+- [Stall detection & forced structural pivot](#stall-detection-forced-structural-pivot)
+- [Let a broken attempt restart, not just patch](#let-a-broken-attempt-restart-not-just-patch)
+- [Required components (when you add external cadence to a skill)](#required-components-when-you-add-external-cadence-to-a-skill)
+- [Autonomous-mode discipline (when the human checkpoint is off)](#autonomous-mode-discipline-when-the-human-checkpoint-is-off)
+- [Cross-references](#cross-references)
+
 > **Codex mirror adaptation (normative).** External cadence remains fire-control
 > only. The default fresh Codex reviewer may produce a provisional stop/continue
 > decision, while only a cross-family overlay or deterministic gate records
-> accepted. Replace mainline Codex MCP examples with fresh `spawn_agent` calls;
+> accepted. Replace mainline Codex subagent capability examples with fresh `spawn_agent` calls;
 > never schedule reviewer verdicts themselves.
 
 External schedulers — `/loop`, `/schedule`, `CronCreate`, and any
@@ -37,7 +54,7 @@ ARIS's own internal semantic loops. The two look superficially similar
 harmful case has a specific pathology:
 
 - **Verdict re-run on a wall-clock timer.** Wrapping
-  `/auto-review-loop` in `/loop 30m` does not produce 30-minutes-better
+  `$auto-review-loop` in `/loop 30m` does not produce 30-minutes-better
   review. It re-runs a verdict-bearing skill on a clock that has nothing
   to do with whether the artifact changed. Zero new signal, full token
   cost.
@@ -49,7 +66,7 @@ harmful case has a specific pathology:
   the skill from the top each tick, starting a *fresh* `threadId`. The
   reviewer loses its memory of what it already flagged; "did you fix
   round 1's gap?" becomes unanswerable.
-- **Duplicated scheduling.** `/experiment-queue` already runs a
+- **Duplicated scheduling.** `$experiment-queue` already runs a
   detached server-side scheduler that polls job status every 60s and
   enforces `depends_on`. Wrapping the queue skill in an external poll
   loop duplicates that scheduler on a second, uncoordinated clock and
@@ -78,11 +95,11 @@ for; no semantic judgment is being re-run. ARIS already validated this
 pattern in production.
 
 - **GPU / experiment job completion polling.**
-  `/monitor-experiment` + `/check-gpu` on a cadence: "is the job done?
+  `$monitor-experiment` + `/check-gpu` on a cadence: "is the job done?
   are the GPUs still busy?" The agent wakes, reads status, and either
   reports done or sleeps again. The thing it waits on (job exit, GPU
   free) is external and machine-checkable.
-- **WandB anomaly checks.** `/training-check` is *already* cron-wired:
+- **WandB anomaly checks.** `$training-check` is *already* cron-wired:
   its SKILL.md sets itself up via `CronCreate` ("do not ask the user
   whether to set it up — just set it") to read WandB metrics every N
   minutes and catch NaN / divergence / idle GPUs early. The cadence
@@ -96,8 +113,8 @@ pattern in production.
   that checks whether the current phase is still advancing and, if a
   phase has stalled, nudges it forward. Heartbeat only — see the
   overnight-pipeline rule below.
-- **Daily literature watch.** A once-a-day `/research-lit` or
-  `/deepxiv` sweep for new arXiv papers in a tracked direction. The
+- **Daily literature watch.** A once-a-day `$research-lit` or
+  `$deepxiv` sweep for new arXiv papers in a tracked direction. The
   external fact is "the world published something new today"; the
   cadence just sets the polling rhythm.
 
@@ -117,13 +134,13 @@ same-model"). The cadence never touches a quality/correctness verdict.
 
 ## NOISE / HARMFUL cases (wrapping internal semantic loops)
 
-- **`/loop` around `/auto-review-loop`.** The auto-review loop *is*
+- **`/loop` around `$auto-review-loop`.** The auto-review loop *is*
   already a loop: review → implement fix → re-review, with the reviewer
   holding round-to-round memory in one `threadId`. Wrapping it in an
   external timer breaks that continuity (a fresh `threadId` per tick,
   `REVIEWER_MEMORY` reset) and fires a verdict on wall-clock time
   instead of on artifact change. Pure noise.
-- **Polling `/experiment-queue` on a timer.** Duplicates the queue's
+- **Polling `$experiment-queue` on a timer.** Duplicates the queue's
   own 60s server-side scheduler on a second clock, racing its
   wave-transition logic. Use the queue's status output for visibility;
   do not run a competing poll loop.
@@ -143,32 +160,32 @@ uses), and must terminate through its recorded reviewer route. In the base
 mirror that route is provisional; overlays/deterministic verifiers are accepted. Never put one inside
 `/loop`, `/schedule`, or `CronCreate`:
 
-- `/auto-review-loop` — already loops internally; reviewer carries
+- `$auto-review-loop` — already loops internally; reviewer carries
   round-to-round memory in one `threadId` (`codex-reply`)
-- `/auto-review-loop-llm`, `/auto-review-loop-minimax` — same loop, alternate
+- `$auto-review-loop-llm`, `$auto-review-loop-minimax` — same loop, alternate
   reviewer backend; same internal round cadence (each round's prior-round
   summary is fed into the next prompt — a stateless per-round API call, not a
   shared thread, but still verdict-bearing and self-iterating)
-- `/auto-paper-improvement-loop` — review → fix → recompile loop with its own
+- `$auto-paper-improvement-loop` — review → fix → recompile loop with its own
   round structure and a fresh-reviewer bias guard each round (no `codex-reply`)
-- `/research-review` — produces a traced review verdict (provisional in base Codex)
-- `/result-to-claim` — judges whether results support a claim
-- `/experiment-audit` — judges experiment integrity
-- `/paper-claim-audit` — judges paper-to-evidence fidelity
-- `/citation-audit` — judges bibliographic correctness
-- `/proof-checker` — judges proof validity across rounds
-- `/kill-argument` — adversarial accept/reject verdict
+- `$research-review` — produces a traced review verdict (provisional in base Codex)
+- `$result-to-claim` — judges whether results support a claim
+- `$experiment-audit` — judges experiment integrity
+- `$paper-claim-audit` — judges paper-to-evidence fidelity
+- `$citation-audit` — judges bibliographic correctness
+- `$proof-checker` — judges proof validity across rounds
+- `$kill-argument` — adversarial accept/reject verdict
 
 If you find yourself wanting to schedule one of these, the thing you
 actually want to schedule is the *external wait that precedes it* (job
 done → then audit once), not the verdict itself.
 
-> **Adjacent but distinct — `/dse-loop`.** It also loops internally, so do
+> **Adjacent but distinct — `$dse-loop`.** It also loops internally, so do
 > not wrap it in external cadence either, but for a *different* reason: its
 > stop gate is an **objective machine-checkable metric** ("objective met or
 > timeout"), which is Type-A, not a quality verdict — so it is not a
 > self-acquittal hazard. The reason not to wrap it is **scheduler
-> duplication** (component #4 below), the same reason as `/experiment-queue`,
+> duplication** (component #4 below), the same reason as `$experiment-queue`,
 > not the verdict fence. Its own objective gate is a safe same-model
 > self-termination (`acceptance-gate.md`).
 
@@ -177,11 +194,11 @@ done → then audit once), not the verdict itself.
 These are the surfaces external cadence is *for*. They wait on the
 outside world and self-judge only machine-checkable completion:
 
-- `/monitor-experiment` — poll for job completion / progress
+- `$monitor-experiment` — poll for job completion / progress
 - `/check-gpu` — poll for GPU availability and running processes
-- `/experiment-queue` — **visibility only** (report position); never a
+- `$experiment-queue` — **visibility only** (report position); never a
   re-poll that competes with its own scheduler
-- overnight `/research-pipeline` — a **non-judgmental heartbeat + nudge**
+- overnight `$research-pipeline` — a **non-judgmental heartbeat + nudge**
   (see next), never a quality gate
 
 ## The overnight-pipeline rule
@@ -233,7 +250,8 @@ tuning of the same frame.
   added entries — new evidence, a falsified hypothesis, a candidate direction — *not* a
   subjective "valuable result"). Resolve the helper via the canonical chain
   (integration-contract §2): `.aris/tools/iteration_log.py` → `tools/iteration_log.py` →
-  `$ARIS_REPO/tools/iteration_log.py` (warn-and-skip if unresolved), then
+  `$ARIS_REPO/tools/iteration_log.py` → `$ARIS_REPO/tools/iteration_log.py` via
+  `~/.aris/repo` (warn-and-skip if unresolved), then
   `python3 "$ITER_LOG" note <root> <run_id> <phase> <new_findings> [--direction "..."]`.
   Consecutive zero-finding iterations accumulate a `stale_count` in
   `.aris/runs/<run_id>.iterations.jsonl` — a sidecar that does **not** touch run_state's

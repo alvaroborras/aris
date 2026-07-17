@@ -1,13 +1,15 @@
 ---
 name: resubmit-pipeline
-description: "Workflow 5: orchestrate a text-only resubmit of a polished paper to a different venue under hard constraints (no new experiments, no bib edits, no framework changes, never overwrite prior submissions). Use when user says \"resubmit pipeline\", \"重投流程\", \"port paper to <new venue>\", \"resubmit to <venue>\", \"tighten paper for resubmission\", or has a rejected/withdrawn paper to move to a different top venue under tight time budget."
-argument-hint: "[paper-base-dir] [— target-venue: <name>] [— review-corpus: <path>]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, spawn_agent
+description: 'Workflow 5: orchestrate a text-only resubmit of a polished paper to a different venue under hard constraints (no new experiments, no bib edits, no framework changes, never overwrite prior submissions). Use when user says "resubmit pipeline", "重投流程", "port paper to new venue", "resubmit to venue", "tighten paper for resubmission", or has a rejected/withdrawn paper to move to a different top venue under tight time budget.'
 ---
 
 # Resubmit Pipeline: Text-Only Microedit Mode
 
-Compose a polished paper into a new venue under text-only constraints: **$ARGUMENTS**
+## Invocation
+
+Interpret options directly from the user's request. A typical request shape is `[paper-base-dir] [— target-venue: <name>] [— review-corpus: <path>]`. Do not expect a dedicated argument variable or slash-command parser.
+
+Compose a polished paper into a new venue under text-only constraints: **the user's request**
 
 ## Why This Exists
 
@@ -18,7 +20,7 @@ Most ARIS writing workflows assume the input is either a narrative report (Workf
 - The base submission directory is **read-only** — the new submission must compose into a sibling directory, never mutate prior state.
 - Page limit may shrink between source and target venue (e.g., workshop camera-ready → 9-page main).
 
-Existing skills cover adjacent territory but none of this exact composition: `/rebuttal` builds the OpenReview-style response document, not in-paper microedits; `/auto-paper-improvement-loop` is the per-round engine but presupposes someone has already chosen the base manuscript, migrated venue format, set the edit whitelist, queued the reviewer feedback, and decided what NOT to change. `/resubmit-pipeline` fills that orchestration gap.
+Existing skills cover adjacent territory but none of this exact composition: `$rebuttal` builds the OpenReview-style response document, not in-paper microedits; `$auto-paper-improvement-loop` is the per-round engine but presupposes someone has already chosen the base manuscript, migrated venue format, set the edit whitelist, queued the reviewer feedback, and decided what NOT to change. `$resubmit-pipeline` fills that orchestration gap.
 
 ## When to Use
 
@@ -28,15 +30,15 @@ Existing skills cover adjacent territory but none of this exact composition: `/r
 
 ## When NOT to Use
 
-- The paper still needs experiments — use `/experiment-bridge` → `/auto-review-loop` first.
-- The paper still needs structural rewrites or new sections — use `/paper-writing` (Workflow 3).
-- You want to write the rebuttal response itself — use `/rebuttal` (Workflow 4).
+- The paper still needs experiments — use `$experiment-bridge` → `$auto-review-loop` first.
+- The paper still needs structural rewrites or new sections — use `$paper-writing` (Workflow 3).
+- You want to write the rebuttal response itself — use `$rebuttal` (Workflow 4).
 - The reviewer feedback demands new theorems or new framework — escalate to user before starting; this skill emits `BLOCKED` with `reason_code: out_of_scope_microedit` if it detects this case.
 
 ## Constants
 
-- **REVIEWER_MODEL** = inherits from `/auto-paper-improvement-loop`'s default (`gpt-5.6-sol` via Codex MCP) unless the user passes `— reviewer-model: gpt-5.4` (legacy) or another OpenAI model. Codex reasoning effort is fixed at `xhigh` for all reviewer calls per the existing skill convention.
-- **ROUNDS** = 2 (default; matches `/auto-paper-improvement-loop`'s diminishing-returns line). A 3rd round only fires if Phase 2 reports non-convergence AND the user explicitly approves at the round-2 checkpoint.
+- **REVIEWER_MODEL** = inherits from `$auto-paper-improvement-loop`'s default (`gpt-5.6-sol` via Codex subagent capability) unless the user passes `— reviewer-model: gpt-5.4` (legacy) or another OpenAI model. Codex reasoning effort is fixed at `xhigh` for all reviewer calls per the existing skill convention.
+- **ROUNDS** = 2 (default; matches `$auto-paper-improvement-loop`'s diminishing-returns line). A 3rd round only fires if Phase 2 reports non-convergence AND the user explicitly approves at the round-2 checkpoint.
 - **EFFORT** = `max` (default for resubmit; resubmit is high-stakes). The user can override with `— effort: balanced` if time is extremely tight.
 - **EDIT_WHITELIST_PATH** = `<paper-base-dir>/../<NewVenue>/.aris/edit_whitelist.yaml` (auto-generated in Phase 0; user can override with a custom path).
 - **NEVER_OVERWRITE** = true (always; this is a hard contract — prior submission directories are immutable).
@@ -57,7 +59,7 @@ Optional:
 - **`— assurance: draft`** — relax MANDATORY gates (default `submission`).
 - **`— effort: balanced`** — relax `max` if time is critical.
 - **`— skip-anonymity-scan`** — skip Phase 0.5 anonymity check (only valid for non-double-blind venues like TMLR; else WARN).
-- **`— overleaf-target: <project-id>`** — the Overleaf project ID for Phase 4 push (per `/overleaf-sync setup`).
+- **`— overleaf-target: <project-id>`** — the Overleaf project ID for Phase 4 push (per `$overleaf-sync setup`).
 
 ## Pipeline
 
@@ -139,9 +141,9 @@ Three audits in parallel, all detect-only. The new dir's source files are read; 
 
 | Skill | Purpose | Artifact |
 |---|---|---|
-| `/proof-checker $NEW_VENUE_DIR/main.tex --restatement-check` | Gap-find on theorems prior reviewers attacked; cross-location consistency between main statement and restatements | `PROOF_AUDIT.json` + `.md` |
-| `/paper-claim-audit $NEW_VENUE_DIR/` | Numerical fidelity (every number in body matches what proofs / result files establish) | `PAPER_CLAIM_AUDIT.json` + `.md` |
-| `/citation-audit $NEW_VENUE_DIR/ — soft-only` | Wrong-context citations + misattributions, mapped to "soften citing sentence" actions (NOT bib edits) | `CITATION_AUDIT.json` + `.md` |
+| `$proof-checker $NEW_VENUE_DIR/main.tex --restatement-check` | Gap-find on theorems prior reviewers attacked; cross-location consistency between main statement and restatements | `PROOF_AUDIT.json` + `.md` |
+| `$paper-claim-audit $NEW_VENUE_DIR/` | Numerical fidelity (every number in body matches what proofs / result files establish) | `PAPER_CLAIM_AUDIT.json` + `.md` |
+| `$citation-audit $NEW_VENUE_DIR/ — soft-only` | Wrong-context citations + misattributions, mapped to "soften citing sentence" actions (NOT bib edits) | `CITATION_AUDIT.json` + `.md` |
 
 **Critical**: the third audit MUST run with `— soft-only`. Without that flag, citation-audit emits `KEEP/FIX/REPLACE/REMOVE` verdicts that presuppose bib mutations — incompatible with resubmit's "no bib edits" constraint. With `--soft-only`, the same findings are translated to per-occurrence sentence-rewrite proposals consumable by Phase 2.
 
@@ -179,7 +181,7 @@ For each file under $REVIEW_CORPUS:
 
 ### Phase 2: Targeted Text Microedits via Auto-Improvement Loop
 
-The load-bearing phase. `/auto-paper-improvement-loop` is invoked with **two safety mechanisms**:
+The load-bearing phase. `$auto-paper-improvement-loop` is invoked with **two safety mechanisms**:
 
 1. **`— edit-whitelist <path>`** — a YAML file enumerating allowed paths and forbidden operations. Auto-generated in Phase 0 at `$NEW_VENUE_DIR/.aris/edit_whitelist.yaml`:
 
@@ -203,7 +205,7 @@ The load-bearing phase. `/auto-paper-improvement-loop` is invoked with **two saf
    rationale: "Resubmit mode: text-only microedits, paper structure frozen by user constraint."
    ```
 
-2. **Per-round diff gate via auto-loop's HUMAN_CHECKPOINT** — `/auto-paper-improvement-loop` does not accept `--rounds`, `--reviewer-model`, or `--resume-after-round-checkpoint` flags (those are not in its CLI). It uses the `MAX_ROUNDS = 2` constant and `REVIEWER_MODEL = gpt-5.6-sol` defaults, with an existing `HUMAN_CHECKPOINT` mechanism for round gating. Resubmit-pipeline therefore invokes the loop **once** with `HUMAN_CHECKPOINT = true` so each round pauses for the orchestrator to inspect the diff:
+2. **Per-round diff gate via auto-loop's HUMAN_CHECKPOINT** — `$auto-paper-improvement-loop` does not accept `--rounds`, `--reviewer-model`, or `--resume-after-round-checkpoint` flags (those are not in its CLI). It uses the `MAX_ROUNDS = 2` constant and `REVIEWER_MODEL = gpt-5.6-sol` defaults, with an existing `HUMAN_CHECKPOINT` mechanism for round gating. Resubmit-pipeline therefore invokes the loop **once** with `HUMAN_CHECKPOINT = true` so each round pauses for the orchestrator to inspect the diff:
 
    ```bash
    # Snapshot the new venue dir BEFORE auto-loop runs (for diff baseline,
@@ -215,7 +217,7 @@ The load-bearing phase. `/auto-paper-improvement-loop` is invoked with **two saf
 
    # Single auto-loop invocation; rounds + checkpoints are loop-internal.
    # The whitelist file is the only resubmit-specific param.
-   /auto-paper-improvement-loop "$NEW_VENUE_DIR/" \
+   $auto-paper-improvement-loop "$NEW_VENUE_DIR/" \
        --edit-whitelist "$NEW_VENUE_DIR/.aris/edit_whitelist.yaml" \
        — assurance: submission \
        — effort: "$EFFORT" \
@@ -237,10 +239,10 @@ The load-bearing phase. `/auto-paper-improvement-loop` is invoked with **two saf
 
      # Selective regression audits (only fire if relevant files touched)
      if grep -qE 'theorem|lemma|proposition|corollary' "$NEW_VENUE_DIR/.aris/round-$ROUND-diff.txt"; then
-         /proof-checker "$NEW_VENUE_DIR/main.tex" --restatement-check
+         $proof-checker "$NEW_VENUE_DIR/main.tex" --restatement-check
      fi
      if grep -qE '[0-9]+(\.[0-9]+)?\s*(%|±|x|×)' "$NEW_VENUE_DIR/.aris/round-$ROUND-diff.txt"; then
-         /paper-claim-audit "$NEW_VENUE_DIR/"
+         $paper-claim-audit "$NEW_VENUE_DIR/"
      fi
 
      # Snapshot this round for next-round diff
@@ -266,9 +268,9 @@ The load-bearing phase. `/auto-paper-improvement-loop` is invoked with **two saf
 
 ### Phase 3: Adversarial Gate
 
-`/kill-argument $NEW_VENUE_DIR/`
+`$kill-argument $NEW_VENUE_DIR/`
 
-**No `--difficulty` parameter exists** in `/kill-argument` — earlier proposal drafts referenced a non-existent flag. The skill always uses Codex `gpt-5.6-sol` + `ultra` (deep-audit tier) and runs the standard 2-thread Attack-Adjudication protocol; the `assurance` level (set to `submission` for resubmit) determines whether `FAIL` blocks the final report.
+**No `--difficulty` parameter exists** in `$kill-argument` — earlier proposal drafts referenced a non-existent flag. The skill always uses Codex `gpt-5.6-sol` + `ultra` (deep-audit tier) and runs the standard 2-thread Attack-Adjudication protocol; the `assurance` level (set to `submission` for resubmit) determines whether `FAIL` blocks the final report.
 
 The kill-argument output is **residual-risk reporting**, not auto-rewrite directives. A hostile reviewer may demand framework changes the user banned; the adjudication step exists to **triage** which findings are text-fixable vs need user escalation.
 
@@ -289,18 +291,34 @@ If extra round queue is non-empty AND user-budget allows: one extra Phase 2 roun
 **Final compile**:
 
 ```bash
-/paper-compile $NEW_VENUE_DIR/main.tex --venue $TARGET_VENUE
+$paper-compile $NEW_VENUE_DIR/main.tex --venue $TARGET_VENUE
 ```
 
-`/paper-compile` checks page limit, font, bib resolve, figure overflow, and emits `COMPILE_REPORT.json`. If page limit exceeded → trigger page-shrink heuristic (see below).
+`$paper-compile` checks page limit, font, bib resolve, figure overflow, and emits `COMPILE_REPORT.json`. If page limit exceeded → trigger page-shrink heuristic (see below).
 
 **Final paper-claim-audit zero-context pass**:
 
 ```bash
-/paper-claim-audit $NEW_VENUE_DIR/
+$paper-claim-audit $NEW_VENUE_DIR/
 ```
 
 Verifies no Phase 2 microedit accidentally introduced a numerical claim that's not backed by results.
+
+**Integrity forensics re-run** (opt-in here: `— self_forensics: true`): the
+mainline pipeline defaults to an Anti-Autoresearch re-sweep after microedits;
+in a Codex-native session only upstream's **deterministic-only slice** is
+runnable (numeric core + rules-only adjudicator — it can flag, it can never
+say CLEAN), so it is off unless requested. If opted in, run
+`/integrity-forensics` on `$NEW_VENUE_DIR/` AFTER all microedits (never
+between rounds — its One Forbidden Loop), gate `BLOCK` → stop before the
+Overleaf push. Resubmit-specific rule: the bib is frozen, so
+`citation-replaced` is NOT a legal fix-type here — citation obligations get a
+human-signed `waive` or escalate to relax the bib freeze. If opted in
+(re-check the CURRENT `$ARGUMENTS`, not conversation memory), the Overleaf
+push additionally requires
+`python3 "$GATE_HELPER" fresh --paper-dir "$NEW_VENUE_DIR/" --anti-ar-commit "$ANTI_AR_COMMIT"`
+exit 0 — a
+microedit or recompile after the gate is STALE and forces the re-run.
 
 **Diff report**:
 
@@ -316,14 +334,14 @@ This goes to the user for skim-review before any export.
 
 **Overleaf push** (if `— overleaf-target: <project-id>` was passed):
 
-Defer entirely to `/overleaf-sync setup` and `/overleaf-sync push`. Do **not** invent a parallel push mechanism — `/overleaf-sync setup` already handles token-stays-in-keychain (token never enters the agent), and `/overleaf-sync push` has a confirmation gate before writing to shared Overleaf state.
+Defer entirely to `$overleaf-sync setup` and `$overleaf-sync push`. Do **not** invent a parallel push mechanism — `$overleaf-sync setup` already handles token-stays-in-keychain (token never enters the agent), and `$overleaf-sync push` has a confirmation gate before writing to shared Overleaf state.
 
 ```bash
-/overleaf-sync setup $OVERLEAF_TARGET   # one-time, user confirms in their terminal
-/overleaf-sync push                      # confirmation-gated push from $NEW_VENUE_DIR
+$overleaf-sync setup $OVERLEAF_TARGET   # one-time, user confirms in their terminal
+$overleaf-sync push                      # confirmation-gated push from $NEW_VENUE_DIR
 ```
 
-If `overleaf-target` is not provided, skip Overleaf push and tell the user to either `/overleaf-sync setup <id>` manually or zip-export the directory.
+If `overleaf-target` is not provided, skip Overleaf push and tell the user to either `$overleaf-sync setup <id>` manually or zip-export the directory.
 
 ## Page-Shrink Heuristic
 
@@ -342,12 +360,12 @@ When Phase 0.5 or Phase 4 detects page overflow, apply this **ordered** heuristi
 Phase 2's per-round loop terminates when **all three** hold:
 
 1. **No new CRITICAL or MAJOR text-fixable findings** in the round's reviewer output (compared to the running running-deduped weakness list).
-2. **Page budget passes** — `/paper-compile` reports page count ≤ venue limit.
-3. **All audits non-blocking** — `/proof-checker`, `/paper-claim-audit`, `/citation-audit --soft-only` all return `verdict ∈ {PASS, NOT_APPLICABLE}` (not `WARN/FAIL/BLOCKED/ERROR`).
+2. **Page budget passes** — `$paper-compile` reports page count ≤ venue limit.
+3. **All audits non-blocking** — `$proof-checker`, `$paper-claim-audit`, `$citation-audit --soft-only` all return `verdict ∈ {PASS, NOT_APPLICABLE}` (not `WARN/FAIL/BLOCKED/ERROR`).
 
 If after `ROUNDS` (default 2) any of (1)/(2)/(3) is still failing, emit a checkpoint to the user asking whether to continue with an extra round (not auto-extend). The user explicitly approving an extra round overrides the default-2 cap.
 
-This pattern is borrowed from `/rebuttal` Phase 7's "terminate when no new substantive issues" — the same shape works for resubmit.
+This pattern is borrowed from `$rebuttal` Phase 7's "terminate when no new substantive issues" — the same shape works for resubmit.
 
 ## Master `RESUBMIT_REPORT.md` Ledger
 
@@ -355,6 +373,7 @@ Every resubmit run writes one master report at `$NEW_VENUE_DIR/RESUBMIT_REPORT.{
 
 - Source dir, target venue, target style files used, run start / end timestamps
 - Pointers to all artifacts: `BASELINE.md`, `PROOF_AUDIT.json`, `PAPER_CLAIM_AUDIT.json`, `CITATION_AUDIT.json`, `KNOWN_WEAKNESSES.md`, `PAPER_IMPROVEMENT_LOG.md`, `KILL_ARGUMENT.json`, `COMPILE_REPORT.json`, `DIFF_REPORT.md`
+- If forensics was opted in: the gate decision from `.aris/forensics/gate.json` **plus every OPEN obligation verbatim** — a `WARN` that passes `fresh` still carries findings awaiting human disposition; they must appear here, never silently drop out
 - SHA256 hashes of every input file consumed (for `verify_paper_audits.sh` compatibility)
 - All thread IDs (Phase 1 audits + Phase 2 reviewer rounds + Phase 3 kill-argument's two threads)
 - `audit_skill: resubmit-pipeline`, `verdict ∈ {PASS, WARN, FAIL, NOT_APPLICABLE, BLOCKED, ERROR}`, `reason_code: <one of the listed codes>`
@@ -372,7 +391,7 @@ The skill emits one of 7 verdicts (the 6 from the assurance contract + a `USER_D
 | `PASS` | `clean_resubmit` | All gates passed; final PDF compiled at venue limit | Submit |
 | `WARN` | `partially_addressed_concerns` | All MUST-FIX gates passed but some `KNOWN_WEAKNESSES` remain unaddressable | User reviews unaddressed list; submits with awareness |
 | `FAIL` | `kill_argument_unresolved_critical` | Phase 3 surfaces a `still_unresolved` critical finding that cannot be fixed under text-only constraints | User decides: relax constraints, escalate to framework change, or pick different venue |
-| `NOT_APPLICABLE` | `not_a_resubmit` | The skill detects no prior reviews in `--review-corpus` or the directory looks like a fresh draft | User uses `/paper-writing` instead |
+| `NOT_APPLICABLE` | `not_a_resubmit` | The skill detects no prior reviews in `--review-corpus` or the directory looks like a fresh draft | User uses `$paper-writing` instead |
 | `USER_DECISION` | `awaiting_phase_<N>_checkpoint` | Skill paused at a Phase 0.5 anonymity-fix checkpoint, Phase 2 round-end diff gate, Phase 3 escalation queue, or Phase 4 page-shrink approval | User responds to the checkpoint prompt; skill resumes with the user's decision recorded in the master ledger |
 | `BLOCKED` | `phase_0_setup_blocked` | New venue dir already exists, or template files not found | User resolves the conflict; rerun |
 | `BLOCKED` | `phase_0_5_compile_failed` | Initial compile fails on new venue's style | User fixes compile error before audits run |
@@ -393,7 +412,7 @@ The skill emits one of 7 verdicts (the 6 from the assurance contract + a `USER_D
 - **Convergence criteria are fixed.** Default is 2 rounds; a 3rd round requires explicit user approval at the round-2 checkpoint. The loop does not auto-extend.
 - **Anonymity scan is 5-layer.** Surface identifiers, self-citation phrasing, acknowledgments, cross-rebuttal references, internal codenames — not just `grep author surnames`.
 - **Phase 3 (kill-argument) is residual-risk reporting, not auto-rewrite.** Adjudicator's `still_unresolved` critical points may need user escalation, not blind extra-round triggering.
-- **Overleaf push defers to `/overleaf-sync`.** Don't invent a parallel mechanism.
+- **Overleaf push defers to `$overleaf-sync`.** Don't invent a parallel mechanism.
 - **Master `RESUBMIT_REPORT.md` ledger is mandatory** at `assurance: submission`.
 
 ## Output Contract
@@ -417,11 +436,11 @@ The new venue dir is **the** deliverable; the prior venue dir is untouched.
 
 ## Review Tracing
 
-Every Codex MCP reviewer call across all phases saves traces per `shared-references/review-tracing.md` to `<NEW_VENUE_DIR>/.aris/traces/<phase-name>/<date>_run<NN>/`. Both threads of `/kill-argument` are preserved separately. The master `RESUBMIT_REPORT.json` `trace_path` field points to the top-level traces directory.
+Every Codex subagent capability reviewer call across all phases saves traces per `shared-references/review-tracing.md` to `<NEW_VENUE_DIR>/.aris/traces/<phase-name>/<date>_run<NN>/`. Both threads of `$kill-argument` are preserved separately. The master `RESUBMIT_REPORT.json` `trace_path` field points to the top-level traces directory.
 
 ## Notes
 
-- This skill orchestrates several existing skills (proof-checker, paper-claim-audit, citation-audit, auto-paper-improvement-loop, kill-argument, paper-compile, overleaf-sync) plus uses two recently-added parameters (`/auto-paper-improvement-loop --edit-whitelist`, `/citation-audit --soft-only`). Make sure those parameters resolve to the current SKILL.md versions before relying on the resubmit pipeline.
-- The 5-layer anonymity scan is intentionally more thorough than `/paper-compile`'s generic self-citation warning, because resubmit-mode often inherits camera-ready text from a non-double-blind venue going to a double-blind venue.
+- This skill orchestrates several existing skills (proof-checker, paper-claim-audit, citation-audit, auto-paper-improvement-loop, kill-argument, paper-compile, overleaf-sync) plus uses two recently-added parameters (`$auto-paper-improvement-loop --edit-whitelist`, `$citation-audit --soft-only`). Make sure those parameters resolve to the current SKILL.md versions before relying on the resubmit pipeline.
+- The 5-layer anonymity scan is intentionally more thorough than `$paper-compile`'s generic self-citation warning, because resubmit-mode often inherits camera-ready text from a non-double-blind venue going to a double-blind venue.
 - Page-shrink heuristic is ordered (compress conclusion → tighten hedging → move marginal figures → move proof sketches → compress related-work prose). The order is calibrated to "least risky to most risky" — compressing conclusion is mostly editorial; moving proof sketches changes the reading flow. Stop as early as page limit is met.
 - `RESUBMIT_REPORT.json` schema follows `shared-references/assurance-contract.md` exactly. This makes resubmit runs forensically reproducible. **Note**: `verify_paper_audits.sh` does not currently include `RESUBMIT_REPORT.json` in its `MANDATORY_AUDITS` list (the verifier checks proof / paper-claim / citation / kill-argument). The 4 mandatory audit files consumed by resubmit (which DO live in `<NEW_VENUE_DIR>/`) are recognized by the verifier as usual; `RESUBMIT_REPORT.json` is the orchestrator's own ledger and is not yet a verifier mandatory artifact. Adding it to the verifier is a separate follow-up if the user wants resubmit to be a submission gate via the verifier.

@@ -1,8 +1,6 @@
 ---
 name: overleaf-sync
-description: "Two-way sync between a local paper directory and an Overleaf project, so ARIS audit/edit workflows stay on the local copy while collaborators edit in the Overleaf web UI. Use when user says \"同步 overleaf\", \"overleaf sync\", \"推送到 overleaf\", \"connect overleaf\", \"Overleaf 桥接\", \"pull overleaf\", \"push overleaf\", or wants to bridge their ARIS paper directory with an Overleaf project."
-argument-hint: [setup <project-id> | pull | push | status]
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write
+description: Two-way sync between a local paper directory and an Overleaf project, so ARIS audit/edit workflows stay on the local copy while collaborators edit in the Overleaf web UI. Use when user says "同步 overleaf", "overleaf sync", "推送到 overleaf", "connect overleaf", "Overleaf 桥接", "pull overleaf", "push overleaf", or wants to bridge their ARIS paper directory with an Overleaf project.
 ---
 
 # Overleaf Sync
@@ -10,7 +8,7 @@ allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write
 Bridge a local paper directory with an Overleaf project so that:
 
 - **You** can keep editing in the Overleaf web UI (or share editing access with collaborators)
-- **ARIS** can read your changes, run audits (`/paper-claim-audit`, `/citation-audit`, `/auto-paper-improvement-loop`), and push fixes back
+- **ARIS** can read your changes, run audits (`$paper-claim-audit`, `$citation-audit`, `$auto-paper-improvement-loop`), and push fixes back
 
 This uses the official **Overleaf Git bridge** (Premium feature). The agent **never sees your authentication token** — you do the one-time auth manually so the token lives in macOS Keychain, not in chat history or `.git/config`.
 
@@ -56,7 +54,7 @@ The agent's only role here is to print the user instruction:
 ```
 Run this in your own terminal (NOT through me):
 
-    bash <ARIS_REPO>/tools/overleaf_setup.sh <project-id-or-url>
+    bash .agents/skills/overleaf-sync/scripts/overleaf_setup.sh <project-id-or-url>
 
 When it finishes, tell me "setup done" and I'll verify.
 ```
@@ -69,7 +67,7 @@ git remote -v                    # must show URL WITHOUT token
 git config --get credential.helper
 git fetch && git log --oneline -3   # must succeed without prompting
 ls .git/hooks/pre-commit         # must exist
-bash <ARIS_REPO>/tools/overleaf_audit.sh .   # must report "Audit clean"
+bash ../.agents/skills/overleaf-sync/scripts/overleaf_audit.sh .   # must report "Audit clean"
 ```
 
 If `paper-overleaf/` exists but is empty (new Overleaf project), the agent then mirrors local `paper/` into it (see `push` workflow).
@@ -90,16 +88,16 @@ git diff $LAST..HEAD -- 'sec/*.tex'        # detailed view for prose changes
 - **Half-finished sentences** (collaborator clicked save mid-thought)
 - **Typos** that aren't in canonical references (`Lrage` for `Large`)
 - **Commented-out blocks** that may be intentional or may be a stash
-- **Number changes** that should re-trigger `/paper-claim-audit`
-- **Cite key changes** that should re-trigger `/citation-audit`
+- **Number changes** that should re-trigger `$paper-claim-audit`
+- **Cite key changes** that should re-trigger `$citation-audit`
 
 For each diff hunk, decide one of:
 
 | Hunk character | Action |
 |----------------|--------|
 | Clean editorial improvement | Sync into `paper/`, no audit needed |
-| Numerical / claim change | Sync, then re-run `/paper-claim-audit` |
-| New `\cite{...}` | Sync, then re-run `/citation-audit` |
+| Numerical / claim change | Sync, then re-run `$paper-claim-audit` |
+| New `\cite{...}` | Sync, then re-run `$citation-audit` |
 | Half-sentence / obvious typo | Flag to user, do NOT auto-sync |
 | New section / restructure | Stop, ask user before syncing |
 
@@ -108,7 +106,7 @@ After deciding per-hunk:
 ```bash
 # Sync only the files the user approved into local paper/
 rsync -av paper-overleaf/sec/0.abstract.tex paper/sec/0.abstract.tex
-# (or use Edit tool for surgical changes that skip half-sentences)
+# (or use file-editing capability for surgical changes that skip half-sentences)
 ```
 
 ### `push` — after local editing
@@ -201,8 +199,8 @@ Behavioral rules (still apply, but secondary):
 
 The single biggest source of pain in two-way sync is **simultaneous editing on both sides**.
 
-- If the user is in an active Overleaf editing session, ARIS skills should **read-only** access `paper/` until the user runs `/overleaf-sync pull`.
-- If ARIS is in the middle of `/auto-paper-improvement-loop` or `/paper-write`, the user should pause Overleaf editing until the loop finishes and `/overleaf-sync push` is run.
+- If the user is in an active Overleaf editing session, ARIS skills should **read-only** access `paper/` until the user runs `$overleaf-sync pull`.
+- If ARIS is in the middle of `$auto-paper-improvement-loop` or `$paper-write`, the user should pause Overleaf editing until the loop finishes and `$overleaf-sync push` is run.
 
 When in doubt, run `status` first.
 
@@ -214,7 +212,7 @@ When in doubt, run `status` first.
 
 ## See Also
 
-- `/paper-claim-audit` — re-run after pulling Overleaf changes that touch numbers
-- `/citation-audit` — re-run after pulling Overleaf changes that add/edit `\cite{...}`
-- `/paper-compile` — local LaTeX build; Overleaf compiles independently in the cloud
+- `$paper-claim-audit` — re-run after pulling Overleaf changes that touch numbers
+- `$citation-audit` — re-run after pulling Overleaf changes that add/edit `\cite{...}`
+- `$paper-compile` — local LaTeX build; Overleaf compiles independently in the cloud
 - Overleaf Git bridge docs: https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub

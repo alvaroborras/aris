@@ -1,13 +1,11 @@
 ---
 name: exa-search
 description: AI-powered web search via Exa with content extraction. Use when user says "exa search", "web search with content", "find similar pages", or needs broad web results beyond academic databases (arXiv, Semantic Scholar).
-argument-hint: [search-query-or-url]
-allowed-tools: Bash(*), Read, Write
 ---
 
 # Exa AI-Powered Web Search
 
-Search query: $ARGUMENTS
+Search query: the user's request
 
 ## Role & Positioning
 
@@ -15,10 +13,10 @@ Exa is the **broad web search** source with built-in content extraction:
 
 | Skill | Best for |
 |------|----------|
-| `/arxiv` | Direct preprint search and PDF download |
-| `/semantic-scholar` | Published venue papers (IEEE, ACM, Springer), citation counts |
-| `/deepxiv` | Layered reading: search, brief, section map, section reads |
-| `/exa-search` | Broad web search: blogs, docs, news, companies, research papers — with content extraction |
+| `$arxiv` | Direct preprint search and PDF download |
+| `$semantic-scholar` | Published venue papers (IEEE, ACM, Springer), citation counts |
+| `$deepxiv` | Layered reading: search, brief, section map, section reads |
+| `$exa-search` | Broad web search: blogs, docs, news, companies, research papers — with content extraction |
 
 Use Exa when you need results beyond academic databases, or when you want content (highlights, full text, summaries) extracted alongside search results.
 
@@ -27,18 +25,18 @@ Use Exa when you need results beyond academic databases, or when you want conten
 - **EXA_FETCHER** — canonical name `exa_search.py`, resolved per
   [`shared-references/integration-contract.md`](../shared-references/integration-contract.md) §2
   (Codex-side chain: `$ARIS_REPO/tools/` → `tools/` → `~/.codex/skills/exa-search/`).
-  Policy D1 — standalone `/exa-search` has no documented fallback,
+  Policy D1 — standalone `$exa-search` has no documented fallback,
   so unresolved helper terminates with an explicit error.
 - **MAX_RESULTS = 10** — Default number of results to return.
 
 > Overrides (append to arguments):
-> - `/exa-search "RAG pipelines" — max: 5` — top 5 results
-> - `/exa-search "diffusion models" — category: research paper` — research papers only
-> - `/exa-search "startup funding" — category: news, start date: 2025-01-01` — recent news
-> - `/exa-search "transformer" — content: text, max chars: 8000` — full text mode
-> - `/exa-search "transformer" — content: summary` — LLM-generated summaries
-> - `/exa-search "transformer" — domains: arxiv.org,huggingface.co` — domain filter
-> - `/exa-search "https://arxiv.org/abs/2301.07041" — similar` — find similar pages
+> - `$exa-search "RAG pipelines" — max: 5` — top 5 results
+> - `$exa-search "diffusion models" — category: research paper` — research papers only
+> - `$exa-search "startup funding" — category: news, start date: 2025-01-01` — recent news
+> - `$exa-search "transformer" — content: text, max chars: 8000` — full text mode
+> - `$exa-search "transformer" — content: summary` — LLM-generated summaries
+> - `$exa-search "transformer" — domains: arxiv.org,huggingface.co` — domain filter
+> - `$exa-search "https://arxiv.org/abs/2301.07041" — similar` — find similar pages
 
 ## Setup
 
@@ -59,7 +57,7 @@ Get a key from [exa.ai](https://exa.ai).
 
 ### Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` for:
+Parse `the user's request` for:
 - **query**: The search query (required) or a URL (for `find-similar` mode)
 - **similar**: If present, use `find-similar` mode instead of search
 - **max**: Override MAX_RESULTS
@@ -189,4 +187,4 @@ handwrite `papers/<slug>.md`**. See
 - Default to `highlights` content mode for a good balance of speed and context
 - Use `category: "research paper"` when the user is clearly looking for academic content
 - Use `text` content mode when the user needs full page content
-- Combine with `/arxiv` or `/semantic-scholar` for comprehensive literature coverage
+- Combine with `$arxiv` or `$semantic-scholar` for comprehensive literature coverage

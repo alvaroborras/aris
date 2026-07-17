@@ -1,11 +1,11 @@
 ---
-name: "arxiv"
-description: "Search, download, and summarize academic papers from arXiv. Use when user says \"search arxiv\", \"download paper\", \"fetch arxiv\", \"arxiv search\", \"get paper pdf\", or wants to find and save papers from arXiv to the local paper library."
+name: arxiv
+description: Search, download, and summarize academic papers from arXiv. Use when user says "search arxiv", "download paper", "fetch arxiv", "arxiv search", "get paper pdf", or wants to find and save papers from arXiv to the local paper library.
 ---
 
 # arXiv Paper Search & Download
 
-Search topic or arXiv paper ID: $ARGUMENTS
+Search topic or arXiv paper ID: the user's request
 
 ## Constants
 
@@ -17,16 +17,16 @@ Search topic or arXiv paper ID: $ARGUMENTS
   Policy D1 — if unresolved (canonical chain exhausted), fall back to inline Python.
 
 > Overrides (append to arguments):
-> - `/arxiv "attention mechanism" - max: 20` - return up to 20 results
-> - `/arxiv "2301.07041" - download` - download a specific paper by ID
-> - `/arxiv "query" - dir: literature/` - save PDFs to a custom directory
-> - `/arxiv "query" - download: all` - download all result PDFs
+> - `$arxiv "attention mechanism" - max: 20` - return up to 20 results
+> - `$arxiv "2301.07041" - download` - download a specific paper by ID
+> - `$arxiv "query" - dir: literature/` - save PDFs to a custom directory
+> - `$arxiv "query" - download: all` - download all result PDFs
 
 ## Workflow
 
 ### Step 1: Parse Arguments
 
-Parse `$ARGUMENTS` for directives:
+Parse `the user's request` for directives:
 
 - **Query or ID**: main search term or a bare arXiv ID such as `2301.07041` or `cs/0601001`
 - **`- max: N`**: override MAX_RESULTS (e.g., `- max: 20`)
@@ -195,8 +195,8 @@ Summarize what was done:
 Suggest follow-up skills:
 
 ```text
-/research-lit "topic"     - multi-source review: Zotero + Obsidian + local PDFs + web
-/novelty-check "idea"     - verify your idea is novel against these papers
+$research-lit "topic"     - multi-source review: Zotero + Obsidian + local PDFs + web
+$novelty-check "idea"     - verify your idea is novel against these papers
 ```
 
 ## Key Rules
@@ -207,4 +207,4 @@ Suggest follow-up skills:
 - Never overwrite an existing PDF at the same path - skip it and report "already exists"
 - Handle both arXiv ID formats: new (`2301.07041`) and old (`cs/0601001`)
 - PAPER_DIR is created automatically if it does not exist
-- If the arXiv API is unreachable, report the error clearly and suggest using `/research-lit` with `- sources: web` as a fallback
+- If the arXiv API is unreachable, report the error clearly and suggest using `$research-lit` with `- sources: web` as a fallback

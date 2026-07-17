@@ -1,11 +1,11 @@
 ---
-name: "novelty-check"
-description: "Verify research idea novelty against recent literature. Use when user says \"\u67e5\u65b0\", \"novelty check\", \"\u6709\u6ca1\u6709\u4eba\u505a\u8fc7\", \"check novelty\", or wants to verify a research idea is novel before implementing."
+name: novelty-check
+description: Verify research idea novelty against recent literature. Use when user says "查新", "novelty check", "有没有人做过", "check novelty", or wants to verify a research idea is novel before implementing.
 ---
 
 # Novelty Check Skill
 
-Check whether a proposed method/idea has already been done in the literature: **$ARGUMENTS**
+Check whether a proposed method/idea has already been done in the literature: **the user's request**
 
 ## Constants
 
@@ -27,7 +27,7 @@ Given a method description, systematically verify its novelty:
 ### Phase B: Multi-Source Literature Search
 For EACH core claim, search using ALL available sources:
 
-1. **Web Search** (via `WebSearch`):
+1. **Web Search** (via `web search`):
    - Search arXiv, Google Scholar, Semantic Scholar
    - Use specific technical terms from the claim
    - Try at least 3 different query formulations per claim
@@ -37,7 +37,7 @@ For EACH core claim, search using ALL available sources:
    - ICLR 2025/2026, NeurIPS 2025, ICML 2025/2026
    - Recent arXiv preprints (2025-2026)
 
-3. **Read abstracts**: For each potentially overlapping paper, WebFetch its abstract and related work section
+3. **Read abstracts**: For each potentially overlapping paper, web page fetch its abstract and related work section
 
 ### Phase C: Fresh-Agent Verification (same-family provisional by default)
 Call REVIEWER_MODEL via `spawn_agent` (`spawn_agent`) with xhigh reasoning:

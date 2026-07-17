@@ -1,5 +1,14 @@
 # Compute Environment Contract
 
+## Contents
+
+- [1. Provider shapes — recognize, don't choose](#1-provider-shapes-recognize-dont-choose)
+- [2. The declarative spec (write WHAT once; render per provider)](#2-the-declarative-spec-write-what-once-render-per-provider)
+- [3. The environment ledger (content-hash = mechanical staleness)](#3-the-environment-ledger-content-hash-mechanical-staleness)
+- [4. Validation — three tiers; the gap between them is where debugging lives](#4-validation-three-tiers-the-gap-between-them-is-where-debugging-lives)
+- [5. Diagnosis table (symptom → layer → fix)](#5-diagnosis-table-symptom-layer-fix)
+- [How compute skills use this](#how-compute-skills-use-this)
+
 > One declarative spec for what an environment IS; per-provider knowledge for
 > how it gets built HERE; a content-hash ledger so "did the env change?" has a
 > mechanical answer; and a three-tier validation ladder whose top tier is a
@@ -8,8 +17,8 @@
 > proprietary `host.*` runtime — everything here runs on plain bash + SSH +
 > subagents.
 
-Every ARIS compute skill (`/run-experiment`, `/experiment-queue`,
-`/serverless-modal`, `/vast-gpu`, `/qzcli`) needs the same three things for a
+Every ARIS compute skill (`$run-experiment`, `$experiment-queue`,
+`$serverless-modal`, `$vast-gpu`, `$qzcli`) needs the same three things for a
 job: a software stack (exact versions, often with load-bearing install order),
 possibly large weights placed where the tool looks, and a resource shape. What
 varies per provider is only HOW those materialize. Without a shared contract,
@@ -25,8 +34,8 @@ already is. The shape determines what "build", "register", and "resolve" mean.
 | Shape | ARIS examples | Build = | Env name resolves to |
 |---|---|---|---|
 | **Direct SSH host** (conda/venv) | personal GPU boxes, lab servers | YOU are the renderer: `conda create -n <name> python=<X>`, then run `pip_phases` in order | the conda env name itself (`conda run -n <name> …`) |
-| **Scheduler cluster** (Slurm/PBS; Qizhi-like platforms) | `/qzcli` targets | `module load` or a container image built OFF-cluster and pulled (compute nodes often have **no internet** — pre-stage everything) | scheduler directives + container path in shared scratch (mind purge windows) |
-| **Managed API** (serverless) | `/serverless-modal`, Vast.ai templates | the provider's image definition (Modal `Image`, Vast template) — render the same spec into it | the provider's opaque image ref, recorded in the ledger |
+| **Scheduler cluster** (Slurm/PBS; Qizhi-like platforms) | `$qzcli` targets | `module load` or a container image built OFF-cluster and pulled (compute nodes often have **no internet** — pre-stage everything) | scheduler directives + container path in shared scratch (mind purge windows) |
+| **Managed API** (serverless) | `$serverless-modal`, Vast.ai templates | the provider's image definition (Modal `Image`, Vast template) — render the same spec into it | the provider's opaque image ref, recorded in the ledger |
 
 ## 2. The declarative spec (write WHAT once; render per provider)
 

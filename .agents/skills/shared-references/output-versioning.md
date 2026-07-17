@@ -1,5 +1,14 @@
 # Output Versioning Protocol
 
+## Contents
+
+- [Directory Structure](#directory-structure)
+- [What to Timestamp](#what-to-timestamp)
+- [What NOT to Timestamp](#what-not-to-timestamp)
+- [Path Fallback Rule (Backward Compatibility)](#path-fallback-rule-backward-compatibility)
+- [Migration for Existing Projects](#migration-for-existing-projects)
+- [Stale State Detection](#stale-state-detection)
+
 When writing any output file that would overwrite an existing file, use timestamped filename + fixed-name latest copy:
 
 1. Write output to timestamped file: `{FILENAME}_{YYYYMMDD_HHmmss}.md` (or `.json`, `.tex` as appropriate)

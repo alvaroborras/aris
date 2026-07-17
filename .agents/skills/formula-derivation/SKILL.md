@@ -1,8 +1,6 @@
 ---
 name: formula-derivation
 description: Structures and derives research formulas when the user wants to 推导公式, build a theory line, organize assumptions, turn scattered equations into a coherent derivation, or rewrite theory notes into a paper-ready formula document. Use when the derivation target is not yet fully fixed, the main object still needs to be chosen, or the user needs a coherent derivation package rather than a finished theorem proof.
-argument-hint: [problem-goal-current-formulas-or-notes]
-allowed-tools: Read, Write, Edit, Grep, Glob
 ---
 
 # Formula Derivation: Research Theory Line Construction
@@ -14,7 +12,7 @@ Build an honest derivation package, not a fake polished theorem story.
 - DEFAULT_DERIVATION_DOC = `DERIVATION_PACKAGE.md` in project root
 - STATUS = `COHERENT AS STATED | COHERENT AFTER REFRAMING / EXTRA ASSUMPTION | NOT YET COHERENT`
 
-## Context: $ARGUMENTS
+## Context: the user's request
 
 ## Goal
 

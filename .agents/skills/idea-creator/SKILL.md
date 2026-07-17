@@ -1,15 +1,15 @@
 ---
-name: "idea-creator"
-description: "Generate and rank research ideas given a broad direction. Use when user says \"\u627eidea\", \"brainstorm ideas\", \"generate research ideas\", \"what can we work on\", or wants to explore a research area for publishable directions."
+name: idea-creator
+description: Generate and rank research ideas given a broad direction. Use when user says "找idea", "brainstorm ideas", "generate research ideas", "what can we work on", or wants to explore a research area for publishable directions.
 ---
 
 # Research Idea Creator
 
-Generate publishable research ideas for: $ARGUMENTS
+Generate publishable research ideas for: the user's request
 
 ## Overview
 
-Given a broad research direction from the user, systematically generate, validate, and rank concrete research ideas. Standalone, Phase 1's landscape survey is **inline** (WebSearch — it does not invoke `/research-lit`); Phases 4-5 invoke `/novelty-check`, `/run-experiment`, and `/monitor-experiment` for validation and pilots. For the full sub-skill pipeline (`/research-lit` → idea generation → `/novelty-check` → `/research-review`), run `/idea-discovery` (Workflow 1), which orchestrates this skill.
+Given a broad research direction from the user, systematically generate, validate, and rank concrete research ideas. Standalone, Phase 1's landscape survey is **inline** (web search — it does not invoke `$research-lit`); Phases 4-5 invoke `$novelty-check`, `$run-experiment`, and `$monitor-experiment` for validation and pilots. For the full sub-skill pipeline (`$research-lit` → idea generation → `$novelty-check` → `$research-review`), run `$idea-discovery` (Workflow 1), which orchestrates this skill.
 
 ## Constants
 
@@ -21,7 +21,7 @@ Given a broad research direction from the user, systematically generate, validat
 - **REVIEWER_BACKEND = `codex`** — Default: Codex xhigh reviewer through `spawn_agent` / `send_input`. Use `--reviewer: oracle-pro` only when explicitly requested; if Oracle is unavailable, warn and fall back to Codex xhigh.
 - **OUTPUT_DIR = `idea-stage/`** — All idea-stage outputs go here. Create the directory if it doesn't exist.
 
-> 💡 Override via argument, e.g., `/idea-creator "topic" — pilot budget: 4h per idea, 20h total`.
+> 💡 Override via argument, e.g., `$idea-creator "topic" — pilot budget: 4h per idea, 20h total`.
 
 ## Workflow
 
@@ -76,7 +76,7 @@ Map the research area to understand what exists and where the gaps are.
 
 1. **Scan local paper library first**: Check `papers/` and `literature/` in the project directory for existing PDFs. Read first 3 pages of relevant papers to build a baseline understanding before searching online. This avoids re-discovering what the user already knows.
 
-2. **Search recent literature** using WebSearch:
+2. **Search recent literature** using web search:
    - Top venues in the last 2 years (NeurIPS, ICML, ICLR, ACL, EMNLP, etc.)
    - Recent arXiv preprints (last 6 months)
    - Use 5+ different query formulations
@@ -152,7 +152,7 @@ Save a Review Tracing record for this `spawn_agent` call following `../shared-re
 
 2. **Novelty signal — ANNOTATE, do not eliminate**: do 2-3 targeted searches
    and attach a `prior_work` note (what looks related, with links). This is
-   input for the Phase-4 reviewer, not a filter; full `/novelty-check` runs in
+   input for the Phase-4 reviewer, not a filter; full `$novelty-check` runs in
    Phase 4. Do NOT drop an idea here because it "might already be done."
 
 3. **Impact signal — ANNOTATE, do not eliminate**: attach a one-line `so_what`
@@ -168,7 +168,7 @@ quality/novelty narrowing.
 
 For each surviving idea, run a deeper evaluation:
 
-1. **Novelty check**: Use the `/novelty-check` workflow (multi-source search + GPT-5.6-Sol cross-verification) for each idea
+1. **Novelty check**: Use the `$novelty-check` workflow (multi-source search + GPT-5.6-Sol cross-verification) for each idea
 
 2. **Critical review**: Use GPT-5.6-Sol via `send_input` (same agent):
    ```text
@@ -197,15 +197,15 @@ Before committing to a full research effort, run cheap pilot experiments to get 
    - **Estimate GPU-hours BEFORE launching.** If estimated time > PILOT_MAX_HOURS, reduce scale (fewer epochs, smaller subset) or flag as "needs manual pilot"
    - Clear success metric defined upfront (e.g., "if metric improves by > 1%, signal is positive")
 
-2. **Deploy in parallel**: Use `/run-experiment` to launch pilots on different GPUs simultaneously:
+2. **Deploy in parallel**: Use `$run-experiment` to launch pilots on different GPUs simultaneously:
    ```
    GPU 0: Pilot for Idea 1
    GPU 1: Pilot for Idea 2
    GPU 2: Pilot for Idea 3
    ```
-   Use `run_in_background: true` to launch all at once.
+   Launch independent pilots concurrently through separate yielded terminal sessions.
 
-3. **Collect results**: Use `/monitor-experiment` to check progress. If any pilot exceeds PILOT_TIMEOUT_HOURS, kill it and collect partial results. Once all pilots complete (or timeout), compare:
+3. **Collect results**: Use `$monitor-experiment` to check progress. If any pilot exceeds PILOT_TIMEOUT_HOURS, kill it and collect partial results. Once all pilots complete (or timeout), compare:
    - Which ideas showed positive signal?
    - Which showed null/negative results? (eliminate or deprioritize)
    - Any surprising findings that suggest a pivot?
@@ -270,7 +270,7 @@ Write a structured report to `idea-stage/IDEA_REPORT.md`:
 
 ## Next Steps
 - [ ] Scale up Idea 1 to full experiment (multi-seed, full dataset)
-- [ ] If confirmed, invoke /auto-review-loop for full iteration
+- [ ] If confirmed, invoke $auto-review-loop for full iteration
 ```
 
 ## Phase 7: Write Ideas to Research Wiki (if active)
@@ -284,9 +284,9 @@ markdown — so **every generation, including a re-run with updated constraints,
 reliably** (one helper call per idea, not a prose step the model can skip). `upsert_idea`
 writes the page, wires the `inspired_by`/`addresses_gap` edges, and rebuilds index +
 query_pack in a single call. Default **skip-on-exist**: a re-ideation run records NEW
-ideas without clobbering an existing idea whose `outcome` `/result-to-claim` may already
+ideas without clobbering an existing idea whose `outcome` `$result-to-claim` may already
 have enriched. `--outcome` stays `pending` at creation (the experiment verdict is set
-later by `/result-to-claim`, never guessed here). If `WIKI_SCRIPT` is unavailable, the
+later by `$result-to-claim`, never guessed here). If `WIKI_SCRIPT` is unavailable, the
 ideas are NOT recorded and a single WARN is reported (fix: install ARIS `research_wiki.py`).
 
 ```text
@@ -321,7 +321,7 @@ See [`output-composition.md`](../shared-references/output-composition.md).
 
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
+- **Large file handling**: If an edit is too large, apply it in smaller reviewable patches.
 
 - The user provides a DIRECTION, not an idea. Your job is to generate the ideas.
 - Quantity first, quality second: brainstorm broadly, then filter ruthlessly.
@@ -336,12 +336,12 @@ See [`output-composition.md`](../shared-references/output-composition.md).
 
 After this skill produces the ranked report:
 ```
-/idea-creator "direction"     → ranked ideas
-/novelty-check "top idea"     → deep novelty verification (already done in Phase 4, but user can re-run)
-/research-review "top idea"   → external critical feedback
+$idea-creator "direction"     → ranked ideas
+$novelty-check "top idea"     → deep novelty verification (already done in Phase 4, but user can re-run)
+$research-review "top idea"   → external critical feedback
 implement                     → write code
-/run-experiment               → deploy to GPU
-/auto-review-loop             → iterate until submission-ready
+$run-experiment               → deploy to GPU
+$auto-review-loop             → iterate until submission-ready
 ```
 
 ## Review Tracing
